@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Any Questions? • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/silence.html" class="underline text-brand-terracotta">Silence = No Questions?</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">“Any Questions?”</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Twenty students, all with a question. The number on each seat is how many others have to ask first before that person dares to. Nobody needs zero, so the room stays silent.
+              </p>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-5 gap-2 sm:gap-3 max-w-lg mx-auto" id="room-grid"></div>
+
+            <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" id="room-ask" onclick="roomAsk()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">🙋 One brave question</button>
+              <button type="button" id="room-reset" onclick="roomReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ Silence again</button>
+              <span id="room-count" class="font-mono text-white/80 ml-1"></span>
+            </div>
+            <p id="room-note" class="relative z-10 text-xs sm:text-sm text-white/75 leading-relaxed min-h-[2.5rem]"></p>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // "ANY QUESTIONS?" A THRESHOLD MODEL (GRANOVETTER)
+    // ==========================================
+    // Every student has a question; the number is how many others must ask first.
+    const ROOM_T = [1, 4, 12, 2, 7, 1, 18, 3, 9, 5, 25, 2, 14, 6, 1, 10, 3, 16, 8, 5];
+    const ROOM_FIRST = 0;   // the one who asks anyway
+    let roomAsked = new Set();
+    let roomBusy = false;
+
+    function roomRender() {
+      document.getElementById('room-grid').innerHTML = ROOM_T.map((t, i) => {
+        const asked = roomAsked.has(i);
+        return `<div class="aspect-square rounded-xl border ${asked ? 'border-brand-coral bg-brand-terracotta/80' : 'border-white/15 bg-white/5'} flex flex-col items-center justify-center transition-colors duration-300">
+          <div class="text-lg sm:text-2xl leading-none">${asked ? '🙋' : '🤔'}</div>
+          <div class="text-[10px] sm:text-xs font-mono ${asked ? 'text-white' : 'text-white/55'}">${i === ROOM_FIRST && asked ? 'first' : 'needs ' + t}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('room-count').textContent = `Questions asked: ${roomAsked.size} of ${ROOM_T.length}`;
+      document.getElementById('room-ask').disabled = roomBusy || roomAsked.size > 0;
+      document.getElementById('room-ask').classList.toggle('opacity-40', roomBusy || roomAsked.size > 0);
+    }
+
+    function roomReset() {
+      if (roomBusy) return;
+      roomAsked = new Set();
+      document.getElementById('room-note').textContent = 'Nobody needs zero others to go first, so nobody asks. The professor moves on.';
+      roomRender();
+    }
+
+    function roomAsk() {
+      if (roomBusy || roomAsked.size) return;
+      roomBusy = true;
+      roomAsked.add(ROOM_FIRST);
+      roomRender();
+      let round = 1;
+      const step = () => {
+        const n = roomAsked.size;
+        const next = ROOM_T.map((t, i) => i).filter(i => !roomAsked.has(i) && ROOM_T[i] <= n);
+        if (!next.length) {
+          roomBusy = false;
+          const left = ROOM_T.length - roomAsked.size;
+          document.getElementById('room-note').textContent = left
+            ? `One question, and ${roomAsked.size} of ${ROOM_T.length} students asked. ${left === 1 ? 'Only one would have needed' : left + ' would have needed'} more courage than the room could give.`
+            : 'One question, and the whole room asked.';
+          roomRender();
+          return;
+        }
+        next.forEach(i => roomAsked.add(i));
+        document.getElementById('room-note').textContent = `Round ${round}: ${next.length} more ${next.length === 1 ? 'student dares' : 'students dare'} to ask, because ${n} already did.`;
+        round++;
+        roomRender();
+        setTimeout(step, 900);
+      };
+      document.getElementById('room-note').textContent = 'One student asks anyway.';
+      setTimeout(step, 900);
+    }
+
+    roomReset();
+  </script>
+</body>
+</html>

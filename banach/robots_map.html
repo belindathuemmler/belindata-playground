@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Robot's Map • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/banach.html" class="underline text-brand-terracotta">Robots Aiming for Banach Fixed Points</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <!-- Glow background decor -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Robot's Map</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                A robot 🤖 in a small room wants to reach its charging station 🔋. It can move up, down, left or right. Every move costs 1 battery point, bumping into a wall too; at the station it gains 2 points per tick. Before it walks, it thinks. In its head it keeps a map with one number per cell: <em>how good is it to stand here?</em> At first the map is all zeros. Each round of thinking applies the Bellman operator once: every cell looks at its best neighbour and computes \(-1 + 0.8 \cdot (\text{value of the best neighbour})\).
+              </p>
+            </div>
+
+            <!-- Room: 3x3 grid -->
+            <div class="relative z-10">
+              <div id="rm-grid" class="grid grid-cols-3 gap-1.5 sm:gap-2 max-w-md mx-auto"></div>
+              <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 pt-2 text-[11px] font-mono text-white/55">
+                <span>Big number: the robot's map</span>
+                <span>Arrows: where it would go (? = no idea yet)</span>
+                <span>Grey: the true value</span>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" id="rm-think" onclick="rmThink()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">🧠 Think one round</button>
+              <button type="button" id="rm-walk" onclick="rmWalk()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">🤖 Let the robot walk</button>
+              <button type="button" id="rm-reset" onclick="rmReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 transition-colors">↺ Reset</button>
+            </div>
+            <div id="rm-status" class="relative z-10 text-xs sm:text-sm text-white/80 min-h-[1.5rem]"></div>
+
+            <!-- Error log + explanation -->
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-2">
+                <div class="font-bold text-brand-coral font-mono text-xs uppercase tracking-wider">How wrong is the map?</div>
+                <div id="rm-errors" class="font-mono text-xs sm:text-sm space-y-1 text-white/85"></div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-2">
+                <div class="font-bold text-brand-coral font-mono text-xs uppercase tracking-wider">Why the error shrinks</div>
+                <div class="text-xs sm:text-sm leading-relaxed text-white/85 space-y-2">
+                  <p>Compare the robot's map with the truth in any cell:</p>
+                  <p class="font-mono text-white/90">map&nbsp;&nbsp;: −1 + 0.8 · V(best neighbour)<br>truth: −1 + 0.8 · V*(best neighbour)</p>
+                  <p>The −1 is the same on both sides and cancels. What remains: the new error is at most 0.8 times the largest old error. That is the contraction, and Banach turns it into a guarantee: the map converges to the truth, whatever it started with.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // THE ROBOT'S MAP: VALUE ITERATION IN A 3x3 ROOM
+    // ==========================================
+    // Cells are indexed x + 3*y with y = 0 at the bottom. Wall in the centre,
+    // charging station top middle (absorbing, +2 per tick), robot starts bottom left.
+    // Moves up/down/left/right cost -1; bumping into the wall or the edge means staying.
+    const RM_SIZE = 3;
+    const RM_GAMMA = 0.8;
+    const RM_WALL = 4;
+    const RM_STATION = 7;
+    const RM_START = 0;
+    const RM_MOVES = [
+      { arrow: '↑', dx: 0, dy: 1 },
+      { arrow: '→', dx: 1, dy: 0 },
+      { arrow: '↓', dx: 0, dy: -1 },
+      { arrow: '←', dx: -1, dy: 0 },
+    ];
+    let rmV = [], rmErrors = [], rmRound = 0;
+    let rmPos = RM_START;
+    let rmBusy = false;
+
+    function rmTarget(i, move) {
+      const x = i % RM_SIZE + move.dx, y = Math.floor(i / RM_SIZE) + move.dy;
+      if (x < 0 || y < 0 || x >= RM_SIZE || y >= RM_SIZE) return i;
+      const j = x + RM_SIZE * y;
+      return j === RM_WALL ? i : j;
+    }
+
+    const rmQ = (v, i) => RM_MOVES.map(m => -1 + RM_GAMMA * v[rmTarget(i, m)]);
+    const rmT = v => v.map((_, i) => {
+      if (i === RM_WALL) return 0;
+      if (i === RM_STATION) return 2 + RM_GAMMA * v[i];
+      return Math.max(...rmQ(v, i));
+    });
+    // Indices of the best moves in cell i (ties included)
+    function rmBest(v, i) {
+      const q = rmQ(v, i), m = Math.max(...q);
+      return q.map((val, a) => (val > m - 1e-9 ? a : -1)).filter(a => a >= 0);
+    }
+
+    const rmTruth = (() => {
+      let v = new Array(RM_SIZE * RM_SIZE).fill(0);
+      for (let k = 0; k < 2000; k++) v = rmT(v);
+      return v;
+    })();
+    const rmCells = rmTruth.map((_, i) => i).filter(i => i !== RM_WALL && i !== RM_STATION);
+    const rmError = v => Math.max(...v.map((x, i) => Math.abs(x - rmTruth[i])));
+    const rmFmt = x => (Math.abs(x) < 0.005 ? '0.00' : x.toFixed(2));
+    const rmErrFmt = x => (x >= 1 ? x.toFixed(2) : x.toPrecision(3));
+
+    function rmArrows(i) {
+      const best = rmBest(rmV, i);
+      return best.length >= 3 ? '?' : best.map(a => RM_MOVES[a].arrow).join(' ');
+    }
+
+    function rmTile(i) {
+      if (i === RM_WALL) {
+        return `<div class="aspect-square rounded-xl border border-white/10 flex items-center justify-center text-[11px] font-mono text-white/35" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0 6px, transparent 6px 12px)">wall</div>`;
+      }
+      const station = i === RM_STATION;
+      const t = Math.max(0, Math.min(1, rmV[i] / rmTruth[RM_STATION]));
+      const arrows = station ? '' : rmArrows(i);
+      const arrowClass = arrows === '?' ? 'text-white/35' : 'text-brand-coral';
+      return `
+        <div class="relative aspect-square rounded-xl border ${station ? 'border-emerald-400/40' : 'border-white/15'} p-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-300" style="background: rgba(238,151,121,${(0.06 + 0.4 * t).toFixed(3)})">
+          ${rmPos === i ? '<div class="absolute top-1 left-1.5 text-lg sm:text-2xl leading-none">🤖</div>' : ''}
+          ${station ? '<div class="text-lg sm:text-xl leading-none">🔋</div>' : ''}
+          <div class="font-mono font-bold text-sm sm:text-lg text-white">${rmFmt(rmV[i])}</div>
+          <div class="h-5 text-sm sm:text-base leading-5 ${arrowClass}">${arrows}</div>
+          <div class="text-[11px] font-mono text-white/40">true ${rmFmt(rmTruth[i])}</div>
+        </div>`;
+    }
+
+    function rmRender() {
+      const grid = document.getElementById('rm-grid');
+      if (grid) {
+        // Top row first: y = 2, 1, 0
+        let html = '';
+        for (let y = RM_SIZE - 1; y >= 0; y--) {
+          for (let x = 0; x < RM_SIZE; x++) html += rmTile(x + RM_SIZE * y);
+        }
+        grid.innerHTML = html;
+      }
+      const errEl = document.getElementById('rm-errors');
+      if (errEl) {
+        const start = Math.max(0, rmErrors.length - 7);
+        errEl.innerHTML = rmErrors.slice(start).map((e, j) => {
+          const k = start + j;
+          const prev = k > 0 ? `<span class="text-white/50"> ≤ 0.8 · ${rmErrFmt(rmErrors[k - 1])}</span>` : '';
+          return `<div>Round ${k}: <span class="font-bold text-white">${rmErrFmt(e)}</span>${prev}</div>`;
+        }).join('');
+      }
+      ['rm-think', 'rm-walk', 'rm-reset'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.disabled = rmBusy; el.classList.toggle('opacity-50', rmBusy); }
+      });
+    }
+
+    function rmSetStatus(text) {
+      const el = document.getElementById('rm-status');
+      if (el) el.innerHTML = text;
+    }
+
+    function rmReset() {
+      if (rmBusy) return;
+      rmV = new Array(RM_SIZE * RM_SIZE).fill(0);
+      rmRound = 0;
+      rmErrors = [rmError(rmV)];
+      rmPos = RM_START;
+      rmSetStatus('The map is empty. Let the robot walk now and watch it wander, or let it think first.');
+      rmRender();
+    }
+
+    function rmThink() {
+      if (rmBusy) return;
+      rmV = rmT(rmV);
+      rmRound++;
+      rmErrors.push(rmError(rmV));
+      rmPos = RM_START;
+      const last = rmErrors[rmErrors.length - 1];
+      const policyDone = rmCells.every(i => rmBest(rmV, i).join() === rmBest(rmTruth, i).join());
+      rmSetStatus(last < 0.05
+        ? `Round ${rmRound}: the map is practically the truth.`
+        : policyDone
+          ? `Round ${rmRound}: every arrow already points the right way. The numbers are still being refined.`
+          : `Round ${rmRound}: the good news has spread one cell further from the charging station.`);
+      rmRender();
+    }
+
+    function rmWalk() {
+      if (rmBusy) return;
+      rmBusy = true;
+      rmPos = RM_START;
+      let steps = 0;
+      rmSetStatus('Walking …');
+      rmRender();
+      const step = () => {
+        if (rmPos === RM_STATION) {
+          rmBusy = false;
+          rmSetStatus(`Arrived at the charging station in ${steps} steps. 🔋`);
+          rmRender();
+          return;
+        }
+        if (steps >= 12) {
+          rmBusy = false;
+          rmSetStatus('After 12 steps the robot gives up. Its map does not tell it where to go yet. Let it think a few more rounds.');
+          rmRender();
+          return;
+        }
+        // Follow the map; among equally good moves, pick one at random
+        const best = rmBest(rmV, rmPos);
+        const move = RM_MOVES[best[Math.floor(Math.random() * best.length)]];
+        rmPos = rmTarget(rmPos, move);
+        steps++;
+        rmRender();
+        setTimeout(step, 450);
+      };
+      setTimeout(step, 450);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', rmReset);
+    } else {
+      rmReset();
+    }
+  </script>
+</body>
+</html>

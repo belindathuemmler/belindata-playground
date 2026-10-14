@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Same Fence, More Corners • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/isoperimetric.html" class="underline text-brand-terracotta">Why the Circle Wins</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Same Fence, More Corners</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Every shape below uses exactly the same length of fence. The dashed line is the circle with that fence.
+              </p>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <svg viewBox="-1.25 -1.25 2.5 2.5" class="w-full max-w-xs mx-auto h-auto" role="img" aria-label="A regular polygon and the circle with the same perimeter">
+                <circle cx="0" cy="0" r="1" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-dasharray="4 4" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+                <polygon id="poly-shape" fill="rgba(238,151,121,0.22)" stroke="#EE9779" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke" points=""/>
+              </svg>
+              <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" id="poly-next" onclick="polyStep(1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➕ More corners</button>
+                  <button type="button" id="poly-prev" onclick="polyStep(-1)" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">➖ Fewer</button>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono space-y-1">
+                  <div id="poly-name" class="text-[11px] uppercase tracking-wider text-brand-coral font-bold"></div>
+                  <div class="text-sm text-white/70">field compared with the circle</div>
+                  <div id="poly-pct" class="text-2xl font-bold"></div>
+                  <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="poly-bar" class="h-full bg-emerald-400 transition-all duration-300"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // SAME FENCE, MORE CORNERS
+    // ==========================================
+    // Regular polygons with the same perimeter as the unit circle (2π); 0 stands for the circle itself
+    const POLY_STEPS = [3, 4, 5, 6, 8, 12, 24, 0];
+    const POLY_NAMES = { 3: 'Triangle', 4: 'Square', 5: 'Pentagon', 6: 'Hexagon', 8: 'Octagon', 12: '12 corners', 24: '24 corners', 0: 'Circle' };
+    let polyIdx = 1;
+
+    function polyRender() {
+      const n = POLY_STEPS[polyIdx];
+      const k = n || 360;
+      // circumradius of a regular k-gon with perimeter 2π
+      const R = Math.PI / (k * Math.sin(Math.PI / k));
+      const pts = [];
+      for (let i = 0; i < k; i++) {
+        const a = -Math.PI / 2 + 2 * Math.PI * i / k;
+        pts.push(`${(R * Math.cos(a)).toFixed(4)},${(R * Math.sin(a)).toFixed(4)}`);
+      }
+      document.getElementById('poly-shape').setAttribute('points', pts.join(' '));
+      const ratio = n ? Math.PI / (n * Math.tan(Math.PI / n)) : 1;
+      document.getElementById('poly-name').textContent = POLY_NAMES[n];
+      document.getElementById('poly-pct').textContent = `${(100 * ratio).toFixed(1)} %`;
+      document.getElementById('poly-bar').style.width = `${100 * ratio}%`;
+      const prev = document.getElementById('poly-prev'), next = document.getElementById('poly-next');
+      prev.disabled = polyIdx === 0; prev.classList.toggle('opacity-40', polyIdx === 0);
+      next.disabled = polyIdx === POLY_STEPS.length - 1; next.classList.toggle('opacity-40', polyIdx === POLY_STEPS.length - 1);
+    }
+
+    function polyStep(dir) {
+      polyIdx = Math.max(0, Math.min(POLY_STEPS.length - 1, polyIdx + dir));
+      polyRender();
+    }
+
+    polyRender();
+  </script>
+</body>
+</html>

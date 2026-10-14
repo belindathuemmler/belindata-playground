@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twist, Poke, Untangle • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/knot-twins.html" class="underline text-brand-terracotta">Playing With Knots</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Twist, Poke, Untangle</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">Pick a knot and move the sliders. Then test whether its strands can be coloured with three colours.</p>
+            </div>
+
+            <div class="relative z-10 flex flex-wrap gap-2 text-xs sm:text-sm">
+              <button type="button" class="knot-pick px-4 py-2 rounded-full border font-semibold transition-colors" data-knot="unknot" onclick="knotPick('unknot')">Unknot in disguise</button>
+              <button type="button" class="knot-pick px-4 py-2 rounded-full border font-semibold transition-colors" data-knot="trefoil" onclick="knotPick('trefoil')">Trefoil</button>
+              <button type="button" class="knot-pick px-4 py-2 rounded-full border font-semibold transition-colors" data-knot="eight" onclick="knotPick('eight')">Figure-eight</button>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <svg id="knot-svg" viewBox="-2.1 -2.1 4.2 4.2" class="w-full max-w-sm mx-auto h-auto" role="img" aria-label="Knot diagram"></svg>
+              <div class="space-y-4 text-xs sm:text-sm">
+                <label class="block space-y-1">
+                  <span class="font-mono text-brand-coral font-bold uppercase tracking-wider text-[11px]">I · twist</span>
+                  <input id="knot-s1" type="range" min="0" max="1" step="0.01" value="0" class="w-full accent-[#EE9779]" oninput="knotRender()">
+                </label>
+                <label class="block space-y-1">
+                  <span class="font-mono text-brand-coral font-bold uppercase tracking-wider text-[11px]">II · poke</span>
+                  <input id="knot-s2" type="range" min="0" max="1" step="0.01" value="0" class="w-full accent-[#EE9779]" oninput="knotRender()">
+                </label>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="knotColour()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">🎨 Colour with 3 colours</button>
+                  <button type="button" onclick="knotUntangle()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ Relax</button>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono">
+                  <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">Crossings in this diagram</div>
+                  <div id="knot-count" class="text-2xl font-bold pt-1"></div>
+                </div>
+                <p id="knot-note" class="text-white/75 leading-relaxed min-h-[3rem]"></p>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <svg id="slide-svg" viewBox="-1.6 -1.6 3.2 3.2" class="w-full max-w-xs mx-auto h-auto" role="img" aria-label="Reidemeister move III"></svg>
+              <label class="block space-y-2 text-xs sm:text-sm">
+                <span class="font-mono text-brand-coral font-bold uppercase tracking-wider text-[11px]">III · slide</span>
+                <input id="slide-h" type="range" min="-0.8" max="0.8" step="0.01" value="-0.8" class="w-full accent-[#EE9779]" oninput="slideRender()">
+                <span class="block text-white/75 leading-relaxed">The horizontal strand lies above the other two. Slide it across their crossing: three crossings before, three crossings after.</span>
+              </label>
+            </div>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // TWIST, POKE, UNTANGLE: KNOTS AS REAL LOOPS IN SPACE
+    // ==========================================
+    // Every knot is a closed 3D curve; the picture is its shadow, the height z decides over and under.
+    // Twist (I) adds a small loop, poke (II) pushes a lifted finger of the curve over other strands.
+    const KN = 480;
+    const KNOT_COLOURS = ['#EE9779', '#D8A9BF', '#9FD3A8'];
+    const KNOTS = {
+      unknot:  { base: t => [1.2 * Math.cos(t), 1.2 * Math.sin(t), 0], t1: 0, t2: Math.PI / 2, push: 2.9, gs: 0.3, plat: 0.4, edge: 0.72, start: [1, 1] },
+      trefoil: { base: t => [0.45 * (Math.sin(t) + 2 * Math.sin(2 * t)), 0.45 * (Math.cos(t) - 2 * Math.cos(2 * t)), -Math.sin(3 * t)],
+                 t1: Math.PI, t2: Math.PI / 3, push: 1.6, gs: 0.3, plat: 0.4, edge: 0.72, start: [0, 0] },
+      eight:   { base: t => [0.45 * (2 + Math.cos(2 * t)) * Math.cos(3 * t), 0.45 * (2 + Math.cos(2 * t)) * Math.sin(3 * t), Math.sin(4 * t)],
+                 t1: 0, t2: Math.PI, push: 1.5, gs: 0.2, plat: 0.28, edge: 0.48, start: [0, 0] },
+    };
+    const KNOT_NOTES = {
+      unknot: 'This one only looks knotted. Can you untangle it into a plain circle?',
+      trefoil: 'Twist and poke as much as you like: you will never get below three crossings.',
+      eight: 'The figure-eight is knotted too, but it hides it better.',
+    };
+    let knotName = 'unknot', knotCols = null;
+
+    const wrap = a => ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+
+    function knotCurve(name, s1, s2) {
+      const K = KNOTS[name], P = [];
+      for (let i = 0; i < KN; i++) P.push(K.base(2 * Math.PI * i / KN));
+      const cx = P.reduce((a, p) => a + p[0], 0) / KN, cy = P.reduce((a, p) => a + p[1], 0) / KN;
+      const T = [], Nin = [], speed = [];
+      for (let i = 0; i < KN; i++) {
+        const a = P[(i + 1) % KN], b = P[(i - 1 + KN) % KN];
+        let dx = a[0] - b[0], dy = a[1] - b[1];
+        const len = Math.hypot(dx, dy);
+        speed.push(len / (2 * 2 * Math.PI / KN));
+        dx /= len; dy /= len;
+        T.push([dx, dy]);
+        let nx = -dy, ny = dx;
+        if ((cx - P[i][0]) * nx + (cy - P[i][1]) * ny < 0) { nx = -nx; ny = -ny; }
+        Nin.push([nx, ny]);
+      }
+      const Q = P.map(p => p.slice());
+      // I · twist: a loop of fixed size, the window is chosen so that the loop really closes
+      const rho = 0.4;
+      const i1 = Math.round(((K.t1 % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / (2 * Math.PI) * KN) % KN;
+      const delta = rho * Math.PI / (3 * speed[i1]);
+      // II · poke: a finger pushed in one fixed direction and lifted above everything else
+      const i2 = Math.round(((K.t2 % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / (2 * Math.PI) * KN) % KN;
+      let vx = cx - P[i2][0], vy = cy - P[i2][1];
+      const vl = Math.hypot(vx, vy); vx /= vl; vy /= vl;
+      for (let i = 0; i < KN; i++) {
+        const t = 2 * Math.PI * i / KN;
+        const u = wrap(t - K.t1) / delta;
+        if (Math.abs(u) < 1 && s1 > 0) {
+          const ph = Math.PI * (u + 1);
+          Q[i][0] += s1 * rho * (Math.sin(ph) * T[i][0] - (1 - Math.cos(ph)) * Nin[i][0]);
+          Q[i][1] += s1 * rho * (Math.sin(ph) * T[i][1] - (1 - Math.cos(ph)) * Nin[i][1]);
+          Q[i][2] += s1 * 0.6 * u;
+        }
+        const d2 = wrap(t - K.t2);
+        // the finger is lifted only along its own crossing-free arc, so no existing crossing ever flips
+        const g = Math.exp(-((d2 / K.gs) ** 2)), ad = Math.abs(d2);
+        const lift = ad <= K.plat ? 1 : ad >= K.edge ? 0 : 0.5 * (1 + Math.cos(Math.PI * (ad - K.plat) / (K.edge - K.plat)));
+        Q[i][0] += s2 * K.push * g * vx;
+        Q[i][1] += s2 * K.push * g * vy;
+        Q[i][2] += s2 * 4 * lift;
+      }
+      return Q;
+    }
+
+    // All crossings between the segments of one or more polylines; z decides which strand is on top
+    function findCrossings(lines) {
+      const segs = [];
+      lines.forEach((L, li) => {
+        const n = L.pts.length, m = L.closed ? n : n - 1;
+        for (let i = 0; i < m; i++) segs.push({ li, i, a: L.pts[i], b: L.pts[(i + 1) % n], n, closed: L.closed });
+      });
+      const out = [];
+      for (let p = 0; p < segs.length; p++) {
+        const A = segs[p];
+        const minx = Math.min(A.a[0], A.b[0]), maxx = Math.max(A.a[0], A.b[0]);
+        const miny = Math.min(A.a[1], A.b[1]), maxy = Math.max(A.a[1], A.b[1]);
+        for (let q = p + 1; q < segs.length; q++) {
+          const B = segs[q];
+          if (A.li === B.li) {
+            const d = Math.abs(A.i - B.i);
+            if (d <= 1 || (A.closed && d >= A.n - 1)) continue;
+          }
+          if (Math.max(B.a[0], B.b[0]) < minx || Math.min(B.a[0], B.b[0]) > maxx ||
+              Math.max(B.a[1], B.b[1]) < miny || Math.min(B.a[1], B.b[1]) > maxy) continue;
+          const rx = A.b[0] - A.a[0], ry = A.b[1] - A.a[1], sx = B.b[0] - B.a[0], sy = B.b[1] - B.a[1];
+          const den = rx * sy - ry * sx;
+          if (Math.abs(den) < 1e-12) continue;
+          const wx = B.a[0] - A.a[0], wy = B.a[1] - A.a[1];
+          const ta = (wx * sy - wy * sx) / den, tb = (wx * ry - wy * rx) / den;
+          if (ta < 0 || ta >= 1 || tb < 0 || tb >= 1) continue;
+          const za = A.a[2] + ta * (A.b[2] - A.a[2]), zb = B.a[2] + tb * (B.b[2] - B.a[2]);
+          const ea = { li: A.li, pos: A.i + ta }, eb = { li: B.li, pos: B.i + tb };
+          out.push(za > zb ? { over: ea, under: eb } : { over: eb, under: ea });
+        }
+      }
+      return out;
+    }
+
+    // Draw polylines with a small gap around every under-crossing; returns the arcs of closed lines
+    function drawLines(svg, lines, crossings, colourOf) {
+      const GAP = 0.09, parts = [], arcsInfo = [];
+      lines.forEach((L, li) => {
+        const n = L.pts.length, m = L.closed ? n : n - 1;
+        const cum = [0];
+        for (let i = 0; i < m; i++) {
+          const a = L.pts[i], b = L.pts[(i + 1) % n];
+          cum.push(cum[i] + Math.hypot(b[0] - a[0], b[1] - a[1]));
+        }
+        const len = cum[m];
+        const at = pos => { const i = Math.min(Math.floor(pos), m - 1), f = pos - i; return cum[i] + f * (cum[i + 1] - cum[i]); };
+        const point = s => {
+          s = L.closed ? ((s % len) + len) % len : Math.max(0, Math.min(len, s));
+          let i = 0; while (i < m - 1 && cum[i + 1] < s) i++;
+          const f = (s - cum[i]) / ((cum[i + 1] - cum[i]) || 1), a = L.pts[i], b = L.pts[(i + 1) % n];
+          return [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])];
+        };
+        const gaps = crossings.filter(c => c.under.li === li).map(c => at(c.under.pos)).sort((x, y) => x - y);
+        const overs = crossings.filter(c => c.over.li === li).map(c => ({ s: at(c.over.pos), c }));
+        let pieces = [];
+        if (!gaps.length) pieces = [[0, len]];
+        else if (L.closed) for (let j = 0; j < gaps.length; j++) pieces.push([gaps[j] + GAP, (j + 1 < gaps.length ? gaps[j + 1] : gaps[0] + len) - GAP]);
+        else {
+          let s0 = 0;
+          gaps.forEach(g => { pieces.push([s0, g - GAP]); s0 = g + GAP; });
+          pieces.push([s0, len]);
+        }
+        arcsInfo.push({ gaps, len, overs });
+        pieces.forEach((pc, j) => {
+          if (pc[1] <= pc[0]) return;
+          const steps = Math.max(2, Math.ceil((pc[1] - pc[0]) / 0.02));
+          let d = '';
+          for (let k = 0; k <= steps; k++) {
+            const p = point(pc[0] + (pc[1] - pc[0]) * k / steps);
+            d += (k ? 'L' : 'M') + p[0].toFixed(3) + ',' + p[1].toFixed(3);
+          }
+          parts.push(`<path d="${d}" fill="none" stroke="${colourOf(li, j)}" stroke-width="0.075" stroke-linecap="round" stroke-linejoin="round"/>`);
+        });
+      });
+      svg.innerHTML = parts.join('');
+      return arcsInfo;
+    }
+
+    function knotState() {
+      return [parseFloat(document.getElementById('knot-s1').value), parseFloat(document.getElementById('knot-s2').value)];
+    }
+
+    function knotRender(keepColours) {
+      if (!keepColours) knotCols = null;
+      const [s1, s2] = knotState();
+      const lines = [{ pts: knotCurve(knotName, s1, s2), closed: true }];
+      const cr = findCrossings(lines);
+      drawLines(document.getElementById('knot-svg'), lines, cr, (li, j) => knotCols ? KNOT_COLOURS[knotCols[j]] : '#EE9779');
+      document.getElementById('knot-count').textContent = cr.length;
+      if (!keepColours) {
+        let note = KNOT_NOTES[knotName];
+        if (knotName === 'unknot' && cr.length === 0) note = 'Untangled: it was a plain circle all along. 🎉';
+        document.getElementById('knot-note').textContent = note;
+      }
+      return { lines, cr };
+    }
+
+    // Three-colourability: arcs run from one under-crossing to the next; at every crossing the three
+    // arcs that meet are all equal or all different, and at least two colours must be used.
+    function knotColour() {
+      const { lines, cr } = knotRender();
+      const gaps = cr.map((c, k) => ({ k, s: c.under.pos })).sort((a, b) => a.s - b.s);
+      const n = gaps.length;
+      const note = document.getElementById('knot-note');
+      if (n === 0) {
+        note.textContent = 'No crossings, just one single strand: it can only get one colour. Not three-colourable.';
+        return;
+      }
+      const arcOf = pos => { // arc j runs from under-crossing j to under-crossing j + 1
+        for (let j = n - 1; j >= 0; j--) if (pos >= gaps[j].s) return j;
+        return n - 1;
+      };
+      const rank = {}; gaps.forEach((g, j) => { rank[g.k] = j; });
+      const cons = cr.map((c, k) => [arcOf(c.over.pos), (rank[k] - 1 + n) % n, rank[k]]);
+      const col = new Array(n).fill(-1);
+      const ok = () => cons.every(([o, a, b]) => {
+        if (col[o] < 0 || col[a] < 0 || col[b] < 0) return true;
+        const set = new Set([col[o], col[a], col[b]]);
+        return set.size === 1 || set.size === 3;
+      });
+      const solve = j => {
+        if (j === n) return new Set(col).size >= 2;
+        for (let c = 0; c < 3; c++) {
+          if (j === 0 && c > 0) break;
+          col[j] = c;
+          if (ok() && solve(j + 1)) return true;
+        }
+        col[j] = -1;
+        return false;
+      };
+      if (solve(0)) {
+        knotCols = col.slice();
+        knotRender(true);
+        note.textContent = `Three-colourable! Each of the ${n} strands got a colour, and every crossing shows one colour or three. So this knot can never be untangled.`;
+      } else {
+        note.textContent = knotName === 'eight'
+          ? 'No three-colouring exists. But careful: the figure-eight is knotted anyway. This test can prove knottedness, not the opposite.'
+          : 'No three-colouring exists for this diagram.';
+      }
+    }
+
+    function knotPick(name) {
+      knotName = name;
+      document.querySelectorAll('.knot-pick').forEach(b => {
+        const on = b.dataset.knot === name;
+        b.className = 'knot-pick px-4 py-2 rounded-full border font-semibold transition-colors ' +
+          (on ? 'bg-brand-terracotta border-brand-terracotta text-white' : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/15');
+      });
+      const st = KNOTS[name].start;
+      document.getElementById('knot-s1').value = st[0];
+      document.getElementById('knot-s2').value = st[1];
+      knotRender();
+    }
+
+    function knotUntangle() {
+      const e1 = document.getElementById('knot-s1'), e2 = document.getElementById('knot-s2');
+      const a = parseFloat(e1.value), b = parseFloat(e2.value);
+      const t0 = performance.now();
+      const step = now => {
+        const f = Math.min(1, (now - t0) / 1200);
+        e1.value = a * (1 - f); e2.value = b * (1 - f);
+        knotRender();
+        if (f < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    // III · slide: three strands, the horizontal one on top
+    function slideRender() {
+      const h = parseFloat(document.getElementById('slide-h').value);
+      const line = (p, q, z) => { const pts = []; for (let k = 0; k <= 60; k++) { const f = k / 60; pts.push([p[0] + f * (q[0] - p[0]), p[1] + f * (q[1] - p[1]), z]); } return { pts, closed: false }; };
+      const lines = [line([-1.3, -1.3], [1.3, 1.3], 0), line([-1.3, 1.3], [1.3, -1.3], 1), line([-1.4, h], [1.4, h], 2)];
+      const cols = ['#D8A9BF', '#9FD3A8', '#EE9779'];
+      drawLines(document.getElementById('slide-svg'), lines, findCrossings(lines), li => cols[li]);
+    }
+
+    knotPick('unknot');
+    slideRender();
+  </script>
+</body>
+</html>
