@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1, 2, 4, 8, 16, … ? • Moser's circle problem</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #181315; color: #fff; font-family: system-ui, sans-serif; }
+    main { max-width: 720px; padding: 24px; display: grid; gap: 20px; }
+    h1 { margin: 0; font-size: 1.4rem; }
+    p { margin: 0; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    svg { width: 100%; max-width: 320px; justify-self: center; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { border: 0; border-radius: 999px; padding: 8px 16px; font-weight: 600; cursor: pointer; color: #fff; background: #DF7654; }
+    button.secondary { background: rgba(255,255,255,0.12); }
+    button:disabled { opacity: 0.4; cursor: default; }
+    .box { border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 12px 16px; font-family: ui-monospace, monospace; }
+    .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #EE9779; font-weight: 700; }
+    #moser-seq { font-size: 1.3rem; font-weight: 700; padding-top: 4px; }
+    .text-emerald-300 { color: #6EE7B7; }
+    .opacity-40 { opacity: 0.4; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>1, 2, 4, 8, 16, … ?</h1>
+    <p>Add points on the circle one by one. Every pair of points is connected by a straight line. How many regions does the disc fall into? (From <a href="https://belindata.com/projects/math-writing.html" style="color:#EE9779">Easy Writing “Mathematisch”</a> on belindata.com.)</p>
+    <svg id="moser-svg" viewBox="-1.15 -1.15 2.3 2.3" role="img" aria-label="Points on a circle, all connected by chords">
+      <circle cx="0" cy="0" r="1" fill="rgba(238,151,121,0.08)" stroke="#EE9779" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <g id="moser-chords"></g>
+      <g id="moser-points"></g>
+    </svg>
+    <div class="controls">
+      <button type="button" id="moser-next" onclick="moserStep(1)">➕ Add a point</button>
+      <button type="button" id="moser-prev" class="secondary" onclick="moserStep(-1)">➖ Remove</button>
+    </div>
+    <div class="box"><div class="label">Regions so far</div><div id="moser-seq"></div></div>
+    <p id="moser-note"></p>
+    <p>Number of regions for n points in general position: C(n,4) + C(n,2) + 1.</p>
+  </main>
+  <script>
+    // Irregular angles, so that no three chords meet in one point
+    const MOSER_ANGLES = [100, 220, 340, 30, 160, 275, 65];
+    const MOSER_MAX = MOSER_ANGLES.length;
+    const MOSER_NOTES = [
+      'One point, no line yet: the disc is one region.',
+      'One line cuts it into 2.',
+      'Three lines, 4 regions.',
+      '8 regions. The pattern looks obvious: it doubles every time.',
+      '16. Doubling again! Now add one more point …',
+      '31, not 32. The pattern was only a guess.',
+      '57, far away from 64.',
+    ];
+    let moserN = 1;
+
+    function moserBinom(n, k) {
+      if (k > n) return 0;
+      let r = 1;
+      for (let i = 1; i <= k; i++) r = r * (n - k + i) / i;
+      return r;
+    }
+    const moserRegions = n => moserBinom(n, 4) + moserBinom(n, 2) + 1;
+
+    function moserRender() {
+      const pts = MOSER_ANGLES.slice(0, moserN).map(a => [Math.cos(a * Math.PI / 180), -Math.sin(a * Math.PI / 180)]);
+      let chords = '';
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          chords += `<line x1="${pts[i][0].toFixed(4)}" y1="${pts[i][1].toFixed(4)}" x2="${pts[j][0].toFixed(4)}" y2="${pts[j][1].toFixed(4)}" stroke="#EE9779" stroke-opacity="0.85" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+        }
+      }
+      document.getElementById('moser-chords').innerHTML = chords;
+      document.getElementById('moser-points').innerHTML = pts.map(([x, y]) => `<circle cx="${x.toFixed(4)}" cy="${y.toFixed(4)}" r="0.05" fill="#FFFFFF"/>`).join('');
+      const seq = Array.from({ length: moserN }, (_, i) => moserRegions(i + 1));
+      document.getElementById('moser-seq').innerHTML = seq
+        .map((v, i) => (i === 5 ? `<span class="text-emerald-300">${v}</span>` : v)).join(', ');
+      document.getElementById('moser-note').textContent = MOSER_NOTES[moserN - 1];
+      const prev = document.getElementById('moser-prev'), next = document.getElementById('moser-next');
+      prev.disabled = moserN === 1; prev.classList.toggle('opacity-40', moserN === 1);
+      next.disabled = moserN === MOSER_MAX; next.classList.toggle('opacity-40', moserN === MOSER_MAX);
+    }
+
+    function moserStep(dir) {
+      moserN = Math.max(1, Math.min(MOSER_MAX, moserN + dir));
+      moserRender();
+    }
+
+    moserRender();
+  </script>
+</body>
+</html>
