@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Four Solutions, One Correct • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }    /* Four solutions: flip cards */
+    .mw-card { perspective: 1200px; }
+    .mw-inner { display: grid; transition: transform .65s cubic-bezier(.4,.2,.2,1); transform-style: preserve-3d; }
+    .mw-card.flipped .mw-inner { transform: rotateY(180deg); }
+    .mw-face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .mw-back { transform: rotateY(180deg); }
+    .mw-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .6rem; }
+    .mw-why { font-size: 11px; color: #6E6266; font-family: 'JetBrains Mono', monospace; }
+    .mw-note { font-size: 12px; color: #B3261E; font-family: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive; font-size: 15px; line-height: 1.1; }
+    .mw-bad { text-decoration: line-through; text-decoration-color: #B3261E; text-decoration-thickness: 2px; }
+  </style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/math-writing.html" class="underline text-brand-terracotta">Easy Writing “Mathematisch”</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Four Solutions, One Correct</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Four students solved \(x^2 = 4\). Only one solution passes both tests: every line is a statement, and every statement is true. Guess first, then reveal the corrections.
+              </p>
+            </div>
+            <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mw-card">
+                <div class="mw-inner">
+                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 1 · scribbled</div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
+                    <div class="mw-line"><span>\(= 2\)</span></div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
+                  </div>
+                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 1 · scribbled</div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-note">read aloud: 4 = 2?</div>
+                    <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
+                    <div class="mw-line"><span>\(= 2\)</span></div>
+                    <div class="mw-note">and where is −2?</div>
+                    <div class="mw-note">not one line is a statement: nothing to check, only something to guess</div>
+                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ No statements at all.</div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mw-card">
+                <div class="mw-inner">
+                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 2 · square root</div>
+                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span><span class="mw-why">| take the square root</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\)</span></div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
+                  </div>
+                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 2 · square root</div>
+                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span><span class="mw-why">| take the square root</span></div>
+                    <div class="mw-note">careful: √(x²) = |x|, not x</div>
+                    <div class="mw-line"><span><span class="mw-bad">\(\Leftrightarrow\; x = 2\)</span></span></div>
+                    <div class="mw-note">|x| = 2 ⇔ x = 2 or x = −2. One solution lost, the last ⇔ is false.</div>
+                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ Every line a statement, but one of them is false.</div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mw-card">
+                <div class="mw-inner">
+                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 3 · which world?</div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
+                  </div>
+                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 3 · which world?</div>
+                    <div class="mw-note">which x? Introduce it first: Let x ∈ ℝ.</div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
+                    <div class="mw-note">for x ∈ ℕ the answer would be x = 2 only</div>
+                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ Correct steps, but no statement until x is introduced.</div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mw-card">
+                <div class="mw-inner">
+                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-emerald-400/60 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 4 · written</div>
+                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| −4</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| third binomial formula</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span><span class="mw-why">| a product is 0 iff a factor is 0</span></div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
+                  </div>
+                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-emerald-400/60 p-4 sm:p-5 space-y-2 text-sm">
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 4 · written</div>
+                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| −4</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| third binomial formula</span></div>
+                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span><span class="mw-why">| a product is 0 iff a factor is 0</span></div>
+                    <div class="mw-note">✓ every line a statement, every statement true</div>
+                    <div class="font-bold text-emerald-700 text-xs pt-1">✓ Passes both tests.</div>
+                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  </main>
+  <script>
+    function mwFlip(btn) { btn.closest('.mw-card').classList.toggle('flipped'); }
+  </script>
+</body>
+</html>
