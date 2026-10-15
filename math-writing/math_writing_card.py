@@ -26,11 +26,10 @@ caption_right = NL.join(['every line a statement', 'you can check'])
 
 if mode == 'card':
     # the scribbled side alone, across the whole image
-    ax.text(W * 0.5, H - 95, 'scribbled', ha='center', va='center', fontsize=40, family='serif', color=ROSE)
     left = [(r'$x^2 = 4$', 0.40), (r'$= \sqrt{4}$', 0.47), (r'$= 2$', 0.47)]
     for i, (t, xf) in enumerate(left):
-        ax.text(W * xf, H * 0.70 - i * 0.16 * H, t, ha='left', va='center', fontsize=52, color=MUTED, family='serif')
-    ax.text(W * 0.5, H * 0.145, caption_left, ha='center', va='center', fontsize=30,
+        ax.text(W * xf, H * 0.76 - i * 0.17 * H, t, ha='left', va='center', fontsize=56, color=MUTED, family='serif')
+    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And where is $-2$?', ha='center', va='center', fontsize=30,
             linespacing=1.3, family='serif', color=ROSE)
 else:
     ax.plot([W / 2, W / 2], [90, H - 90], color=ROSE, lw=2, alpha=0.6)
