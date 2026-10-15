@@ -1,7 +1,8 @@
 """Two figures for 'Easy Writing "Mathematisch"'.
   card:    only the scribbled chain x² = 4, = √4, = 2 (card and header image)
   compare: the scribbled chain next to the same solution written as a chain of equivalent statements
-Usage: python math_writing_card.py out.jpg [card|compare]"""
+  split:   the two halves of 'compare' as separate images out_scribbled.jpg and out_written.jpg
+Usage: python math_writing_card.py out.jpg [card|compare|split]"""
 import sys
 import matplotlib
 matplotlib.use('Agg')
@@ -51,3 +52,8 @@ else:
             linespacing=1.3, family='serif', color=TERRA)
 
 fig.savefig(sys.argv[1], dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
+if mode == 'split':
+    from PIL import Image
+    im = Image.open(sys.argv[1]); stem = sys.argv[1].rsplit('.', 1)[0]
+    im.crop((0, 40, W // 2 - 20, H - 20)).save(stem + '_scribbled.jpg', quality=92)
+    im.crop((W // 2 + 20, 40, W, H - 20)).save(stem + '_written.jpg', quality=92)
