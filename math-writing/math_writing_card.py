@@ -46,15 +46,14 @@ else:
     left = [(r'$x^2 = 4$', 0.19), (r'$= \sqrt{4}$', 0.24), (r'$= 2$', 0.24)]
     for i, (t, xf) in enumerate(left):
         ax.text(W * xf, y0 - i * step, t, ha='left', va='center', fontsize=ff, color=MUTED, family='serif')
-    lines = [r'Let $x \in \mathbb{R}$.',
-             r'$x^2 = 4$',
+    lines = [r'Let $x \in \mathbb{R}$ and $x^2 = 4$.',
              r'$\Leftrightarrow\; x^2 - 4 = 0$',
              r'$\Leftrightarrow\; (x-2)(x+2) = 0$',
              r'$\Leftrightarrow\; x = 2$ or $x = -2$.']
     rstep = step   # same line spacing on both sides
     for i, t in enumerate(lines):
         ax.text(W * 0.56, y0 - i * rstep, t, ha='left', va='center', fontsize=ff, color=DARK, family='serif')
-    ycap = y0 - 4 * rstep - 1.9 * step
+    ycap = y0 - 3 * rstep - 1.9 * step
     ax.text(W * 0.25, ycap, caption_left, ha='center', va='center', fontsize=fc, linespacing=1.3, family='serif', color=ROSE)
     ax.text(W * 0.75, ycap, caption_right, ha='center', va='center', fontsize=fc, linespacing=1.3, family='serif', color=TERRA)
 
