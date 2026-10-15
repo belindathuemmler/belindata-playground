@@ -30,8 +30,8 @@ if mode == 'card':
     left = [(r'$x^2 = 4$', 0.40), (r'$= \sqrt{4}$', 0.47), (r'$= 2$', 0.47)]
     for i, (t, xf) in enumerate(left):
         ax.text(W * xf, H * 0.76 - i * 0.17 * H, t, ha='left', va='center', fontsize=56, color=MUTED, family='serif')
-    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And where is $-2$?', ha='center', va='center', fontsize=30,
-            linespacing=1.3, family='serif', color=ROSE)
+    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And where is $-2$?', ha='center', va='center', fontsize=40,
+            linespacing=1.3, family='serif', color='#874C62')
 else:
     ax.plot([W / 2, W / 2], [90, H - 90], color=ROSE, lw=2, alpha=0.6)
     ax.text(W * 0.25, H - 95, 'scribbled', ha='center', va='center', fontsize=34, family='serif', color=ROSE)
