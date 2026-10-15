@@ -1,0 +1,46 @@
+"""Card image for 'Easy Writing "Mathematisch"': left the scribbled chain x² = 4 = √4 = 2, right the same
+solution written as a chain of equivalent statements. Large type, so it stays readable as a small card.
+Usage: python math_writing_card.py out.jpg"""
+import sys
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+W, H = 1376, 768
+IVORY, ROSE, TERRA, DARK, MUTED = '#FAF8F5', '#B77A8A', '#DF7654', '#1F1A1C', '#8A7F82'
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
+fig = plt.figure(figsize=(W / 100, H / 100), dpi=100)
+fig.patch.set_facecolor(IVORY)
+ax = fig.add_axes([0, 0, 1, 1])
+ax.set_facecolor(IVORY)
+ax.axis('off')
+ax.set_xlim(0, W)
+ax.set_ylim(0, H)
+
+# divider
+ax.plot([W / 2, W / 2], [90, H - 90], color=ROSE, lw=2, alpha=0.6)
+
+# headings
+ax.text(W * 0.25, H - 95, 'scribbled', ha='center', va='center', fontsize=34, style='italic', family='serif', color=ROSE)
+ax.text(W * 0.75, H - 95, 'written', ha='center', va='center', fontsize=34, style='italic', family='serif', color=TERRA)
+
+# left: one long chain of equals signs, struck through
+ax.text(W * 0.25, H * 0.50, r'$x^2 = 4 = \sqrt{4} = 2$', ha='center', va='center', fontsize=54, color=MUTED)
+ax.plot([W * 0.09, W * 0.41], [H * 0.42, H * 0.58], color=ROSE, lw=4, alpha=0.75, solid_capstyle='round')
+ax.text(W * 0.25, H * 0.14, 'so $4 = 2$?\nAnd where is $-2$?', ha='center', va='center', fontsize=27,
+        linespacing=1.3, style='italic', family='serif', color=ROSE)
+
+# right: a chain of equivalent statements, one per line
+lines = [r'Let $x \in \mathbb{R}$.',
+         r'$x^2 = 4$',
+         r'$\Leftrightarrow\; x^2 - 4 = 0$',
+         r'$\Leftrightarrow\; (x-2)(x+2) = 0$',
+         r'$\Leftrightarrow\; x \in \{2, -2\}$']
+x0 = W * 0.56
+for i, s in enumerate(lines):
+    ax.text(x0, H * 0.76 - i * 0.115 * H, s, ha='left', va='center', fontsize=40, color=DARK, family='serif')
+ax.text(W * 0.75, H * 0.14, 'every line a statement\nyou can check', ha='center', va='center', fontsize=27,
+        linespacing=1.3, style='italic', family='serif', color=TERRA)
+
+fig.savefig(sys.argv[1], dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
