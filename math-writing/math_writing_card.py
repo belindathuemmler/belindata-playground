@@ -38,7 +38,7 @@ lines = [r'Let $x \in \mathbb{R}$.',
          r'$x^2 = 4$',
          r'$\Leftrightarrow\; x^2 - 4 = 0$',
          r'$\Leftrightarrow\; (x-2)(x+2) = 0$',
-         r'$\Leftrightarrow\; x \in \{2, -2\}$']
+         r'$\Leftrightarrow\; x = 2$ or $x = -2$']
 x0 = W * 0.56
 for i, s in enumerate(lines):
     ax.text(x0, H * 0.76 - i * 0.115 * H, s, ha='left', va='center', fontsize=40, color=DARK, family='serif')
