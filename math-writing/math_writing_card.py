@@ -22,8 +22,8 @@ ax.axis('off')
 ax.set_xlim(0, W)
 ax.set_ylim(0, H)
 
-caption_left = NL.join(['so $4 = 2$?  And where is $-2$?', 'There is nothing to check,', 'only something to guess.'])
-caption_right = NL.join(['every line a statement', 'you can check'])
+caption_left = NL.join(['So $4 = 2$?  And where is $-2$?', 'There is nothing to check,', 'only something to guess.'])
+caption_right = NL.join(['Every line is a statement', 'you can check.'])
 
 if mode == 'card':
     # the scribbled side alone, across the whole image
@@ -50,7 +50,7 @@ else:
              r'$x^2 = 4$',
              r'$\Leftrightarrow\; x^2 - 4 = 0$',
              r'$\Leftrightarrow\; (x-2)(x+2) = 0$',
-             r'$\Leftrightarrow\; x = 2$ or $x = -2$']
+             r'$\Leftrightarrow\; x = 2$ or $x = -2$.']
     rstep = step   # same line spacing on both sides
     for i, t in enumerate(lines):
         ax.text(W * 0.56, y0 - i * rstep, t, ha='left', va='center', fontsize=ff, color=DARK, family='serif')
@@ -67,6 +67,8 @@ if mode == 'split':
     bg = Image.new('RGB', halves[0].size, IVORY)
     boxes = [ImageChops.difference(h, bg).convert('L').point(lambda v: 255 if v > 24 else 0).getbbox() for h in halves]  # ignore JPEG noise
     top, bottom = min(b[1] for b in boxes) - 36, max(b[3] for b in boxes) + 36   # same height for both
-    for h, b, name in zip(halves, boxes, ('_scribbled.jpg', '_written.jpg')):
-        cx = (b[0] + b[2]) // 2; half_w = max(b[2] - b[0], 420) // 2 + 36
+    centres = [W // 4, 3 * W // 4 - (W // 2 + 20)]   # the column centres, where headings and captions sit
+    half_w = max(max(cx - b[0], b[2] - cx) for b, cx in zip(boxes, centres))   # same width for both, so the type stays the same size
+    half_w = max(half_w, 210) + 36
+    for h, b, name, cx in zip(halves, boxes, ('_scribbled.jpg', '_written.jpg'), centres):
         h.crop((max(0, cx - half_w), max(0, top), min(h.width, cx + half_w), min(h.height, bottom))).save(stem + name, quality=92)
