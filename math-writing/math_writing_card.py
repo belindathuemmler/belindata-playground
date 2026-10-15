@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 W, H = 1376, 768
 IVORY, ROSE, TERRA, DARK, MUTED = '#FAF8F5', '#B77A8A', '#DF7654', '#1F1A1C', '#8A7F82'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+NL = chr(10)
 
 fig = plt.figure(figsize=(W / 100, H / 100), dpi=100)
 fig.patch.set_facecolor(IVORY)
@@ -28,8 +29,9 @@ ax.text(W * 0.75, H - 95, 'written', ha='center', va='center', fontsize=34, styl
 # left: the chain of equals signs, line by line
 left = [(r'$x^2 = 4$', 0.19), (r'$= \sqrt{4}$', 0.24), (r'$= 2$', 0.24)]
 for i, (t, xf) in enumerate(left):
-    ax.text(W * xf, H * 0.70 - i * 0.165 * H, t, ha='left', va='center', fontsize=40, color=MUTED, family='serif')
-ax.text(W * 0.25, H * 0.14, 'so $4 = 2$?\nAnd where is $-2$?', ha='center', va='center', fontsize=27,
+    ax.text(W * xf, H * 0.72 - i * 0.16 * H, t, ha='left', va='center', fontsize=40, color=MUTED, family='serif')
+caption_left = NL.join(['so $4 = 2$?  And where is $-2$?', 'There is nothing to check,', 'only something to guess.'])
+ax.text(W * 0.25, H * 0.145, caption_left, ha='center', va='center', fontsize=25,
         linespacing=1.3, style='italic', family='serif', color=ROSE)
 
 # right: a chain of equivalent statements, one per line
@@ -41,7 +43,8 @@ lines = [r'Let $x \in \mathbb{R}$.',
 x0 = W * 0.56
 for i, s in enumerate(lines):
     ax.text(x0, H * 0.76 - i * 0.115 * H, s, ha='left', va='center', fontsize=40, color=DARK, family='serif')
-ax.text(W * 0.75, H * 0.14, 'every line a statement\nyou can check', ha='center', va='center', fontsize=27,
+caption_right = NL.join(['every line a statement', 'you can check'])
+ax.text(W * 0.75, H * 0.145, caption_right, ha='center', va='center', fontsize=25,
         linespacing=1.3, style='italic', family='serif', color=TERRA)
 
 fig.savefig(sys.argv[1], dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
