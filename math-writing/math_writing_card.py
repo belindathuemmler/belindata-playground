@@ -25,9 +25,11 @@ ax.plot([W / 2, W / 2], [90, H - 90], color=ROSE, lw=2, alpha=0.6)
 ax.text(W * 0.25, H - 95, 'scribbled', ha='center', va='center', fontsize=34, style='italic', family='serif', color=ROSE)
 ax.text(W * 0.75, H - 95, 'written', ha='center', va='center', fontsize=34, style='italic', family='serif', color=TERRA)
 
-# left: one long chain of equals signs, struck through
-ax.text(W * 0.25, H * 0.50, r'$x^2 = 4 = \sqrt{4} = 2$', ha='center', va='center', fontsize=54, color=MUTED)
-ax.plot([W * 0.09, W * 0.41], [H * 0.42, H * 0.58], color=ROSE, lw=4, alpha=0.75, solid_capstyle='round')
+# left: the chain of equals signs, line by line, struck through
+left = [(r'$x^2 = 4$', 0.19), (r'$= \sqrt{4}$', 0.24), (r'$= 2$', 0.24)]
+for i, (t, xf) in enumerate(left):
+    ax.text(W * xf, H * 0.70 - i * 0.165 * H, t, ha='left', va='center', fontsize=54, color=MUTED)
+ax.plot([W * 0.10, W * 0.40], [H * 0.30, H * 0.76], color=ROSE, lw=4, alpha=0.75, solid_capstyle='round')
 ax.text(W * 0.25, H * 0.14, 'so $4 = 2$?\nAnd where is $-2$?', ha='center', va='center', fontsize=27,
         linespacing=1.3, style='italic', family='serif', color=ROSE)
 
