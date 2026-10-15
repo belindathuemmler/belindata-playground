@@ -33,24 +33,30 @@ if mode == 'card':
     ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And where is $-2$?', ha='center', va='center', fontsize=40,
             linespacing=1.3, family='serif', color='#874C62')
 else:
-    k = 0.68 if mode == 'split' else 1.0   # split: smaller type, matching the small diagrams in the article
+    # compare: poster-sized type. split: one small type size for everything, matching the labels of the
+    # small diagrams in the article (the halves are cropped to their content afterwards)
+    if mode == 'split':
+        fh = ff = fc = 18; step = 0.075 * H
+    else:
+        fh, ff, fc = 34, 40, 25; step = 0.16 * H
     ax.plot([W / 2, W / 2], [90, H - 90], color=ROSE, lw=2, alpha=0.6)
-    ax.text(W * 0.25, H - 95, 'scribbled', ha='center', va='center', fontsize=34 * k, family='serif', color=ROSE)
-    ax.text(W * 0.75, H - 95, 'written', ha='center', va='center', fontsize=34 * k, family='serif', color=TERRA)
+    ax.text(W * 0.25, H - 95, 'scribbled', ha='center', va='center', fontsize=fh, family='serif', color=ROSE)
+    ax.text(W * 0.75, H - 95, 'written', ha='center', va='center', fontsize=fh, family='serif', color=TERRA)
+    y0 = H - 95 - 1.6 * step
     left = [(r'$x^2 = 4$', 0.19), (r'$= \sqrt{4}$', 0.24), (r'$= 2$', 0.24)]
     for i, (t, xf) in enumerate(left):
-        ax.text(W * xf, H * 0.72 - i * 0.16 * H, t, ha='left', va='center', fontsize=40 * k, color=MUTED, family='serif')
-    ax.text(W * 0.25, H * 0.145, caption_left, ha='center', va='center', fontsize=25 * k,
-            linespacing=1.3, family='serif', color=ROSE)
+        ax.text(W * xf, y0 - i * step, t, ha='left', va='center', fontsize=ff, color=MUTED, family='serif')
     lines = [r'Let $x \in \mathbb{R}$.',
              r'$x^2 = 4$',
              r'$\Leftrightarrow\; x^2 - 4 = 0$',
              r'$\Leftrightarrow\; (x-2)(x+2) = 0$',
              r'$\Leftrightarrow\; x = 2$ or $x = -2$']
+    rstep = step   # same line spacing on both sides
     for i, t in enumerate(lines):
-        ax.text(W * 0.56, H * 0.76 - i * 0.115 * H, t, ha='left', va='center', fontsize=40 * k, color=DARK, family='serif')
-    ax.text(W * 0.75, H * 0.145, caption_right, ha='center', va='center', fontsize=25 * k,
-            linespacing=1.3, family='serif', color=TERRA)
+        ax.text(W * 0.56, y0 - i * rstep, t, ha='left', va='center', fontsize=ff, color=DARK, family='serif')
+    ycap = y0 - 4 * rstep - 1.9 * step
+    ax.text(W * 0.25, ycap, caption_left, ha='center', va='center', fontsize=fc, linespacing=1.3, family='serif', color=ROSE)
+    ax.text(W * 0.75, ycap, caption_right, ha='center', va='center', fontsize=fc, linespacing=1.3, family='serif', color=TERRA)
 
 fig.savefig(sys.argv[1], dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
 if mode == 'split':
