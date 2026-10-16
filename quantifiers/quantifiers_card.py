@@ -1,4 +1,4 @@
-"""Card image for '∀ and ∃': left ∀ε ∃δ (every ε gets its own δ), right ∃δ ∀ε (one δ for all).
+"""Card image for '∀ and ∃: A Quick Logic Lesson': left ∀ε ∃δ (every ε gets its own δ), right ∃δ ∀ε (one δ for all).
 Usage: python quantifiers_card.py out.jpg"""
 import sys
 import matplotlib

@@ -28,7 +28,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [Two Answers I Owed My Examiner](https://belindata.com/projects/numerics-exam.html) | [`numerics-exam/`](numerics-exam/) |  | `ode_numerics_cards.py` |
 | [Eigenvalues, Finally Explained](https://belindata.com/projects/eigenvalues.html) | [`eigenvalues/`](eigenvalues/) |  | `eigenvalues_card.py` |
 | [= or ⇔? Nerdy, but It Matters](https://belindata.com/projects/equals-iff.html) | [`equals-iff/`](equals-iff/) |  | `equals_iff_card.py` |
-| [∀ and ∃](https://belindata.com/projects/quantifiers.html) | [`quantifiers/`](quantifiers/) |  | `quantifiers_card.py` |
+| [∀ and ∃: A Quick Logic Lesson](https://belindata.com/projects/quantifiers.html) | [`quantifiers/`](quantifiers/) |  | `quantifiers_card.py` |
 | [A Car From Above: My First Lesson in 3D Visualization](https://belindata.com/projects/car-from-above.html) | [`car-from-above/`](car-from-above/) |  | `car_from_above_card.py` |
 | [About Fat and Thin Triangles](https://belindata.com/projects/triangles.html) | [`triangles/`](triangles/) |  | `triangles_card.py` |
 | [About Fat and Thin Matrices](https://belindata.com/projects/sparse-dense.html) | [`sparse-dense/`](sparse-dense/) |  | `sparse_dense_card.py` |
