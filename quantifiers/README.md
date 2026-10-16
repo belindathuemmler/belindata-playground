@@ -1,4 +1,4 @@
-# ∀ and ∃: Order Matters
+# ∀ and ∃
 
 Article: [https://belindata.com/projects/quantifiers.html](https://belindata.com/projects/quantifiers.html) (coming soon)
 
