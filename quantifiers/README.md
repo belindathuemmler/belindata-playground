@@ -1,8 +1,10 @@
 # One for All, All for One: ∀, ∃ and Friends
 
-Article: [https://belindata.com/projects/quantifiers.html](https://belindata.com/projects/quantifiers.html) (coming soon)
+Article: [https://belindata.com/projects/quantifiers.html](https://belindata.com/projects/quantifiers.html) (in progress)
 
-- `quantifiers_card.py`: the card image: ∀, ∃, ∃! and ∄ as four musketeers, the fourth standing a little apart
+- `four_musketeers.html`: the interactive from the article as a standalone page: hand out swords, hats and horses, tick who covers whom, and watch ∀, ∃, ∃!, ∄ and the two orders ∃∀ / ∀∃ turn true or false.
+- `quantifiers_card.py`: the card image: ∀ε ∃δ (a different δ for each ε) next to ∃δ ∀ε (one δ for all of them)
+- `quantifiers_card_musketeers.py`: an alternative card image, the four symbols with musketeer hats (not used on the site for now)
 - `card_quantifiers.jpg`: the image as used on the site
 - `eps_delta_diagrams.html`: the two inline-SVG diagrams that used to sit in the Math Writing article, kept for the future page
 

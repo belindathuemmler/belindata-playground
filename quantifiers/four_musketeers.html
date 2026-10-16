@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Four Musketeers • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }    /* Four solutions: flip cards */
+    .mw-card { perspective: 1200px; }
+    .mw-inner { display: grid; transition: transform .65s cubic-bezier(.4,.2,.2,1); transform-style: preserve-3d; }
+    .mw-card.flipped .mw-inner { transform: rotateY(180deg); }
+    .mw-face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .mw-back { transform: rotateY(180deg); }
+    .mw-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .6rem; }
+    .mw-why { font-size: 11px; color: #6E6266; font-family: 'JetBrains Mono', monospace; }
+    .mw-note { font-size: 12px; color: #B3261E; font-family: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive; font-size: 15px; line-height: 1.1; }
+    .mw-bad { text-decoration: line-through; text-decoration-color: #B3261E; text-decoration-thickness: 2px; }
+  </style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/quantifiers.html" class="underline text-brand-terracotta">One for All, All for One: ∀, ∃ and Friends</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Four Musketeers</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Hand out swords, hats and horses, and watch the statements below turn true or false. \(S(x)\): \(x\) has a sword. \(H(x)\): \(x\) wears a hat. \(R(x)\): \(x\) rides.
+              </p>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center space-y-2">
+                  <div class="text-3xl leading-none">🤺</div>
+                  <div class="text-xs font-bold text-white/90">Athos</div>
+                  <div class="text-[10px] font-mono text-white/40">x = 1</div>
+                  <div class="flex flex-wrap justify-center gap-1">
+                    <button type="button" class="mq-toggle" data-i="1" data-k="S" onclick="mqToggle(this)">🗡️ sword</button>
+                    <button type="button" class="mq-toggle" data-i="1" data-k="H" onclick="mqToggle(this)">🎩 hat</button>
+                    <button type="button" class="mq-toggle" data-i="1" data-k="R" onclick="mqToggle(this)">🐎 horse</button>
+                  </div>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center space-y-2">
+                  <div class="text-3xl leading-none">🤺</div>
+                  <div class="text-xs font-bold text-white/90">Porthos</div>
+                  <div class="text-[10px] font-mono text-white/40">x = 2</div>
+                  <div class="flex flex-wrap justify-center gap-1">
+                    <button type="button" class="mq-toggle" data-i="2" data-k="S" onclick="mqToggle(this)">🗡️ sword</button>
+                    <button type="button" class="mq-toggle" data-i="2" data-k="H" onclick="mqToggle(this)">🎩 hat</button>
+                    <button type="button" class="mq-toggle" data-i="2" data-k="R" onclick="mqToggle(this)">🐎 horse</button>
+                  </div>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center space-y-2">
+                  <div class="text-3xl leading-none">🤺</div>
+                  <div class="text-xs font-bold text-white/90">Aramis</div>
+                  <div class="text-[10px] font-mono text-white/40">x = 3</div>
+                  <div class="flex flex-wrap justify-center gap-1">
+                    <button type="button" class="mq-toggle" data-i="3" data-k="S" onclick="mqToggle(this)">🗡️ sword</button>
+                    <button type="button" class="mq-toggle" data-i="3" data-k="H" onclick="mqToggle(this)">🎩 hat</button>
+                    <button type="button" class="mq-toggle" data-i="3" data-k="R" onclick="mqToggle(this)">🐎 horse</button>
+                  </div>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center space-y-2">
+                  <div class="text-3xl leading-none">🤺</div>
+                  <div class="text-xs font-bold text-white/90">d’Artagnan</div>
+                  <div class="text-[10px] font-mono text-white/40">x = 4</div>
+                  <div class="flex flex-wrap justify-center gap-1">
+                    <button type="button" class="mq-toggle" data-i="4" data-k="S" onclick="mqToggle(this)">🗡️ sword</button>
+                    <button type="button" class="mq-toggle" data-i="4" data-k="H" onclick="mqToggle(this)">🎩 hat</button>
+                    <button type="button" class="mq-toggle" data-i="4" data-k="R" onclick="mqToggle(this)">🐎 horse</button>
+                  </div>
+                </div>
+            </div>
+
+            <ul class="relative z-10 text-xs sm:text-sm">
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\forall x\; S(x)\)</span><span class="text-[11px] text-white/55 truncate">everyone has a sword</span></div>
+                  <span id="q1" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\exists x\; H(x)\)</span><span class="text-[11px] text-white/55 truncate">someone wears a hat</span></div>
+                  <span id="q2" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\exists!\, x\; R(x)\)</span><span class="text-[11px] text-white/55 truncate">exactly one rides</span></div>
+                  <span id="q3" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\nexists x\; R(x)\)</span><span class="text-[11px] text-white/55 truncate">nobody rides</span></div>
+                  <span id="q4" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\forall x\; (H(x) \Rightarrow S(x))\)</span><span class="text-[11px] text-white/55 truncate">every hat has a sword under it</span></div>
+                  <span id="q5" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\neg\, \forall x\; S(x)\) <span class="text-white/40 text-xs">vs.</span> \(\exists x\; \neg S(x)\)</span><span class="text-[11px] text-white/55 truncate">always the same answer</span></div>
+                  <span id="q6" class="mq-badge mq-false">?</span><span id="q6b" class="mq-badge mq-false">?</span>
+                </li>
+            </ul>
+            <p class="relative z-10 text-xs text-white/60 leading-relaxed">
+              The last line never disagrees with itself: “not everyone has a sword” and “someone has no sword” are the same statement. That is the negation rule \(\neg\forall \equiv \exists\neg\) at work.
+            </p>
+
+            <div class="relative z-10 border-t border-white/10 pt-4 space-y-3">
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Now the motto. \(C(x, y)\): \(x\) covers \(y\)’s back. Tick who covers whom (rows cover columns).
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                <div class="overflow-x-auto">
+                  <table class="text-xs mx-auto border-separate border-spacing-1">
+                    <thead><tr><th></th><th class="font-normal text-white/70 text-[10px]">Ath</th><th class="font-normal text-white/70 text-[10px]">Por</th><th class="font-normal text-white/70 text-[10px]">Ara</th><th class="font-normal text-white/70 text-[10px]">d’A</th></tr></thead>
+                    <tbody>
+                    <tr><th class="text-right pr-2 font-normal text-white/70">Athos</th><td><button type="button" class="mq-cell" data-x="1" data-y="1" onclick="mqCover(this)" aria-label="Athos covers Athos"></button></td><td><button type="button" class="mq-cell" data-x="1" data-y="2" onclick="mqCover(this)" aria-label="Athos covers Porthos"></button></td><td><button type="button" class="mq-cell" data-x="1" data-y="3" onclick="mqCover(this)" aria-label="Athos covers Aramis"></button></td><td><button type="button" class="mq-cell" data-x="1" data-y="4" onclick="mqCover(this)" aria-label="Athos covers d’Artagnan"></button></td></tr>
+                    <tr><th class="text-right pr-2 font-normal text-white/70">Porthos</th><td><button type="button" class="mq-cell" data-x="2" data-y="1" onclick="mqCover(this)" aria-label="Porthos covers Athos"></button></td><td><button type="button" class="mq-cell" data-x="2" data-y="2" onclick="mqCover(this)" aria-label="Porthos covers Porthos"></button></td><td><button type="button" class="mq-cell" data-x="2" data-y="3" onclick="mqCover(this)" aria-label="Porthos covers Aramis"></button></td><td><button type="button" class="mq-cell" data-x="2" data-y="4" onclick="mqCover(this)" aria-label="Porthos covers d’Artagnan"></button></td></tr>
+                    <tr><th class="text-right pr-2 font-normal text-white/70">Aramis</th><td><button type="button" class="mq-cell" data-x="3" data-y="1" onclick="mqCover(this)" aria-label="Aramis covers Athos"></button></td><td><button type="button" class="mq-cell" data-x="3" data-y="2" onclick="mqCover(this)" aria-label="Aramis covers Porthos"></button></td><td><button type="button" class="mq-cell" data-x="3" data-y="3" onclick="mqCover(this)" aria-label="Aramis covers Aramis"></button></td><td><button type="button" class="mq-cell" data-x="3" data-y="4" onclick="mqCover(this)" aria-label="Aramis covers d’Artagnan"></button></td></tr>
+                    <tr><th class="text-right pr-2 font-normal text-white/70">d’Artagnan</th><td><button type="button" class="mq-cell" data-x="4" data-y="1" onclick="mqCover(this)" aria-label="d’Artagnan covers Athos"></button></td><td><button type="button" class="mq-cell" data-x="4" data-y="2" onclick="mqCover(this)" aria-label="d’Artagnan covers Porthos"></button></td><td><button type="button" class="mq-cell" data-x="4" data-y="3" onclick="mqCover(this)" aria-label="d’Artagnan covers Aramis"></button></td><td><button type="button" class="mq-cell" data-x="4" data-y="4" onclick="mqCover(this)" aria-label="d’Artagnan covers d’Artagnan"></button></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <ul class="text-xs sm:text-sm">
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\exists y\; \forall x\; C(x, y)\)</span><span class="text-[11px] text-white/55 truncate">one for all: one whom everyone covers</span></div>
+                  <span id="q7" class="mq-badge mq-false">?</span>
+                </li>
+                <li class="flex items-center justify-between gap-3 py-1.5 border-b border-white/10">
+                  <div class="flex items-baseline gap-3 min-w-0"><span class="mq-formula">\(\forall x\; \exists y\; C(x, y)\)</span><span class="text-[11px] text-white/55 truncate">all for one: everyone covers someone</span></div>
+                  <span id="q8" class="mq-badge mq-false">?</span>
+                </li>
+                </ul>
+              </div>
+              <p id="mq-order-note" class="text-xs text-white/60 leading-relaxed min-h-[2.5rem]"></p>
+            </div>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // FOUR MUSKETEERS: QUANTIFIERS YOU CAN TOGGLE
+    // ==========================================
+    const MQ = { S: [1, 1, 1, 0], H: [1, 0, 1, 0], R: [0, 1, 0, 0] };          // sword, hat, horse per musketeer
+    const MQC = [[0, 1, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0]];     // C[x][y]: x covers y (everyone covers Athos)
+    const mqAll = (f) => [0, 1, 2, 3].every(f), mqSome = (f) => [0, 1, 2, 3].some(f);
+    function mqBadge(id, val) {
+      const el = document.getElementById(id);
+      el.textContent = val ? 'true' : 'false';
+      el.className = 'mq-badge ' + (val ? 'mq-true' : 'mq-false');
+    }
+    function mqRender() {
+      document.querySelectorAll('.mq-toggle').forEach(b => b.classList.toggle('on', !!MQ[b.dataset.k][b.dataset.i - 1]));
+      document.querySelectorAll('.mq-cell').forEach(c => c.classList.toggle('on', !!MQC[c.dataset.x - 1][c.dataset.y - 1]));
+      const S = i => !!MQ.S[i], H = i => !!MQ.H[i], R = i => !!MQ.R[i];
+      mqBadge('q1', mqAll(S));
+      mqBadge('q2', mqSome(H));
+      mqBadge('q3', MQ.R.filter(Boolean).length === 1);
+      mqBadge('q4', !mqSome(R));
+      mqBadge('q5', mqAll(i => !H(i) || S(i)));
+      mqBadge('q6', !mqAll(S));
+      mqBadge('q6b', mqSome(i => !S(i)));
+      const oneForAll = mqSome(y => mqAll(x => !!MQC[x][y]));
+      const allForOne = mqAll(x => mqSome(y => !!MQC[x][y]));
+      mqBadge('q7', oneForAll); mqBadge('q8', allForOne);
+      document.getElementById('mq-order-note').textContent =
+        oneForAll ? 'One for all is the stronger statement: whenever it holds, all for one holds too.'
+        : allForOne ? 'All for one without one for all: everyone covers someone, but no single musketeer is covered by everyone. The implication only runs one way.'
+        : 'Nobody is covered. Tick a few cells: can you make “all for one” true while “one for all” stays false?';
+    }
+    function mqToggle(btn) { const k = btn.dataset.k, i = btn.dataset.i - 1; MQ[k][i] = MQ[k][i] ? 0 : 1; mqRender(); }
+    function mqCover(cell) { const x = cell.dataset.x - 1, y = cell.dataset.y - 1; MQC[x][y] = MQC[x][y] ? 0 : 1; mqRender(); }
+    mqRender();
+  </script>
+</body>
+</html>
