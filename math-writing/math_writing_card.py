@@ -17,7 +17,7 @@ NL = chr(10)
 mode = sys.argv[2] if len(sys.argv) > 2 else 'card'
 out = sys.argv[1]
 
-CAPTION_LEFT = NL.join(['So $4 = 2$?  And where is $-2$?', 'There is nothing to check,', 'only something to guess.'])
+CAPTION_LEFT = NL.join(['So $4 = 2$?  And what is $x$?', 'There is nothing to check,', 'only something to guess.'])
 CAPTION_RIGHT = NL.join(['Every line is a statement', 'you can check.'])
 SCRIBBLED = [(r'$x^2 = 4$', 0.19), (r'$= \sqrt{4}$', 0.24), (r'$= 2$', 0.24)]
 WRITTEN = [r'Let $x \in \mathbb{R}$. Then:',
@@ -63,7 +63,7 @@ if mode == 'card':
     left = [(r'$x^2 = 4$', 0.40), (r'$= \sqrt{4}$', 0.47), (r'$= 2$', 0.47)]
     for i, (t, xf) in enumerate(left):
         ax.text(W * xf, H * 0.76 - i * 0.17 * H, t, ha='left', va='center', fontsize=56, color=MUTED, family='serif')
-    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And where is $-2$?', ha='center', va='center', fontsize=40,
+    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And what is $x$?', ha='center', va='center', fontsize=40,
             linespacing=1.3, family='serif', color=PLUM)
     fig.savefig(out, dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
 

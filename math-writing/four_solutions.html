@@ -37,7 +37,7 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Five Solutions, One Perfect</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                Five solutions of \(x^2 = 4\). Only one passes both tests, every line a statement and every statement true, and only one would have satisfied my school teacher, Mr B. Guess first, then reveal the corrections: the solution stays as it was handed in, the remarks appear in the margin.
+                Five solutions of \(x^2 = 4\). Only one passes both tests: every line is a statement (its letters introduced, its link to the line before in place), and every statement is true (the link really holds). And only one would have satisfied my school teacher, Mr B. Guess first, then reveal the corrections: the solution stays as it was handed in, the remarks unfold between the lines.
               </p>
             </div>
             <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -45,14 +45,12 @@
                 <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 1 · scribbled</div>
                 <div class="mw-card" id="mw-card-1">
                   <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">read aloud: 4 = 2?</span></div>
+                  <div class="mw-noteline"><div><span class="mw-note">read aloud: 4 = 2?</span></div></div>
                   <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(= 2\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">and where is −2?</span></div>
-                  <div></div>
-                  <div class="mw-margin"><span class="mw-note">not one line is a statement: nothing to check, only something to guess</span></div>
-                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ No statements at all.</div>
+                  <div class="mw-noteline"><div><span class="mw-note">and where is −2?</span></div></div>
+                  <div class="mw-noteline"><div><span class="mw-note">not one line is a statement: nothing to check, only something to guess</span></div></div>
+                  <div class="mw-noteline"><div><div class="font-bold text-brand-plum text-xs pt-2">✗ No statements at all.</div></div></div>
                 </div>
                 <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
@@ -60,14 +58,12 @@
                 <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 2 · square root</div>
                 <div class="mw-card" id="mw-card-2">
                   <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(\sqrt{\;\cdot\;}\)</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">careful: √(x²) = |x|, not x</span></div>
+                  <div class="mw-noteline"><div><span class="mw-note">careful: √(x²) = |x|, not x</span></div></div>
                   <div class="mw-line"><span class="mw-bad">\(\Leftrightarrow\; x = 2\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">|x| = 2 ⇔ x = 2 or x = −2. One solution lost: this ⇔ is false.</span></div>
-                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ Every line a statement, but one of them is false.</div>
+                  <div class="mw-noteline"><div><span class="mw-note">|x| = 2 ⇔ x = 2 or x = −2. One solution lost: this ⇔ is false.</span></div></div>
+                  <div class="mw-noteline"><div><div class="font-bold text-brand-plum text-xs pt-2">✗ Every line a statement, but one link is false.</div></div></div>
                 </div>
                 <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
@@ -75,14 +71,12 @@
                 <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 3 · which world?</div>
                 <div class="mw-card" id="mw-card-3">
                   <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">which x? Introduce it first: Let x ∈ ℝ.</span></div>
-                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-noteline"><div><span class="mw-note">which x? Introduce it first: Let x ∈ ℝ.</span></div></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| 3rd binomial formula</span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">for x ∈ ℕ the answer would be x = 2 only</span></div>
-                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ Correct steps, but no statement until x is introduced.</div>
+                  <div class="mw-noteline"><div><span class="mw-note">for x ∈ ℕ the answer would be x = 2 only</span></div></div>
+                  <div class="mw-noteline"><div><div class="font-bold text-brand-plum text-xs pt-2">✗ Correct steps, but no statement until x is introduced.</div></div></div>
                 </div>
                 <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
@@ -90,18 +84,12 @@
                 <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 4 · written</div>
                 <div class="mw-card" id="mw-card-4">
                   <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
-                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| 3rd binomial formula</span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
-                  <div class="mw-margin"><span class="mw-note">Mr B.: and the full stop at the end?</span></div>
-                  <div></div>
-                  <div class="mw-margin"><span class="mw-note ok">✓ every line a statement, every statement true</span></div>
-                  <div class="mw-full mw-verdict font-bold text-brand-terracotta text-xs pt-2">✓ Passes both tests. One thing left for the bonus level.</div>
+                  <div class="mw-noteline"><div><span class="mw-note ok">✓ every line a statement, every link holds</span></div></div>
+                  <div class="mw-noteline"><div><div class="font-bold text-brand-terracotta text-xs pt-2">✓ Passes both tests. One thing left for the bonus level.</div></div></div>
                 </div>
                 <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
@@ -109,16 +97,12 @@
                 <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Bonus level · for my school teacher, Mr B.</div>
                 <div class="mw-card" id="mw-card-5">
                   <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
-                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| 3rd binomial formula</span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
-                  <div class="mw-margin"><span class="mw-note"></span></div>
                   <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span></div>
-                  <div class="mw-margin"><span class="mw-note ok">✓ full stop. A formula is part of the sentence.</span></div>
-                  <div class="mw-full mw-verdict font-bold text-brand-terracotta text-xs pt-2">✓ Nothing left to mark.</div>
+                  <div class="mw-noteline"><div><span class="mw-note ok">✓ full stop. A formula is part of the sentence.</span></div></div>
+                  <div class="mw-noteline"><div><div class="font-bold text-brand-terracotta text-xs pt-2">✓ Nothing left to mark for Mr B.</div></div></div>
                 </div>
                 <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
