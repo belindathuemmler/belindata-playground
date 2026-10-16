@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Four Solutions, One Correct • belindata playground</title>
+  <title>Five Solutions, One Perfect • belindata playground</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -37,132 +37,100 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Five Solutions, One Perfect</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                Five solutions of \(x^2 = 4\). Only one passes both tests, every line a statement and every statement true, and only one would have satisfied my school teacher, Mr B. Guess first, then reveal the corrections.
+                Five solutions of \(x^2 = 4\). Only one passes both tests, every line a statement and every statement true, and only one would have satisfied my school teacher, Mr B. Guess first, then reveal the corrections: the solution stays as it was handed in, the remarks appear in the margin.
               </p>
             </div>
             <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="mw-card">
-                <div class="mw-inner">
-                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 1 · scribbled</div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
-                    <div class="mw-line"><span>\(= 2\)</span></div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
-                  </div>
-                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 1 · scribbled</div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-note">read aloud: 4 = 2?</div>
-                    <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
-                    <div class="mw-line"><span>\(= 2\)</span></div>
-                    <div class="mw-note">and where is −2?</div>
-                    <div class="mw-note">not one line is a statement: nothing to check, only something to guess</div>
-                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ No statements at all.</div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
-                  </div>
+              <div class="rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 text-sm">
+                <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 1 · scribbled</div>
+                <div class="mw-card" id="mw-card-1">
+                  <div class="mw-line"><span>\(x^2 = 4\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">read aloud: 4 = 2?</span></div>
+                  <div class="mw-line"><span>\(= \sqrt{4}\)</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(= 2\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">and where is −2?</span></div>
+                  <div></div>
+                  <div class="mw-margin"><span class="mw-note">not one line is a statement: nothing to check, only something to guess</span></div>
+                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ No statements at all.</div>
                 </div>
+                <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
-              <div class="mw-card">
-                <div class="mw-inner">
-                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 2 · square root</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span><span class="mw-why">| \(\sqrt{\;\cdot\;}\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\)</span></div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
-                  </div>
-                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 2 · square root</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span><span class="mw-why">| \(\sqrt{\;\cdot\;}\)</span></div>
-                    <div class="mw-note">careful: √(x²) = |x|, not x</div>
-                    <div class="mw-line"><span><span class="mw-bad">\(\Leftrightarrow\; x = 2\)</span></span></div>
-                    <div class="mw-note">|x| = 2 ⇔ x = 2 or x = −2. One solution lost, the last ⇔ is false.</div>
-                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ Every line a statement, but one of them is false.</div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
-                  </div>
+              <div class="rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 text-sm">
+                <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 2 · square root</div>
+                <div class="mw-card" id="mw-card-2">
+                  <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(\sqrt{\;\cdot\;}\)</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; \sqrt{x^2} = \sqrt{4}\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">careful: √(x²) = |x|, not x</span></div>
+                  <div class="mw-line"><span class="mw-bad">\(\Leftrightarrow\; x = 2\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">|x| = 2 ⇔ x = 2 or x = −2. One solution lost: this ⇔ is false.</span></div>
+                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ Every line a statement, but one of them is false.</div>
                 </div>
+                <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
-              <div class="mw-card">
-                <div class="mw-inner">
-                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 3 · which world?</div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
-                  </div>
-                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 3 · which world?</div>
-                    <div class="mw-note">which x? Introduce it first: Let x ∈ ℝ.</div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
-                    <div class="mw-note">for x ∈ ℕ the answer would be x = 2 only</div>
-                    <div class="font-bold text-[#B3261E] text-xs pt-1">✗ Correct steps, but no statement until x is introduced.</div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
-                  </div>
+              <div class="rounded-2xl bg-brand-ivory text-brand-dark border-2 border-white/15 p-4 sm:p-5 text-sm">
+                <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 3 · which world?</div>
+                <div class="mw-card" id="mw-card-3">
+                  <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">which x? Introduce it first: Let x ∈ ℝ.</span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">for x ∈ ℕ the answer would be x = 2 only</span></div>
+                  <div class="mw-full mw-verdict font-bold text-brand-plum text-xs pt-2">✗ Correct steps, but no statement until x is introduced.</div>
                 </div>
+                <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
-              <div class="mw-card">
-                <div class="mw-inner">
-                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-emerald-400/60 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 4 · written</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| \(a^2 - b^2 = (a-b)(a+b)\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span><span class="mw-why">| \(ab = 0 \Leftrightarrow a = 0 \lor b = 0\)</span></div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
-                  </div>
-                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-emerald-400/60 p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Solution 4 · written</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| \(a^2 - b^2 = (a-b)(a+b)\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span><span class="mw-why">| \(ab = 0 \Leftrightarrow a = 0 \lor b = 0\)</span></div>
-                    <div class="mw-note">✓ every line a statement, every statement true</div>
-                    <div class="mw-note">Mr B.: and the full stop at the end?</div>
-                    <div class="font-bold text-emerald-700 text-xs pt-1">✓ Passes both tests. One thing left for the bonus level.</div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
-                  </div>
+              <div class="rounded-2xl bg-brand-ivory text-brand-dark border-2 border-emerald-400/60 p-4 sm:p-5 text-sm">
+                <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Solution 4 · written</div>
+                <div class="mw-card" id="mw-card-4">
+                  <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2\)</span></div>
+                  <div class="mw-margin"><span class="mw-note">Mr B.: and the full stop at the end?</span></div>
+                  <div></div>
+                  <div class="mw-margin"><span class="mw-note ok">✓ every line a statement, every statement true</span></div>
+                  <div class="mw-full mw-verdict font-bold text-brand-terracotta text-xs pt-2">✓ Passes both tests. One thing left for the bonus level.</div>
                 </div>
+                <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
-              <div class="mw-card sm:col-span-2 sm:max-w-md sm:mx-auto sm:w-full">
-                <div class="mw-inner">
-                  <div class="mw-face rounded-2xl bg-brand-ivory text-brand-dark border-2 border-[#F4C98F] p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Bonus level · for my school teacher, Mr B.</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| \(a^2 - b^2 = (a-b)(a+b)\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span><span class="mw-why">| \(ab = 0 \Leftrightarrow a = 0 \lor b = 0\)</span></div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-2 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
-                  </div>
-                  <div class="mw-face mw-back rounded-2xl bg-brand-ivory text-brand-dark border-2 border-[#F4C98F] p-4 sm:p-5 space-y-2 text-sm">
-                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum">Bonus level · for my school teacher, Mr B.</div>
-                    <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
-                    <div class="mw-line"><span>\(x^2 = 4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| \(-\,4\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| \(a^2 - b^2 = (a-b)(a+b)\)</span></div>
-                    <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span><span class="mw-why">| \(ab = 0 \Leftrightarrow a = 0 \lor b = 0\)</span></div>
-                    <div class="mw-note">✓ full stop. A formula is part of the sentence.</div>
-                    <div class="font-bold text-emerald-700 text-xs pt-1">✓ Nothing left to mark.</div>
-                    <button type="button" onclick="mwFlip(this)" class="mt-1 px-3 py-1.5 rounded-full bg-white/60 hover:bg-white border border-brand-plum/20 text-brand-dark text-xs font-semibold transition-colors">Back</button>
-                  </div>
+              <div class="rounded-2xl bg-brand-ivory text-brand-dark border-2 border-[#F4C98F] p-4 sm:p-5 text-sm sm:col-span-2 sm:max-w-md sm:mx-auto sm:w-full">
+                <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-plum mb-3">Bonus level · for my school teacher, Mr B.</div>
+                <div class="mw-card" id="mw-card-5">
+                  <div class="mw-line"><span>Let \(x \in \mathbb{R}\). Then:</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(x^2 = 4\)</span><span class="mw-why">| \(-\,4\)</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x^2 - 4 = 0\)</span><span class="mw-why">| third binomial formula</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; (x-2)(x+2) = 0\)</span><span class="mw-why">| zero-product property</span></div>
+                  <div class="mw-margin"><span class="mw-note"></span></div>
+                  <div class="mw-line"><span>\(\Leftrightarrow\; x = 2\) or \(x = -2.\)</span></div>
+                  <div class="mw-margin"><span class="mw-note ok">✓ full stop. A formula is part of the sentence.</span></div>
+                  <div class="mw-full mw-verdict font-bold text-brand-terracotta text-xs pt-2">✓ Nothing left to mark.</div>
                 </div>
+                <button type="button" onclick="mwReveal(this)" class="mt-3 px-3 py-1.5 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white text-xs font-semibold transition-colors">Reveal</button>
               </div>
             </div>
           </div>
   </main>
   <script>
-    function mwFlip(btn) { btn.closest('.mw-card').classList.toggle('flipped'); }
+    function mwReveal(btn) {
+      const card = btn.parentElement.querySelector('.mw-card');
+      const on = card.classList.toggle('revealed');
+      btn.textContent = on ? 'Hide corrections' : 'Reveal';
+    }
   </script>
 </body>
 </html>
