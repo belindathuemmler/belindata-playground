@@ -63,8 +63,11 @@ if mode == 'card':
     left = [(r'$x^2 = 4$', 0.40), (r'$= \sqrt{4}$', 0.47), (r'$= 2$', 0.47)]
     for i, (t, xf) in enumerate(left):
         ax.text(W * xf, H * 0.76 - i * 0.17 * H, t, ha='left', va='center', fontsize=56, color=MUTED, family='serif')
-    ax.text(W * 0.5, H * 0.17, 'So $4 = 2$?  And what is $x$?', ha='center', va='center', fontsize=40,
-            linespacing=1.3, family='serif', color=PLUM)
+    # the remark in handwriting, like the corrections on the page (Segoe Print on Windows; serif fallback)
+    import os
+    from matplotlib.font_manager import FontProperties
+    hand = FontProperties(fname=r'C:\Windows\Fonts\segoepr.ttf') if os.path.exists(r'C:\Windows\Fonts\segoepr.ttf') else FontProperties(family='serif', style='italic')
+    ax.text(W * 0.5, H * 0.17, 'So 4 = 2?  And what is x?', ha='center', va='center', fontsize=40, fontproperties=hand, color=PLUM)
     fig.savefig(out, dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
 
 elif mode == 'compare':
