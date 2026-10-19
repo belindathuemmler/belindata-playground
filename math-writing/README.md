@@ -1,6 +1,6 @@
 # Easy Writing “Mathematisch”
 
-Article: [https://belindata.com/projects/math-writing.html](https://belindata.com/projects/math-writing.html) (in progress)
+Article: [https://belindata.com/projects/math-writing.html](https://belindata.com/projects/math-writing.html) (published)
 
 - `moser_circle.html`: the “1, 2, 4, 8, 16, … ?” animation as a standalone page. Open it in any browser, no installation needed.
 - `four_solutions.html`: the flip cards “Five Solutions, One Perfect” (five solutions of x² = 4, one passes both tests, one also has the full stop) as a standalone page.

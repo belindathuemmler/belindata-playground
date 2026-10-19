@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Counts from the German National Library • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6 space-y-4">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the live table from <a href="https://belindata.com/projects/silence.html" class="underline text-brand-terracotta">Silence = No Questions?</a> on belindata.com. Open this file in any browser.</p>
+    <p class="text-sm text-brand-dark/85">How many books does the German National Library list under a subject heading? Topics from the early semesters, business studies against mathematics. The button fetches today’s numbers from the library’s public SRU interface.</p>
+                    <!-- ================= INTERACTIVE: DNB COUNTS ================= -->
+            <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+              <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+              <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Interactive</span>
+                </div>
+                <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Counted, Not Felt</h3>
+                <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                  Books per subject heading in the catalogue of the German National Library, topics from the early semesters, business studies against mathematics. Press the button for today’s numbers.
+                </p>
+              </div>
+
+              <div class="relative z-10 overflow-x-auto">
+                <table class="text-xs sm:text-sm">
+                  <thead><tr class="text-white/80 text-[11px] font-mono uppercase tracking-wider"><th class="text-left pr-1 font-normal pb-2 whitespace-nowrap"><span class="inline-block w-3 h-3 rounded-sm align-middle mr-2" style="background:#DF7654"></span>Business studies, early semesters</th><th class="text-right pl-3 pr-16 font-normal pb-2">#titles</th><th class="text-left pr-1 font-normal pb-2 whitespace-nowrap"><span class="inline-block w-3 h-3 rounded-sm align-middle mr-2" style="background:repeating-linear-gradient(45deg,#D8A9BF 0 2px,#181315 2px 4px)"></span>Mathematics, early semesters</th><th class="text-right pl-3 font-normal pb-2">#titles</th></tr></thead>
+                  <tbody class="divide-y divide-white/10">
+                    <tr><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Investitionsrechnung</td><td class="py-2 pl-3 pr-16 font-mono text-right text-white" data-sw="Investitionsrechnung" data-n="1023">1,023</td><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Maßtheorie</td><td class="py-2 pl-3 font-mono text-right text-white" data-sw="Maßtheorie" data-n="213">213</td></tr>
+                    <tr><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Kostenrechnung</td><td class="py-2 pl-3 pr-16 font-mono text-right text-white" data-sw="Kostenrechnung" data-n="3412">3,412</td><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Lebesgue-Integral</td><td class="py-2 pl-3 font-mono text-right text-white" data-sw="Lebesgue-Integral" data-n="42">42</td></tr>
+                    <tr><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Deckungsbeitragsrechnung</td><td class="py-2 pl-3 pr-16 font-mono text-right text-white" data-sw="Deckungsbeitragsrechnung" data-n="215">215</td><td class="py-2 pr-1 text-white font-medium whitespace-nowrap">Ringtheorie</td><td class="py-2 pl-3 font-mono text-right text-white" data-sw="Ring (Mathematik)" data-n="108">108</td></tr>
+                  </tbody>
+                  <tfoot><tr class="border-t-2 border-white/25 text-white"><td class="py-2 pr-1 font-bold">Total</td><td id="dnb-sum-business" class="py-2 pl-3 pr-16 font-mono font-bold text-right">4,650</td><td class="py-2 pr-1 font-bold">Total</td><td id="dnb-sum-math" class="py-2 pl-3 font-mono font-bold text-right">363</td></tr></tfoot>
+                </table>
+              </div>
+
+              <div class="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center border-t border-white/10 pt-4">
+                <div class="sm:col-span-4">
+                  <svg id="dnb-pie" viewBox="0 0 200 200" class="w-full max-w-[170px] mx-auto h-auto" role="img" aria-label="Share of catalogue titles: business studies versus mathematics">
+                    <defs>
+                      <pattern id="dnb-hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                        <rect width="6" height="6" fill="#D8A9BF"/>
+                        <line x1="0" y1="0" x2="0" y2="6" stroke="#181315" stroke-width="2"/>
+                      </pattern>
+                    </defs>
+                    <circle cx="100" cy="100" r="62" fill="none" stroke="url(#dnb-hatch)" stroke-width="26"/>
+                    <circle id="dnb-arc-business" cx="100" cy="100" r="62" fill="none" stroke="#DF7654" stroke-width="26" stroke-dasharray="0 1000" transform="rotate(-90 100 100)"><title>Business studies</title></circle>
+                    <circle cx="100" cy="100" r="62" fill="none" stroke="#181315" stroke-width="2" stroke-dasharray="2 1000" transform="rotate(-90 100 100)"/>
+                    <circle id="dnb-gap2" cx="100" cy="100" r="62" fill="none" stroke="#181315" stroke-width="30" stroke-dasharray="2 1000" transform="rotate(-90 100 100)"/>
+                    <text id="dnb-pie-total" x="100" y="96" text-anchor="middle" font-size="20" font-weight="700" fill="#FFFFFF">5,013</text>
+                    <text x="100" y="114" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">titles in all</text>
+                  </svg>
+                </div>
+                <div class="sm:col-span-8 space-y-2 text-xs sm:text-sm">
+                  <div class="flex items-center gap-3"><span class="w-3.5 h-3.5 rounded-sm shrink-0" style="background:#DF7654"></span><span class="text-white/85">Business studies</span><span id="dnb-pie-business" class="font-mono text-white ml-auto">4,650 · 93 %</span></div>
+                  <div class="flex items-center gap-3"><span class="w-3.5 h-3.5 rounded-sm shrink-0" style="background:repeating-linear-gradient(45deg,#D8A9BF 0 2px,#181315 2px 4px)"></span><span class="text-white/85">Mathematics</span><span id="dnb-pie-math" class="font-mono text-white ml-auto">363 · 7 %</span></div>
+                  <p class="text-[11px] text-white/50 leading-relaxed pt-1">All six subject headings added up. Same three topics per side, so the split is a fair one.</p>
+                </div>
+              </div>
+
+              <div class="relative z-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+                <button type="button" id="dnb-refresh" onclick="dnbRefresh()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">↻ Count again, live</button>
+                <span id="dnb-status" class="font-mono text-white/70">counted on 19 October 2026</span>
+              </div>
+              <p class="relative z-10 text-[11px] text-white/50 leading-relaxed">The button asks the catalogue of the German National Library (dnb.de) for today’s numbers. Nothing else is sent, no cookies are set.</p>
+            </div>
+  </main>
+  <script>
+
+    // ==========================================
+    // LIVE COUNTS FROM THE GERMAN NATIONAL LIBRARY (SRU interface, subject headings)
+    // ==========================================
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dnbPie); else setTimeout(dnbPie, 0);
+    async function dnbCount(sw) {
+      const url = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&maximumRecords=1&query=' + encodeURIComponent('sw="' + sw + '"');
+      const text = await (await fetch(url)).text();
+      const m = text.match(/<numberOfRecords>(\d+)<\/numberOfRecords>/);
+      if (!m) throw new Error('no count');
+      return parseInt(m[1], 10);
+    }
+    function dnbAnimate(cell, to) {
+      const from = parseInt(cell.dataset.n, 10) || 0, t0 = performance.now();
+      const step = now => {
+        const f = Math.min(1, (now - t0) / 900), v = Math.round(from + (to - from) * (1 - Math.pow(1 - f, 3)));
+        cell.textContent = v.toLocaleString('en');
+        if (f < 1) requestAnimationFrame(step); else { cell.dataset.n = to; dnbPie(); }
+      };
+      requestAnimationFrame(step);
+    }
+    function dnbPie() {
+      const cells = Array.from(document.querySelectorAll('[data-sw]'));
+      const bus = cells.filter((c, i) => i % 2 === 0).reduce((a, c) => a + (parseInt(c.dataset.n, 10) || 0), 0);
+      const mat = cells.filter((c, i) => i % 2 === 1).reduce((a, c) => a + (parseInt(c.dataset.n, 10) || 0), 0);
+      const total = bus + mat, f = total ? bus / total : 0, C = 2 * Math.PI * 62;
+      document.getElementById('dnb-arc-business').setAttribute('stroke-dasharray', (f * C) + ' ' + C);
+      document.getElementById('dnb-gap2').setAttribute('stroke-dasharray', '2 1000');
+      document.getElementById('dnb-gap2').setAttribute('transform', 'rotate(' + (-90 + 360 * f) + ' 100 100)');
+      document.getElementById('dnb-pie-total').textContent = total.toLocaleString('en');
+      document.getElementById('dnb-sum-business').textContent = bus.toLocaleString('en');
+      document.getElementById('dnb-sum-math').textContent = mat.toLocaleString('en');
+      document.getElementById('dnb-pie-business').textContent = bus.toLocaleString('en') + ' \u00b7 ' + Math.round(100 * f) + ' %';
+      document.getElementById('dnb-pie-math').textContent = mat.toLocaleString('en') + ' \u00b7 ' + Math.round(100 * (1 - f)) + ' %';
+    }
+    async function dnbRefresh() {
+      const btn = document.getElementById('dnb-refresh'), status = document.getElementById('dnb-status');
+      const cells = Array.from(document.querySelectorAll('[data-sw]'));
+      btn.disabled = true; btn.classList.add('opacity-50'); status.textContent = 'asking dnb.de …';
+      try {
+        const counts = await Promise.all(cells.map(c => dnbCount(c.dataset.sw)));
+        cells.forEach((c, i) => { c.classList.add('text-brand-coral'); dnbAnimate(c, counts[i]); });
+        status.textContent = 'live from dnb.de, ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) {
+        status.textContent = 'dnb.de did not answer, showing the counts of 19 October 2026';
+      }
+      btn.disabled = false; btn.classList.remove('opacity-50');
+    }
+
+  </script>
+</body>
+</html>

@@ -14,7 +14,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [Measuring on Curved Surfaces](https://belindata.com/projects/curved-surfaces.html) | [`curved-surfaces/`](curved-surfaces/) |  | `logo_twin_trefoil.py`, `moebius_chart_grid.py` |
 | [Why the Circle Wins](https://belindata.com/projects/isoperimetric.html) | [`isoperimetric/`](isoperimetric/) | [`same_fence.html`](isoperimetric/same_fence.html) | `steiner_symmetrization.py`, `coming_soon_cards.py` |
 | [True Mathematicians by Heart](https://belindata.com/projects/true-mathematicians.html) | [`true-mathematicians/`](true-mathematicians/) |  | `true_mathematicians_card.py` |
-| [Silence = No Questions?](https://belindata.com/projects/silence.html) | [`silence/`](silence/) | [`any_questions.html`](silence/any_questions.html) | `silence_card.py` |
+| [Silence = No Questions?](https://belindata.com/projects/silence.html) | [`silence/`](silence/) | [`any_questions.html`](silence/any_questions.html), [`dnb_counts.html`](silence/dnb_counts.html) | `silence_card.py` |
 | [Playing With Knots](https://belindata.com/projects/knot-twins.html) | [`knot-twins/`](knot-twins/) | [`knots.html`](knot-twins/knots.html) | `reidemeister_card.py`, `knot_moves_check.py` |
 | [Is Zig-Zag Better Than Stumbling Around?](https://belindata.com/projects/zig-zag.html) | [`zig-zag/`](zig-zag/) |  | `zigzag_trajectory.py` |
 | [AI vs. Me: A Data Analysis Duel](https://belindata.com/projects/me-vs-ai.html) | [`me-vs-ai/`](me-vs-ai/) |  | `dashboard_card.py`, `coming_soon_cards.py` |
@@ -29,6 +29,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [Eigenvalues, Finally Explained](https://belindata.com/projects/eigenvalues.html) | [`eigenvalues/`](eigenvalues/) |  | `eigenvalues_card.py` |
 | [= or ⇔? Nerdy, but It Matters](https://belindata.com/projects/equals-iff.html) | [`equals-iff/`](equals-iff/) |  | `equals_iff_card.py` |
 | [One for All, All for One: ∀, ∃ and Friends](https://belindata.com/projects/quantifiers.html) | [`quantifiers/`](quantifiers/) | [`four_musketeers.html`](quantifiers/four_musketeers.html) | `quantifiers_card.py` |
+| [What π Actually Is](https://belindata.com/projects/pi.html) | [`pi/`](pi/) |  | `pi_card.py` |
 | [A Car From Above: My First Lesson in 3D Visualization](https://belindata.com/projects/car-from-above.html) | [`car-from-above/`](car-from-above/) |  | `car_from_above_card.py` |
 | [About Fat and Thin Triangles](https://belindata.com/projects/triangles.html) | [`triangles/`](triangles/) |  | `triangles_card.py` |
 | [About Fat and Thin Matrices](https://belindata.com/projects/sparse-dense.html) | [`sparse-dense/`](sparse-dense/) |  | `sparse_dense_card.py` |
