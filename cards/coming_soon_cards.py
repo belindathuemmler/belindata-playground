@@ -1,4 +1,4 @@
-"""Card images for the coming-soon projects on belindata.com (isoperimetry, mathematical writing,
+"""Card images for the coming-soon projects on belindata.com (mathematical writing,
 text embeddings, me vs. AI). Usage: python coming_soon_cards.py <output folder>"""
 import os
 import sys
@@ -32,19 +32,7 @@ def save(fig, name):
     plt.close(fig)
 
 
-# 1. Isoperimetry: three fences of the same length 2π; the circle encloses the most area
-fig, ax = canvas((-5.4, 5.4))
-L = 2 * np.pi
-w_thin = 2.9
-rgba = lambda c, a: (*matplotlib.colors.to_rgb(c), a)
-shapes = [(-3.4, w_thin, L / 2 - w_thin, ROSE), (0.0, L / 4, L / 4, CORAL)]
-for cx, w, h, col in shapes:
-    ax.add_patch(plt.Rectangle((cx - w / 2, -h / 2), w, h, fc=rgba(col, 0.3), ec=col, lw=3.5))
-    ax.text(cx, -1.65, f'area {w * h:.2f}', ha='center', fontsize=30, color=col, family='serif')
-ax.add_patch(plt.Circle((3.4, 0), 1.0, fc=rgba(TERRA, 0.3), ec=TERRA, lw=4))
-ax.text(3.4, -1.65, f'area {np.pi:.2f}', ha='center', fontsize=30, color=TERRA, family='serif', weight='bold')
-ax.text(0, 1.7, r'every fence has length $2\pi$', ha='center', fontsize=30, color=PLUM, family='serif')
-save(fig, 'card_isoperimetric.jpg')
+# (the isoperimetric card moved to ../isoperimetric/isoperimetric_card.py)
 
 # 2. Mathematical writing: a typical first-semester answer next to the same answer written as mathematics
 fig, ax = canvas((0, 10), (0, 10 * H / W))

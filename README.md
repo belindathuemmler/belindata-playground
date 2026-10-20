@@ -12,7 +12,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [How Much Does a Flat Square Weigh?](https://belindata.com/projects/hausdorff.html) | [`hausdorff/`](hausdorff/) | [`koch_curve.html`](hausdorff/koch_curve.html) | `koch_curve.py` |
 | [Robots Aiming for Banach Fixed Points](https://belindata.com/projects/banach.html) | [`banach/`](banach/) | [`robots_map.html`](banach/robots_map.html) |  |
 | [Measuring on Curved Surfaces](https://belindata.com/projects/curved-surfaces.html) | [`curved-surfaces/`](curved-surfaces/) |  | `logo_twin_trefoil.py`, `moebius_chart_grid.py` |
-| [Why the Circle Wins](https://belindata.com/projects/isoperimetric.html) | [`isoperimetric/`](isoperimetric/) | [`same_fence.html`](isoperimetric/same_fence.html) | `steiner_symmetrization.py`, `coming_soon_cards.py` |
+| [Why the Circle Wins](https://belindata.com/projects/isoperimetric.html) | [`isoperimetric/`](isoperimetric/) | [`fence_off_a_field.html`](isoperimetric/fence_off_a_field.html), [`fence_off_a_field_rope.html`](isoperimetric/fence_off_a_field_rope.html), [`fence_off_a_field_corners.html`](isoperimetric/fence_off_a_field_corners.html), [`steiner_symmetrization.html`](isoperimetric/steiner_symmetrization.html) | `steiner_symmetrization.py`, `isoperimetric_card.py` |
 | [True Mathematicians by Heart](https://belindata.com/projects/true-mathematicians.html) | [`true-mathematicians/`](true-mathematicians/) |  | `true_mathematicians_card.py` |
 | [Silence = No Questions?](https://belindata.com/projects/silence.html) | [`silence/`](silence/) | [`any_questions.html`](silence/any_questions.html), [`dnb_counts.html`](silence/dnb_counts.html) | `silence_card.py` |
 | [Playing With Knots](https://belindata.com/projects/knot-twins.html) | [`knot-twins/`](knot-twins/) | [`knots.html`](knot-twins/knots.html) | `reidemeister_card.py`, `knot_moves_check.py` |
@@ -34,6 +34,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [About Fat and Thin Triangles](https://belindata.com/projects/triangles.html) | [`triangles/`](triangles/) |  | `triangles_card.py` |
 | [About Fat and Thin Matrices](https://belindata.com/projects/sparse-dense.html) | [`sparse-dense/`](sparse-dense/) |  | `sparse_dense_card.py` |
 | [The Binomial Formulas in Pictures](https://belindata.com/projects/binomial.html) | [`binomial/`](binomial/) |  | `binomial_card.py` |
+| [Who Induces Whom?](https://belindata.com/projects/who-induces-whom.html) | [`who-induces-whom/`](who-induces-whom/) |  | `who_induces_whom_card.py` |
 
 Scripts that draw several cards at once live in [`cards/`](cards/).
 

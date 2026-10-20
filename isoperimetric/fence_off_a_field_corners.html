@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fence Off a Field – With More Corners • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/isoperimetric.html" class="underline text-brand-terracotta">Why the Circle Wins</a> on belindata.com. Open this file in any browser.</p>
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Fence Off a Field – With More Corners</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Same rope, more corners: every shape below is fenced with the same rope of length 18. The white line is the circle with the same perimeter 18.
+              </p>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <svg id="poly-svg" viewBox="1.15 1.15 7.7 7.7" class="w-full max-w-xs mx-auto h-auto" role="img" aria-label="A regular polygon fenced with a rope of 18 units on a big field of patches; the dashed line is the circle with the same rope"></svg>
+              <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" id="poly-prev" onclick="polyStep(-1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➖ Fewer corners</button>
+                  <button type="button" id="poly-next" onclick="polyStep(1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➕ More corners</button>
+                  <button type="button" onclick="polyReset()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">fence with corners</div>
+                    <div id="poly-now-n" class="text-4xl font-bold leading-tight"></div>
+                    <div id="poly-now-sub" class="text-xs text-white/60"></div>
+                  </div>
+                  <div id="poly-circle-cell">
+                    <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">the circle 🎯</div>
+                    <div id="poly-circle-n" class="text-4xl font-bold leading-tight text-emerald-300"></div>
+                    <div class="text-xs text-white/60">area of the circle with perimeter 18</div>
+                  </div>
+                </div>
+                <p id="poly-msg" class="text-xs sm:text-sm text-brand-coral min-h-[1.25rem]"></p>
+              </div>
+            </div>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // SAME FENCE, MORE CORNERS
+    // ==========================================
+    // ==========================================
+    // THE FIELD (shared by both fence games)
+    // ==========================================
+    // the big field behind the fence: a patchwork of green patches with furrows
+    function fieldBackground() {
+      const plots = ['#5F7F4C', '#728F5A', '#4F6D3C'];
+      let s = '';
+      for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
+        s += `<rect x="${i}" y="${j}" width="1" height="1" fill="${plots[(i * 7 + j * 3) % 3]}" fill-opacity="0.6"/>`;
+        for (let k = 1; k <= 3; k++) s += `<line x1="${i + 0.08}" y1="${j + k / 4}" x2="${i + 0.92}" y2="${j + k / 4}" stroke="#1F2A17" stroke-opacity="0.4" stroke-width="0.045"/>`;
+      }
+      return s;
+    }
+
+    // axes in the corner: width along the bottom, height up the left side; hotW / hotH highlight a whole-number value,
+    // the axes run from 0 to max, and endLabel (e.g. 'L/2') replaces the last number
+    function fieldAxes(hotW, hotH, max = 10, endLabel = null, wLabel = 'width', hLabel = 'height') {
+      const axis = 'stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.06"';
+      const tick = (x, y, label, hot) => `<text x="${x}" y="${y}" font-size="0.42" font-family="monospace" text-anchor="middle" fill="${hot ? '#EE9779' : '#FFFFFF'}" fill-opacity="${hot ? 1 : 0.55}"${hot ? ' font-weight="bold"' : ''}>${label}</text>`;
+      let s = `<line x1="0" y1="10" x2="${max + 0.4}" y2="10" ${axis}/><line x1="0" y1="10" x2="0" y2="${10 - max - 0.4}" ${axis}/>` + tick(-0.55, 10.72, 0, false);
+      for (let i = 1; i <= max; i++) {
+        const label = (i === max && endLabel) ? endLabel : i;
+        s += `<line x1="${i}" y1="10" x2="${i}" y2="10.18" ${axis}/>` + tick(i, 10.72, label, i === hotW);
+        s += `<line x1="0" y1="${10 - i}" x2="-0.18" y2="${10 - i}" ${axis}/>` + tick(-0.55, 10 - i + 0.15, label, i === hotH);
+      }
+      s += `<text x="5" y="11.55" font-size="0.46" font-family="monospace" text-anchor="middle" fill="#EE9779">${wLabel}</text>`;
+      s += `<text x="-1.1" y="5" font-size="0.46" font-family="monospace" text-anchor="middle" fill="#EE9779" transform="rotate(-90 -1.1 5)">${hLabel}</text>`;
+      return s;
+    }
+
+
+    // Regular polygons fenced with the same rope of length L = 18; 0 stands for the circle itself
+    const POLY_U = 18;
+    const POLY_STEPS = [3, 4, 5, 6, 8, 12, 24, 0];
+    const POLY_NAMES = { 3: 'triangle', 4: 'square', 5: 'pentagon', 6: 'hexagon', 8: 'octagon', 12: '12-gon', 24: '24-gon', 0: 'circle' };
+    const POLY_CIRCLE_AREA = POLY_U * POLY_U / (4 * Math.PI);
+    let polyIdx = 1;
+
+    // area of a regular n-gon with perimeter L; the circle for n = 0
+    function polyArea(n) { return n ? POLY_U * POLY_U / (4 * n * Math.tan(Math.PI / n)) : POLY_CIRCLE_AREA; }
+
+    function polyRender() {
+      const n = POLY_STEPS[polyIdx], k = n || 360;
+      const cx = 5, cy = 5;                                      // centre of the shape on the field
+      const R = POLY_U / (2 * k * Math.sin(Math.PI / k));       // circumradius of a regular k-gon with perimeter L
+      const pts = [];
+      for (let i = 0; i < k; i++) {
+        const a = -Math.PI / 2 + 2 * Math.PI * i / k;
+        pts.push(`${(cx + R * Math.cos(a)).toFixed(3)},${(cy + R * Math.sin(a)).toFixed(3)}`);
+      }
+      const box = `points="${pts.join(' ')}"`;
+      // a coordinate cross through the centre of the shape: x to the right, y upwards, one unit per patch
+      const ax = 'stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.05"';
+      const L = 3.55;   // the axes reach 3.55 units from the centre and end in arrowheads
+      let cross = `<line x1="${cx - L}" y1="${cy}" x2="${cx + L}" y2="${cy}" ${ax}/><line x1="${cx}" y1="${cy + L}" x2="${cx}" y2="${cy - L}" ${ax}/>` +
+        `<polygon points="${cx + L + 0.25},${cy} ${cx + L - 0.05},${cy - 0.12} ${cx + L - 0.05},${cy + 0.12}" fill="#FFFFFF" fill-opacity="0.8"/>` +
+        `<polygon points="${cx},${cy - L - 0.25} ${cx - 0.12},${cy - L + 0.05} ${cx + 0.12},${cy - L + 0.05}" fill="#FFFFFF" fill-opacity="0.8"/>`;
+      for (let i = -3; i <= 3; i++) {
+        if (i === 0) continue;
+        cross += `<line x1="${cx + i}" y1="${cy - 0.12}" x2="${cx + i}" y2="${cy + 0.12}" ${ax}/><text x="${cx + i}" y="${cy + 0.5}" font-size="0.34" font-family="monospace" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.8">${i}</text>`;
+        cross += `<line x1="${cx - 0.12}" y1="${cy - i}" x2="${cx + 0.12}" y2="${cy - i}" ${ax}/><text x="${cx - 0.22}" y="${cy - i + 0.12}" font-size="0.34" font-family="monospace" text-anchor="end" fill="#FFFFFF" fill-opacity="0.8">${i}</text>`;
+      }
+      cross += `<text x="${cx + 0.2}" y="${cy + 0.45}" font-size="0.34" font-family="monospace" fill="#FFFFFF" fill-opacity="0.8">0</text>`;
+      cross += `<text x="${cx + L + 0.1}" y="${cy - 0.2}" font-size="0.38" font-family="monospace" fill="#EE9779" font-weight="bold">x</text><text x="${cx + 0.2}" y="${cy - L - 0.05}" font-size="0.38" font-family="monospace" fill="#EE9779" font-weight="bold">y</text>`;
+      document.getElementById('poly-svg').innerHTML = fieldBackground() +
+        `<polygon ${box} fill="#F4C98F" fill-opacity="0.5"/>` + cross +
+        `<circle cx="${cx}" cy="${cy}" r="${(POLY_U / (2 * Math.PI)).toFixed(3)}" fill="none" stroke="#FFFFFF" stroke-opacity="0.75" stroke-width="0.1"/>` +   // the same rope laid as a circle: the target, above the field so it always shows through
+        `<polygon ${box} fill="none" stroke="#C9A66B" stroke-width="0.1" stroke-linejoin="round"/>` +   // a thin rope
+        `<polygon ${box} fill="none" stroke="#7A5A33" stroke-width="0.1" stroke-linejoin="round" stroke-dasharray="0.11 0.11"/>`;
+      const A = polyArea(n);
+      document.getElementById('poly-now-n').textContent = A.toFixed(2);
+      document.getElementById('poly-now-sub').textContent = n ? `area of a polygon with ${n} corners` : 'enough corners for today';
+      document.getElementById('poly-circle-n').textContent = POLY_CIRCLE_AREA.toFixed(2);
+      // at the circle itself the left number and the comparison are redundant: hide them, the target cell stays
+      document.getElementById('poly-now-n').style.visibility = n ? '' : 'hidden';   // keeps its height, so the caption stays level with the one next to it
+      document.getElementById('poly-msg').textContent = n ? `The ${POLY_NAMES[n]} reaches ${(100 * A / POLY_CIRCLE_AREA).toFixed(1)} % of the circle.` : '';
+      const prev = document.getElementById('poly-prev'), next = document.getElementById('poly-next');
+      prev.disabled = polyIdx === 0; prev.classList.toggle('opacity-40', polyIdx === 0);
+      next.disabled = polyIdx === POLY_STEPS.length - 1; next.classList.toggle('opacity-40', polyIdx === POLY_STEPS.length - 1);
+    }
+
+    function polyStep(dir) {
+      polyIdx = Math.max(0, Math.min(POLY_STEPS.length - 1, polyIdx + dir));
+      polyRender();
+    }
+
+    function polyReset() {
+      polyIdx = 1;
+      polyRender();
+    }
+
+    polyRender();
+  </script>
+</body>
+</html>
