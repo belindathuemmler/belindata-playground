@@ -26,7 +26,7 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Steiner’s Move: Same Area, Less Fence</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                An odd-shaped field. Draw a line across it with your mouse or finger: that is your axis. Then symmetrize: every strip perpendicular to the axis slides until its midpoint lies on the axis. The area never changes, the fence only gets shorter. Repeat in other directions and watch the field turn into a circle.
+                An odd-shaped field with a fixed area of 25.78 m². Draw a line across it with your mouse or finger: that is your axis. Then symmetrize: every strip perpendicular to the axis slides until its midpoint lies on the axis. The area never changes, but its shape does, and thus the fence gets shorter. Repeat in other directions and watch the field turn into a circle.
               </p>
             </div>
 
@@ -34,27 +34,25 @@
               <svg id="st-svg" viewBox="0 0 10 10" class="md:col-span-2 w-full max-w-xs mx-auto h-auto touch-none select-none cursor-crosshair" role="img" aria-label="An odd-shaped field, an axis and the symmetrized field"></svg>
               <div class="md:col-span-3 space-y-4">
                 <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" onclick="stRandomAxis()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">🎲 Random axis</button>
                   <button type="button" id="st-go" onclick="stSymmetrize()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">⇅ Symmetrize</button>
-                  <button type="button" id="st-auto" onclick="stAuto()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">▶ Keep going</button>
-                  <button type="button" onclick="stRandomAxis()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">🎲 Random axis</button>
                   <button type="button" onclick="stReset()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
                 </div>
-                <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                  <div>
-                    <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">area</div>
-                    <div id="st-area" class="text-3xl font-bold leading-tight"></div>
-                    <div class="text-xs text-white/60">stays the same</div>
-                  </div>
+                <div><span class="inline-block px-2.5 py-1 rounded-full bg-emerald-400/15 border border-emerald-300/50 text-[11px] font-mono font-bold text-emerald-300">area 25.78m², fixed</span></div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">fence</div>
-                    <div id="st-perim" class="text-3xl font-bold leading-tight text-emerald-300"></div>
+                    <div id="st-perim" class="text-2xl font-bold leading-tight whitespace-nowrap"></div>
                     <div id="st-perim-sub" class="text-xs text-white/60"></div>
                   </div>
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">smallest circle around it</div>
-                    <div id="st-rad" class="text-3xl font-bold leading-tight"></div>
-                    <div class="text-xs text-white/60">radius, shrinks unless it is a circle</div>
+                    <div id="st-rad" class="text-2xl font-bold leading-tight text-emerald-300 whitespace-nowrap"></div>
+                    <div class="text-xs text-white/60">its fence, shrinks unless the field is already a circle</div>
                   </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" id="st-auto" onclick="stAuto()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">▶ Keep going</button>
                 </div>
                 <p id="st-msg" class="text-xs sm:text-sm text-brand-coral min-h-[1.25rem]"></p>
               </div>
@@ -70,6 +68,7 @@
     // replaced by one chord of the same total length, centred on the axis.
     const ST_N = 200;                      // strips per symmetrization
     const ST_STEP_MS = 900;                // duration of the sliding animation
+    const ST_AREA = 25.78;                 // fixed area of the field (the circle with rope 18 m)
 
     function stStartShape() {              // a new odd-shaped blob every time: random waves on a circle of radius 2
       const waves = [];                    // [frequency, amplitude, phase]
@@ -78,8 +77,8 @@
         const amp = lo + Math.random() * (hi - lo);
         waves.push([k, amp, Math.random() * 2 * Math.PI]); sum += amp;
       }
-      const scale = Math.min(1, 1.3 / sum);   // keeps the radius between 0.7 and 3.3, so the field stays inside the patch
-      const cx = 5 + (Math.random() - 0.5) * 0.6, cy = 5 + (Math.random() - 0.5) * 0.6;
+      const scale = Math.min(1, 1.3 / sum);
+      const cx = 5 + (Math.random() - 0.5) * 0.5, cy = 5 + (Math.random() - 0.5) * 0.5;
       const pts = [];
       for (let i = 0; i < 140; i++) {
         const a = 2 * Math.PI * i / 140;
@@ -87,7 +86,11 @@
         for (const [k, amp, ph] of waves) r += scale * amp * Math.cos(k * a + ph);
         pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
       }
-      return pts;
+      // every field has the same area, 25.78 m²: the circle with this area needs a rope of exactly 18 m
+      const k = Math.sqrt(ST_AREA / stArea(pts));
+      const out = pts.map(p => [cx + k * (p[0] - cx), cy + k * (p[1] - cy)]);
+      const tooBig = out.some(p => p[0] < 0.25 || p[0] > 9.75 || p[1] < 0.25 || p[1] > 9.75);
+      return tooBig ? stStartShape() : out;   // the rare oversized one is simply drawn again
     }
 
     let stShape = stStartShape();
@@ -107,18 +110,33 @@
       for (let i = 0, j = p.length - 1; i < p.length; j = i++) L += Math.hypot(p[i][0] - p[j][0], p[i][1] - p[j][1]);
       return L;
     }
-    function stEnclosingCircle(p) {       // Badoiu–Clarkson approximation of the smallest enclosing circle
-      let cx = 0, cy = 0;
-      for (const q of p) { cx += q[0]; cy += q[1]; }
-      cx /= p.length; cy /= p.length;
-      for (let k = 1; k <= 400; k++) {
-        let far = p[0], fd = -1;
-        for (const q of p) { const d = Math.hypot(q[0] - cx, q[1] - cy); if (d > fd) { fd = d; far = q; } }
-        cx += (far[0] - cx) / (k + 1); cy += (far[1] - cy) / (k + 1);
+    function stEnclosingCircle(p) {       // the smallest enclosing circle, exact (Welzl's algorithm, iterative form)
+      const pts = p.slice();
+      for (let i = pts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pts[i], pts[j]] = [pts[j], pts[i]]; }
+      const inside = (c, q) => Math.hypot(q[0] - c.cx, q[1] - c.cy) <= c.r * (1 + 1e-12) + 1e-12;
+      const two = (a, b) => ({ cx: (a[0] + b[0]) / 2, cy: (a[1] + b[1]) / 2, r: Math.hypot(a[0] - b[0], a[1] - b[1]) / 2 });
+      const three = (a, b, c) => {
+        const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
+        if (Math.abs(d) < 1e-14) return null;
+        const A2 = a[0] * a[0] + a[1] * a[1], B2 = b[0] * b[0] + b[1] * b[1], C2 = c[0] * c[0] + c[1] * c[1];
+        const ux = (A2 * (b[1] - c[1]) + B2 * (c[1] - a[1]) + C2 * (a[1] - b[1])) / d;
+        const uy = (A2 * (c[0] - b[0]) + B2 * (a[0] - c[0]) + C2 * (b[0] - a[0])) / d;
+        return { cx: ux, cy: uy, r: Math.hypot(a[0] - ux, a[1] - uy) };
+      };
+      let c = { cx: pts[0][0], cy: pts[0][1], r: 0 };
+      for (let i = 1; i < pts.length; i++) {
+        if (inside(c, pts[i])) continue;
+        c = { cx: pts[i][0], cy: pts[i][1], r: 0 };
+        for (let j = 0; j < i; j++) {
+          if (inside(c, pts[j])) continue;
+          c = two(pts[i], pts[j]);
+          for (let k = 0; k < j; k++) {
+            if (inside(c, pts[k])) continue;
+            c = three(pts[i], pts[j], pts[k]) || c;
+          }
+        }
       }
-      let r = 0;
-      for (const q of p) r = Math.max(r, Math.hypot(q[0] - cx, q[1] - cy));
-      return { cx, cy, r };
+      return c;
     }
 
     // chords of the polygon on every strip: returns { t[], strips[] } with strips[i] = [[d0, d1], [d2, d3], ...]
@@ -151,23 +169,58 @@
       return { ts, strips, lens, dt, nx, ny };
     }
 
-    // the symmetrized polygon: one centred chord per strip
+    // the symmetrized polygon, computed exactly: between the projections of the vertices onto the axis the total
+    // chord length is a linear function of t, so one centred chord at every such breakpoint is the exact result.
+    // Exactly as in the proof, the fence and the enclosing circle can then never grow.
     function stSymmetrized(p, ax) {
-      const { ts, lens, nx, ny } = stStrips(p, ax);
+      const nx = -ax.uy, ny = ax.ux;
+      const s = p.map(q => (q[0] - ax.px) * ax.ux + (q[1] - ax.py) * ax.uy);
+      const d = p.map(q => (q[0] - ax.px) * nx + (q[1] - ax.py) * ny);
+      const ts = [...new Set(s.map(v => Math.round(v * 1e5) / 1e5))].sort((a, b) => a - b);
+      const eps = 1e-7 * (ts[ts.length - 1] - ts[0]);
+      const chordLen = t => {                // total length of the chord(s) on the line s = t (t not at a vertex)
+        const cuts = [];
+        for (let a = 0, b = p.length - 1; a < p.length; b = a++) {
+          const sa = s[a], sb = s[b];
+          if ((sa <= t) !== (sb <= t)) cuts.push(d[b] + (t - sb) / (sa - sb) * (d[a] - d[b]));
+        }
+        cuts.sort((x, y) => x - y);
+        let L = 0;
+        for (let k = 0; k + 1 < cuts.length; k += 2) L += cuts[k + 1] - cuts[k];
+        return L;
+      };
       const top = [], bottom = [];
-      ts.forEach((t, i) => {
-        const L = lens[i];
+      ts.forEach((t, i) => {                 // the chord length is continuous, so it is read just beside each breakpoint
+        const L = (i === ts.length - 1) ? chordLen(t - eps) : chordLen(t + eps);
         top.push([ax.px + t * ax.ux - (L / 2) * nx, ax.py + t * ax.uy - (L / 2) * ny]);
         bottom.push([ax.px + t * ax.ux + (L / 2) * nx, ax.py + t * ax.uy + (L / 2) * ny]);
       });
-      const q = top.concat(bottom.reverse());
-      // the true symmetrization keeps the area exactly; the strip approximation loses a sliver (well below 0.1 %),
-      // which is given back by a tiny scaling about the centroid
-      const k = Math.sqrt(stArea(p) / stArea(q));
-      let cx = 0, cy = 0;
-      for (const v of q) { cx += v[0]; cy += v[1]; }
-      cx /= q.length; cy /= q.length;
-      return q.map(v => [cx + k * (v[0] - cx), cy + k * (v[1] - cy)]);
+      return stThin(top.concat(bottom.reverse()));
+    }
+
+    // keeps the polygon small: a vertex that lies (almost) on the line between its neighbours is dropped, and a
+    // boundary with too many vertices is resampled along itself; both can only shorten the fence
+    function stThin(q) {
+      const keep = [];
+      for (let i = 0; i < q.length; i++) {
+        const a = keep.length ? keep[keep.length - 1] : q[q.length - 1], b = q[i], c = q[(i + 1) % q.length];
+        const ab = Math.hypot(b[0] - a[0], b[1] - a[1]), ac = Math.hypot(c[0] - a[0], c[1] - a[1]);
+        const dist = ac > 1e-12 ? Math.abs((c[0] - a[0]) * (a[1] - b[1]) - (a[0] - b[0]) * (c[1] - a[1])) / ac : ab;
+        if (dist > 1e-4 || ab < 1e-9) keep.push(b);   // otherwise the vertex is dropped
+      }
+      if (keep.length <= 600) return keep;
+      const L = stPerimeter(keep), step = L / 600, out = [];
+      let acc = 0;
+      for (let i = 0, j = keep.length - 1; i < keep.length; j = i++) {
+        const seg = Math.hypot(keep[i][0] - keep[j][0], keep[i][1] - keep[j][1]);
+        while (acc <= seg) {
+          const f = acc / seg;
+          out.push([keep[j][0] + f * (keep[i][0] - keep[j][0]), keep[j][1] + f * (keep[i][1] - keep[j][1])]);
+          acc += step;
+        }
+        acc -= seg;
+      }
+      return out;
     }
 
     // ---- drawing --------------------------------------------------
@@ -187,19 +240,34 @@
       return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#EE9779" stroke-width="0.07" stroke-dasharray="0.3 0.18"/>`;
     }
 
+    // the cuts: every fifth strip drawn as a thin line across the field, perpendicular to the axis
+    function stStripLines(data, ax) {
+      const { ts, strips, nx, ny } = data;
+      let s = '';
+      ts.forEach((t, i) => {
+        if (i % 5 !== 2) return;
+        for (const v of strips[i]) {
+          const x1 = ax.px + t * ax.ux + v[0] * nx, y1 = ax.py + t * ax.uy + v[0] * ny;
+          const x2 = ax.px + t * ax.ux + v[1] * nx, y2 = ax.py + t * ax.uy + v[1] * ny;
+          s += `<line x1="${x1.toFixed(3)}" y1="${y1.toFixed(3)}" x2="${x2.toFixed(3)}" y2="${y2.toFixed(3)}" stroke="#7A5A33" stroke-opacity="0.45" stroke-width="0.03"/>`;
+        }
+      });
+      return s;
+    }
+
     function stDraw(extra = '') {
       const c = stEnclosingCircle(stShape);
       const pts = stShape.map(q => `${q[0].toFixed(3)},${q[1].toFixed(3)}`).join(' ');
       document.getElementById('st-svg').innerHTML = stField +
-        `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.06" stroke-dasharray="0.2 0.2"/>` +
-        (extra || `<polygon points="${pts}" fill="#F4C98F" fill-opacity="0.75" stroke="#C9A66B" stroke-width="0.09" stroke-linejoin="round"/>`) +
+        `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="none" stroke="#6EE7B7" stroke-opacity="0.9" stroke-width="0.08"/>` +
+        (extra || `<polygon points="${pts}" fill="#F4C98F" fill-opacity="0.75"/><polygon points="${pts}" fill="none" stroke="#C9A66B" stroke-width="0.1" stroke-linejoin="round"/><polygon points="${pts}" fill="none" stroke="#7A5A33" stroke-width="0.1" stroke-linejoin="round" stroke-dasharray="0.11 0.11"/>` +
+          (stAxis && !stBusy ? stStripLines(stStrips(stShape, stAxis), stAxis) : '')) +
         stAxisLine(stAxis) +
         (stDrag ? `<line x1="${stDrag.x0}" y1="${stDrag.y0}" x2="${stDrag.x1}" y2="${stDrag.y1}" stroke="#EE9779" stroke-width="0.09"/>` : '');
       const A = stArea(stShape), L = stPerimeter(stShape), Lc = 2 * Math.sqrt(Math.PI * A);
-      document.getElementById('st-area').textContent = A.toFixed(2);
-      document.getElementById('st-perim').textContent = L.toFixed(2);
-      document.getElementById('st-perim-sub').textContent = `a circle with this area needs ${Lc.toFixed(2)}`;
-      document.getElementById('st-rad').textContent = c.r.toFixed(2);
+      document.getElementById('st-perim').textContent = L.toFixed(2) + 'm';
+      document.getElementById('st-perim-sub').textContent = `a circle with this area needs ${Lc.toFixed(2)}m`;
+      document.getElementById('st-rad').textContent = (2 * Math.PI * c.r).toFixed(2) + 'm';
     }
 
     // chords sliding to the axis: strips drawn as short lines, interpolated between old and new position
@@ -216,6 +284,7 @@
           const x1 = ax.px + t * ax.ux + d0 * nx, y1 = ax.py + t * ax.uy + d0 * ny;
           const x2 = x1 + len * nx, y2 = y1 + len * ny;
           s += `<line x1="${x1.toFixed(3)}" y1="${y1.toFixed(3)}" x2="${x2.toFixed(3)}" y2="${y2.toFixed(3)}" stroke="#F4C98F" stroke-opacity="0.85" stroke-width="${(dt * 1.05).toFixed(3)}"/>`;
+          if (i % 5 === 2) s += `<line x1="${x1.toFixed(3)}" y1="${y1.toFixed(3)}" x2="${x2.toFixed(3)}" y2="${y2.toFixed(3)}" stroke="#7A5A33" stroke-opacity="0.45" stroke-width="0.03"/>`;
           c += len;
         }
       });
@@ -223,12 +292,26 @@
     }
 
     // ---- actions --------------------------------------------------
+    // the hard exit: once the fence is (to the eye) at the circle's value, the field is replaced by the exact circle
+    // of the same area, so the fence and the smallest circle around it agree. Returns true if that happened.
+    function stFinishIfRound() {
+      const A = stArea(stShape), Lcircle = 2 * Math.sqrt(Math.PI * A);
+      if (stPerimeter(stShape) - Lcircle >= 0.01) return false;
+      const c = stEnclosingCircle(stShape), r = Math.sqrt(ST_AREA / Math.PI), pts = [];   // the circle with the fixed area 25.78 m², fence 18.00 m
+      for (let i = 0; i < 720; i++) { const a = 2 * Math.PI * i / 720; pts.push([c.cx + r * Math.cos(a), c.cy + r * Math.sin(a)]); }
+      stShape = pts; stAxis = null;
+      stAutoRun = false; document.getElementById('st-auto').textContent = '▶ Keep going';
+      stDraw();
+      document.getElementById('st-msg').textContent = `Done: the field is a circle. Fence ${stPerimeter(stShape).toFixed(2)}m, and nothing to symmetrize anymore.`;
+      return true;
+    }
+
     function stSymmetrize() {
       if (stBusy) return;
       if (!stAxis) { document.getElementById('st-msg').textContent = 'Draw an axis first: drag a line across the field.'; return; }
       stBusy = true;
       const ax = stAxis, data = stStrips(stShape, ax), target = stSymmetrized(stShape, ax);
-      const L0 = stPerimeter(stShape), r0 = stEnclosingCircle(stShape).r, t0 = performance.now();
+      const L0 = stPerimeter(stShape), r0 = 2 * Math.PI * stEnclosingCircle(stShape).r, t0 = performance.now();
       (function frame(now) {
         const tau = Math.min(1, (now - t0) / ST_STEP_MS);
         const e = tau < 0.5 ? 2 * tau * tau : 1 - Math.pow(-2 * tau + 2, 2) / 2;   // ease in-out
@@ -236,11 +319,12 @@
         if (tau < 1) { requestAnimationFrame(frame); return; }
         stShape = target;
         stDraw();
-        const L1 = stPerimeter(stShape), r1 = stEnclosingCircle(stShape).r;
+        const L1 = stPerimeter(stShape), r1 = 2 * Math.PI * stEnclosingCircle(stShape).r;
         document.getElementById('st-msg').textContent =
-          `Same area. Fence ${L0.toFixed(2)} → ${L1.toFixed(2)}, enclosing circle ${r0.toFixed(2)} → ${r1.toFixed(2)}.` +
+          `Same area. Fence ${L0.toFixed(2)}m → ${L1.toFixed(2)}m, enclosing circle ${r0.toFixed(2)}m → ${r1.toFixed(2)}m.` +
           (L0 - L1 < 0.005 ? ' Nothing left to gain in this direction: the field is already symmetric here.' : '');
         stBusy = false;
+        stFinishIfRound();
       })(t0);
     }
 
@@ -250,17 +334,26 @@
       stDraw();
     }
 
-    function stAuto() {                    // symmetrize again and again in rotating directions
+    // the directions for "keep going": 0°, 90°, 45°, 135°, 22.5°, ... ever finer (bit-reversal sequence). A fixed set of
+    // directions would only lead to a shape with those symmetries, not to the circle; a dense sequence does
+    function stAutoAngle(k) {
+      let bits = 0, n = k, r = 0, x = k;
+      while (n > 0) { bits++; n >>= 1; }
+      for (let i = 0; i < bits; i++) { r = (r << 1) | (x & 1); x >>= 1; }
+      return bits ? Math.PI * r / (1 << bits) : 0;
+    }
+
+    function stAuto() {                    // symmetrize again and again, in ever finer directions, until it is a circle to the eye
       if (stAutoRun) { stAutoRun = false; document.getElementById('st-auto').textContent = '▶ Keep going'; return; }
       stAutoRun = true;
       document.getElementById('st-auto').textContent = '⏸ Stop';
-      const angles = [0, 90, 45, 135, 22.5, 112.5, 67.5, 157.5];
       let k = 0;
       (function next() {
         if (!stAutoRun) return;
         if (stBusy) { setTimeout(next, 100); return; }
-        const c = stEnclosingCircle(stShape), a = angles[k % angles.length] * Math.PI / 180;
-        k++;
+        if (stFinishIfRound()) return;
+        const c = stEnclosingCircle(stShape);
+        const a = stAutoAngle(k++);
         stAxis = { px: c.cx, py: c.cy, ux: Math.cos(a), uy: Math.sin(a) };
         stDraw();
         setTimeout(() => { stSymmetrize(); setTimeout(next, ST_STEP_MS + 500); }, 350);

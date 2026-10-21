@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Shell Am I In? • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/shell.html" class="underline text-brand-terracotta">Open the Shell. Which Shell?</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: WHICH SHELL AM I IN? ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Shell Am I In?</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                A pretend terminal. Type <code class="text-brand-coral">python</code> to enter the Python shell, <code class="text-brand-coral">exit()</code> to leave it, and watch the prompt. Then try the classic mistakes: <code class="text-brand-coral">print("hi")</code> in the system shell, <code class="text-brand-coral">pip install numpy</code> in the Python shell.
+              </p>
+            </div>
+
+            <div class="relative z-10 space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <button type="button" id="sh-win" onclick="shSetOS('win')" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">Windows · PowerShell</button>
+                <button type="button" id="sh-mac" onclick="shSetOS('mac')" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">Mac · zsh</button>
+                <button type="button" onclick="shReset()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Clear</button>
+                <span id="sh-where" class="ml-auto px-2.5 py-1 rounded-full bg-white/5 border border-white/15 text-[11px] font-mono font-bold text-white/80"></span>
+              </div>
+              <div id="sh-screen" class="rounded-2xl bg-black/60 border border-white/10 p-4 font-mono text-[12px] sm:text-sm leading-relaxed h-64 overflow-y-auto whitespace-pre-wrap" onclick="document.getElementById('sh-input').focus()"></div>
+              <form onsubmit="shSubmit(event)" class="flex items-center gap-2 rounded-2xl bg-black/60 border border-white/10 px-4 py-2 font-mono text-[12px] sm:text-sm">
+                <span id="sh-prompt" class="text-brand-coral whitespace-nowrap"></span>
+                <input id="sh-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="flex-1 bg-transparent outline-none text-white placeholder-white/30" placeholder="type a command and press Enter">
+              </form>
+              <div class="flex flex-wrap gap-1.5 text-[11px] font-mono">
+                <span class="text-white/50 mr-1">try:</span>
+                <button type="button" onclick="shType('python')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">python</button>
+                <button type="button" onclick="shType('2 + 2')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">2 + 2</button>
+                <button type="button" onclick="shType('print(&quot;hi&quot;)')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">print("hi")</button>
+                <button type="button" onclick="shType('pip install numpy')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">pip install numpy</button>
+                <button type="button" onclick="shType('dir')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">dir</button>
+                <button type="button" onclick="shType('ls')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">ls</button>
+                <button type="button" onclick="shType('exit()')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">exit()</button>
+              </div>
+            </div>
+          </div>
+  </main>
+  <script>
+    // ==========================================
+    // WHICH SHELL AM I IN?  (a pretend terminal)
+    // ==========================================
+    // Two modes: the system shell (PowerShell on Windows, zsh on a Mac) and the Python shell. The prompt tells them apart.
+    let shOS = 'win', shPy = false;
+    const SH_PROMPT = { win: 'PS C:\\Users\\you>', mac: 'you@mac ~ %' };
+    const SH_FILES = { win: ' Directory: C:\\Users\\you\n\n Mode   Name\n ----   ----\n d----  Documents\n d----  Downloads\n -a---  hello.py', mac: 'Documents   Downloads   hello.py' };
+
+    function shPrompt() { return shPy ? '>>>' : SH_PROMPT[shOS]; }
+    function shEsc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function shPrint(line, cls) {
+      const s = document.getElementById('sh-screen');
+      s.innerHTML += `<div class="${cls || 'text-white/85'}">${shEsc(line)}</div>`;
+      s.scrollTop = s.scrollHeight;
+    }
+    function shEcho(cmd) {
+      const s = document.getElementById('sh-screen');
+      s.innerHTML += `<div><span class="text-brand-coral">${shEsc(shPrompt())}</span> <span class="text-white">${shEsc(cmd)}</span></div>`;
+    }
+    function shUpdate() {
+      document.getElementById('sh-prompt').textContent = shPrompt();
+      document.getElementById('sh-where').textContent = shPy ? 'you are in: the Python shell' : `you are in: the system shell (${shOS === 'win' ? 'PowerShell' : 'zsh'})`;
+      document.getElementById('sh-where').className = 'ml-auto px-2.5 py-1 rounded-full border text-[11px] font-mono font-bold ' + (shPy ? 'bg-emerald-400/15 border-emerald-300/50 text-emerald-300' : 'bg-white/5 border-white/15 text-white/80');
+      document.getElementById('sh-win').className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (shOS === 'win' ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
+      document.getElementById('sh-mac').className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (shOS === 'mac' ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
+    }
+    function shSetOS(os) { shOS = os; shPy = false; shReset(); }
+    function shReset() {
+      document.getElementById('sh-screen').innerHTML = '';
+      shPy = false;
+      shPrint(shOS === 'win' ? 'Windows PowerShell' : 'Last login: today on ttys001', 'text-white/50');
+      shPrint('This is a pretend terminal: nothing here touches your computer.', 'text-white/40');
+      shUpdate();
+    }
+    function shType(cmd) { const i = document.getElementById('sh-input'); i.value = cmd; i.focus(); }
+
+    // a tiny calculator for the Python shell: digits, + - * / ** and brackets only
+    function shCalc(expr) {
+      if (!/^[\d\s+\-*/().]+$/.test(expr)) return null;
+      try { const v = Function('"use strict"; return (' + expr + ')')(); return Number.isFinite(v) ? String(v) : null; } catch (e) { return null; }
+    }
+
+    function shRun(cmd) {
+      const c = cmd.trim();
+      if (!c) return;
+      shEcho(c);
+      if (!shPy) {                                                   // ---- the system shell ----
+        if (/^(python|python3|py)$/.test(c)) {
+          shPy = true;
+          shPrint('Python 3.12.4 (main) [64 bit]', 'text-white/60');
+          shPrint('Type "help", "copyright", "credits" or "license" for more information.', 'text-white/60');
+          shPrint('→ the prompt changed to >>> : you are now talking to Python', 'text-emerald-300');
+        } else if (/^(dir|ls)$/.test(c)) {
+          if ((c === 'dir') === (shOS === 'win')) shPrint(SH_FILES[shOS]);
+          else if (shOS === 'win') shPrint(SH_FILES.win);           // PowerShell knows ls as an alias
+          else shPrint('zsh: command not found: dir', 'text-red-300');
+        } else if (/^cd\b/.test(c)) {
+          shPrint('(folder changed, pretend)', 'text-white/50');
+        } else if (/^pip(3)? install\b/.test(c)) {
+          shPrint('Collecting ' + c.split(/\s+/).slice(2).join(' ')); shPrint('Successfully installed ' + c.split(/\s+/).slice(2).join(' ') + ' (pretend)');
+          shPrint('→ right place: pip is a program, you run it from the system shell', 'text-emerald-300');
+        } else if (/^(exit|exit\(\)|quit\(\))$/.test(c)) {
+          shPrint('(this would close the terminal window; here we just stay)', 'text-white/50');
+        } else if (/^print\s*\(|^\d|^import\b|^[a-z_]\w*\s*=/.test(c)) {
+          shPrint(shOS === 'win' ? `${c.split(/[\s(]/)[0]} : The term '${c.split(/[\s(]/)[0]}' is not recognized as the name of a cmdlet, function, script file, or operable program.` : `zsh: command not found: ${c.split(/[\s(]/)[0]}`, 'text-red-300');
+          shPrint('→ that was Python, but you are in the system shell. Type python first.', 'text-brand-coral');
+        } else {
+          shPrint(shOS === 'win' ? `${c.split(/\s/)[0]} : The term '${c.split(/\s/)[0]}' is not recognized as the name of a cmdlet, function, script file, or operable program.` : `zsh: command not found: ${c.split(/\s/)[0]}`, 'text-red-300');
+        }
+      } else {                                                       // ---- the Python shell ----
+        if (/^(exit\(\)|quit\(\))$/.test(c)) {
+          shPy = false;
+          shPrint('→ back in the system shell: the prompt is the one of your operating system again', 'text-emerald-300');
+        } else if (/^(exit|quit)$/.test(c)) {
+          shPrint('Use exit() or Ctrl-Z plus Return to exit', 'text-white/70');
+        } else if (/^print\s*\((.*)\)$/.test(c)) {
+          shPrint(c.replace(/^print\s*\(/, '').replace(/\)$/, '').replace(/^["']|["']$/g, ''));
+        } else if (/^pip(3)? install\b/.test(c)) {
+          shPrint('  File "<stdin>", line 1', 'text-red-300'); shPrint('    ' + c, 'text-red-300'); shPrint('SyntaxError: invalid syntax', 'text-red-300');
+          shPrint('→ pip is not Python code. Leave the Python shell with exit() and run it in the system shell.', 'text-brand-coral');
+        } else if (/^(dir|ls|cd\b|cd$)/.test(c)) {
+          if (c === 'dir') shPrint('<built-in function dir>', 'text-white/70');
+          else shPrint(`NameError: name '${c.split(/\s/)[0]}' is not defined`, 'text-red-300');
+          shPrint('→ that is a system-shell command. Python does not know it.', 'text-brand-coral');
+        } else if (shCalc(c) !== null) {
+          shPrint(shCalc(c));
+        } else if (/^import\s+\w+$/.test(c)) {
+          shPrint('(imported, pretend)', 'text-white/50');
+        } else {
+          shPrint(`NameError: name '${c.split(/[\s(]/)[0]}' is not defined`, 'text-red-300');
+        }
+      }
+      shUpdate();
+    }
+    function shSubmit(ev) {
+      ev.preventDefault();
+      const i = document.getElementById('sh-input');
+      shRun(i.value); i.value = '';
+    }
+    shReset();
+  </script>
+</body>
+</html>

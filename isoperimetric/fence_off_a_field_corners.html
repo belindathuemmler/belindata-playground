@@ -29,12 +29,12 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Fence Off a Field – With More Corners</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                Same rope, more corners: every shape below is fenced with the same rope of length 18. The white line is the circle with the same perimeter 18.
+                Same rope, more corners: every shape below is fenced with the same rope of length 18 m. The green line is the circle with the same perimeter 18 m.
               </p>
             </div>
 
             <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              <svg id="poly-svg" viewBox="1.15 1.15 7.7 7.7" class="w-full max-w-xs mx-auto h-auto" role="img" aria-label="A regular polygon fenced with a rope of 18 units on a big field of patches; the dashed line is the circle with the same rope"></svg>
+              <svg id="poly-svg" viewBox="1.15 1.15 7.7 7.7" class="w-full max-w-xs mx-auto h-auto" role="img" aria-label="A regular polygon fenced with a rope of 18 m on a big field of patches; the green line is the circle with the same perimeter"></svg>
               <div class="space-y-4">
                 <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                   <button type="button" id="poly-prev" onclick="polyStep(-1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➖ Fewer corners</button>
@@ -44,13 +44,13 @@
                 <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">fence with corners</div>
-                    <div id="poly-now-n" class="text-4xl font-bold leading-tight"></div>
+                    <div id="poly-now-n" class="text-2xl sm:text-3xl font-bold leading-tight whitespace-nowrap"></div>
                     <div id="poly-now-sub" class="text-xs text-white/60"></div>
                   </div>
                   <div id="poly-circle-cell">
                     <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">the circle 🎯</div>
-                    <div id="poly-circle-n" class="text-4xl font-bold leading-tight text-emerald-300"></div>
-                    <div class="text-xs text-white/60">area of the circle with perimeter 18</div>
+                    <div id="poly-circle-n" class="text-2xl sm:text-3xl font-bold leading-tight text-emerald-300 whitespace-nowrap"></div>
+                    <div class="text-xs text-white/60">area of the circle with perimeter 18 m</div>
                   </div>
                 </div>
                 <p id="poly-msg" class="text-xs sm:text-sm text-brand-coral min-h-[1.25rem]"></p>
@@ -128,13 +128,13 @@
       cross += `<text x="${cx + L + 0.1}" y="${cy - 0.2}" font-size="0.38" font-family="monospace" fill="#EE9779" font-weight="bold">x</text><text x="${cx + 0.2}" y="${cy - L - 0.05}" font-size="0.38" font-family="monospace" fill="#EE9779" font-weight="bold">y</text>`;
       document.getElementById('poly-svg').innerHTML = fieldBackground() +
         `<polygon ${box} fill="#F4C98F" fill-opacity="0.5"/>` + cross +
-        `<circle cx="${cx}" cy="${cy}" r="${(POLY_U / (2 * Math.PI)).toFixed(3)}" fill="none" stroke="#FFFFFF" stroke-opacity="0.75" stroke-width="0.1"/>` +   // the same rope laid as a circle: the target, above the field so it always shows through
+        `<circle cx="${cx}" cy="${cy}" r="${(POLY_U / (2 * Math.PI)).toFixed(3)}" fill="none" stroke="#6EE7B7" stroke-opacity="0.9" stroke-width="0.1"/>` +   // the same rope laid as a circle: the target, in the green of the circle counter
         `<polygon ${box} fill="none" stroke="#C9A66B" stroke-width="0.1" stroke-linejoin="round"/>` +   // a thin rope
         `<polygon ${box} fill="none" stroke="#7A5A33" stroke-width="0.1" stroke-linejoin="round" stroke-dasharray="0.11 0.11"/>`;
       const A = polyArea(n);
-      document.getElementById('poly-now-n').textContent = A.toFixed(2);
+      document.getElementById('poly-now-n').textContent = A.toFixed(2) + 'm²';
       document.getElementById('poly-now-sub').textContent = n ? `area of a polygon with ${n} corners` : 'enough corners for today';
-      document.getElementById('poly-circle-n').textContent = POLY_CIRCLE_AREA.toFixed(2);
+      document.getElementById('poly-circle-n').textContent = POLY_CIRCLE_AREA.toFixed(2) + 'm²';
       // at the circle itself the left number and the comparison are redundant: hide them, the target cell stays
       document.getElementById('poly-now-n').style.visibility = n ? '' : 'hidden';   // keeps its height, so the caption stays level with the one next to it
       document.getElementById('poly-msg').textContent = n ? `The ${POLY_NAMES[n]} reaches ${(100 * A / POLY_CIRCLE_AREA).toFixed(1)} % of the circle.` : '';
