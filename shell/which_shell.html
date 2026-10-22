@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Which Shell Am I In? • belindata playground</title>
+  <title>Talking to the Shell • belindata playground</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
@@ -26,16 +26,18 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Interactive</span>
               </div>
-              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Shell Am I In?</h3>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Talking to the Shell</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                A fake terminal. Type <code class="text-brand-coral">python</code> to enter the Python shell, <code class="text-brand-coral">exit()</code> to leave it, and watch the prompt. Then try the classic mistakes: <code class="text-brand-coral">print("hi")</code> in the system shell, <code class="text-brand-coral">pip install numpy</code> in the Python shell.
+                The black window, with the four shells from the cards above. A fake one: nothing here touches your computer. Type <code class="text-brand-coral">python</code> to enter the Python shell, <code class="text-brand-coral">exit()</code> to leave it, and watch the prompt. Then try the classic mistakes: <code class="text-brand-coral">print("hi")</code> in the system shell, <code class="text-brand-coral">pip install numpy</code> in the Python shell.
               </p>
             </div>
 
             <div class="relative z-10 space-y-3">
               <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-                <button type="button" id="sh-win" onclick="shSetOS('win')" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">Windows · PowerShell</button>
-                <button type="button" id="sh-mac" onclick="shSetOS('mac')" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">Mac · zsh</button>
+                <button type="button" id="sh-cmd" onclick="shSetOS('cmd')" class="px-4 py-2 rounded-full font-semibold transition-colors">cmd</button>
+                <button type="button" id="sh-ps" onclick="shSetOS('ps')" class="px-4 py-2 rounded-full font-semibold transition-colors">PowerShell</button>
+                <button type="button" id="sh-zsh" onclick="shSetOS('zsh')" class="px-4 py-2 rounded-full font-semibold transition-colors">zsh (Mac)</button>
+                <button type="button" id="sh-bash" onclick="shSetOS('bash')" class="px-4 py-2 rounded-full font-semibold transition-colors">bash (Linux)</button>
                 <button type="button" onclick="shReset()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Clear</button>
                 <span id="sh-where" class="ml-auto px-2.5 py-1 rounded-full bg-white/5 border border-white/15 text-[11px] font-mono font-bold text-white/80"></span>
               </div>
@@ -73,16 +75,29 @@
     // ==========================================
     // WHICH SHELL AM I IN?  (a fake terminal)
     // ==========================================
-    // Two modes: the system shell (PowerShell on Windows, zsh on a Mac) and the Python shell. The prompt tells them apart.
-    let shOS = 'win', shPy = false;
-    const SH_PROMPT = { win: 'PS C:\\Users\\you>', mac: 'you@mac ~ %' };
-    const SH_FILES = { win: ' Directory: C:\\Users\\you\n\n Mode   Name\n ----   ----\n d----  Documents\n d----  Downloads\n -a---  hello.py', mac: 'Documents   Downloads   hello.py' };
+    // Four system shells (cmd and PowerShell on Windows, zsh on a Mac, bash on Linux) and the Python shell. The prompt tells them apart.
+    let shOS = 'cmd', shPy = false;
+    const SH = {
+      cmd:  { name: 'cmd',        win: true,  prompt: 'C:\\Users\\you>',    hello: 'Microsoft Windows [Version 10.0.26200]\n(c) Microsoft Corporation. All rights reserved.', home: 'C:\\Users\\you', who: 'laptop\\you',
+              files: ' Directory of C:\\Users\\you\n\n<DIR>          Documents\n<DIR>          Downloads\n            34 hello.py',
+              notfound: w => `'${w}' is not recognized as an internal or external command,\noperable program or batch file.` },
+      ps:   { name: 'PowerShell', win: true,  prompt: 'PS C:\\Users\\you>', hello: 'Windows PowerShell', home: 'C:\\Users\\you', who: 'laptop\\you',
+              files: ' Directory: C:\\Users\\you\n\n Mode   Name\n ----   ----\n d----  Documents\n d----  Downloads\n -a---  hello.py',
+              notfound: w => `${w} : The term '${w}' is not recognized as the name of a cmdlet, function, script file, or operable program.` },
+      zsh:  { name: 'zsh',        win: false, prompt: 'you@mac ~ %',       hello: 'Last login: today on ttys001', home: '/Users/you', who: 'you',
+              files: 'Documents   Downloads   hello.py',
+              notfound: w => `zsh: command not found: ${w}` },
+      bash: { name: 'bash',       win: false, prompt: 'you@linux:~$',      hello: 'Last login: today from 192.168.0.2', home: '/home/you', who: 'you',
+              files: 'Documents  Downloads  hello.py',
+              notfound: w => `bash: ${w}: command not found` },
+    };
+    const SH_FILES = { win: SH.ps.files, mac: SH.zsh.files };
 
-    function shPrompt() { return shPy ? '>>>' : SH_PROMPT[shOS]; }
+    function shPrompt() { return shPy ? '>>>' : SH[shOS].prompt; }
     function shEsc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
     function shPrint(line, cls) {
       const s = document.getElementById('sh-screen');
-      s.innerHTML += `<div class="${cls || 'text-white/85'}">${shEsc(line)}</div>`;
+      s.innerHTML += `<div class="${cls || 'text-white/85'} whitespace-pre-wrap">${shEsc(line)}</div>`;
       s.scrollTop = s.scrollHeight;
     }
     function shEcho(cmd) {
@@ -91,16 +106,17 @@
     }
     function shUpdate() {
       document.getElementById('sh-prompt').textContent = shPrompt();
-      document.getElementById('sh-where').textContent = shPy ? 'you are in: the Python shell' : `you are in: the system shell (${shOS === 'win' ? 'PowerShell' : 'zsh'})`;
+      document.getElementById('sh-where').textContent = shPy ? 'you are in: the Python shell' : `you are in: the system shell (${SH[shOS].name})`;
       document.getElementById('sh-where').className = 'ml-auto px-2.5 py-1 rounded-full border text-[11px] font-mono font-bold ' + (shPy ? 'bg-emerald-400/15 border-emerald-300/50 text-emerald-300' : 'bg-white/5 border-white/15 text-white/80');
-      document.getElementById('sh-win').className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (shOS === 'win' ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
-      document.getElementById('sh-mac').className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (shOS === 'mac' ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
+      for (const k of Object.keys(SH)) {
+        document.getElementById('sh-' + k).className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (shOS === k ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
+      }
     }
     function shSetOS(os) { shOS = os; shPy = false; shReset(); }
     function shReset() {
       document.getElementById('sh-screen').innerHTML = '';
       shPy = false;
-      shPrint(shOS === 'win' ? 'Windows PowerShell' : 'Last login: today on ttys001', 'text-white/50');
+      SH[shOS].hello.split('\n').forEach(l => shPrint(l, 'text-white/50'));
       shPrint('This is a fake terminal: nothing here touches your computer.', 'text-white/40');
       shUpdate();
     }
@@ -131,39 +147,45 @@
         } else if (/^(python|python3|py)\s+\S+\.py$/.test(c)) {
           shPrint(`python: can't open file '${c.split(/\s+/)[1]}': [Errno 2] No such file or directory`, 'text-red-300');
         } else if (/^pip(3)?\s+(--version|-V)$/.test(c)) {
-          shPrint('pip 24.0 from C:\\Python312\\Lib\\site-packages\\pip (python 3.12)');
+          shPrint(SH[shOS].win ? 'pip 24.0 from C:\\Python312\\Lib\\site-packages\\pip (python 3.12)' : 'pip 24.0 from /usr/lib/python3.12/site-packages/pip (python 3.12)');
         } else if (/^(dir|ls)$/.test(c)) {
-          if ((c === 'dir') === (shOS === 'win')) shPrint(SH_FILES[shOS]);
-          else if (shOS === 'win') shPrint(SH_FILES.win);           // PowerShell knows ls as an alias
-          else shPrint('zsh: command not found: dir', 'text-red-300');
+          // dir is the Windows word, ls the Unix word; PowerShell knows both, and so does Linux (dir is a small GNU program there)
+          const knows = shOS === 'ps' || shOS === 'bash' || (c === 'dir') === SH[shOS].win;
+          if (knows) shPrint(SH[shOS].files);
+          else shPrint(SH[shOS].notfound(c), 'text-red-300');
         } else if (/^(cls|clear)$/.test(c)) {
-          if (c === 'cls' && shOS === 'mac') shPrint('zsh: command not found: cls', 'text-red-300');
-          else { document.getElementById('sh-screen').innerHTML = ''; shPrint('(screen cleared)', 'text-white/40'); }
-        } else if (/^(pwd|cd)$/.test(c)) {
-          shPrint(shOS === 'win' ? 'C:\\Users\\you' : '/Users/you');
+          // cls is Windows only; clear is Unix, PowerShell takes it too
+          const knows = shOS === 'ps' || (c === 'cls') === SH[shOS].win;
+          if (knows) { document.getElementById('sh-screen').innerHTML = ''; shPrint('(screen cleared)', 'text-white/40'); }
+          else shPrint(SH[shOS].notfound(c), 'text-red-300');
+        } else if (/^pwd$/.test(c)) {
+          if (shOS === 'cmd') { shPrint(SH.cmd.notfound('pwd'), 'text-red-300'); shPrint('→ cmd has no pwd; type cd on its own to see where you are', 'text-brand-coral'); }
+          else shPrint(SH[shOS].home);
+        } else if (/^cd$/.test(c)) {
+          shPrint(SH[shOS].win ? SH[shOS].home : '(back in your home folder)', SH[shOS].win ? undefined : 'text-white/50');
         } else if (/^cd\s/.test(c)) {
           shPrint('(folder changed, pretend)', 'text-white/50');
         } else if (/^echo\s/.test(c)) {
           shPrint(c.replace(/^echo\s+/, '').replace(/^["']|["']$/g, ''));
         } else if (/^whoami$/.test(c)) {
-          shPrint(shOS === 'win' ? 'laptop\\you' : 'you');
+          shPrint(SH[shOS].who);
         } else if (/^pip(3)? install\b/.test(c)) {
           shPrint('Collecting ' + c.split(/\s+/).slice(2).join(' ')); shPrint('Successfully installed ' + c.split(/\s+/).slice(2).join(' ') + ' (pretend)');
           shPrint('→ right place: pip is a program, you run it from the system shell', 'text-emerald-300');
         } else if (/^(exit|exit\(\)|quit\(\))$/.test(c)) {
           shPrint('(this would close the terminal window; here we just stay)', 'text-white/50');
         } else if (/^print\s*\(|^\d|^import\b|^[a-z_]\w*\s*=/.test(c)) {
-          shPrint(shOS === 'win' ? `${c.split(/[\s(]/)[0]} : The term '${c.split(/[\s(]/)[0]}' is not recognized as the name of a cmdlet, function, script file, or operable program.` : `zsh: command not found: ${c.split(/[\s(]/)[0]}`, 'text-red-300');
+          shPrint(SH[shOS].notfound(c.split(/[\s(]/)[0]), 'text-red-300');
           shPrint('→ that was Python, but you are in the system shell. Type python first.', 'text-brand-coral');
         } else {
-          shPrint(shOS === 'win' ? `${c.split(/\s/)[0]} : The term '${c.split(/\s/)[0]}' is not recognized as the name of a cmdlet, function, script file, or operable program.` : `zsh: command not found: ${c.split(/\s/)[0]}`, 'text-red-300');
+          shPrint(SH[shOS].notfound(c.split(/\s/)[0]), 'text-red-300');
         }
       } else {                                                       // ---- the Python shell ----
         if (/^(exit\(\)|quit\(\))$/.test(c)) {
           shPy = false;
           shPrint('→ back in the system shell: the prompt is the one of your operating system again', 'text-emerald-300');
         } else if (/^(exit|quit)$/.test(c)) {
-          shPrint('Use exit() or Ctrl-Z plus Return to exit', 'text-white/70');
+          shPrint(SH[shOS].win ? 'Use exit() or Ctrl-Z plus Return to exit' : 'Use exit() or Ctrl-D (i.e. EOF) to exit', 'text-white/70');
         } else if (/^print\s*\((.*)\)$/.test(c)) {
           shPrint(c.replace(/^print\s*\(/, '').replace(/\)$/, '').replace(/^["']|["']$/g, ''));
         } else if (/^pip(3)? install\b/.test(c)) {

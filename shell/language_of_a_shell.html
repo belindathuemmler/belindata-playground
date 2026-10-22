@@ -35,21 +35,22 @@
                 <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
                   Every card shows a command, and almost every one is short for something: guess what, then tap the card to turn it over. Switch the shell, and you get the same commands in the words of the other shell.
                 </p>
-                <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono pt-1">
+              </div>
+
+              <div class="relative z-10 space-y-3">
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" id="say-cmd" onclick="saySet('cmd')" class="px-4 py-2 rounded-full font-semibold transition-colors">cmd</button>
+                  <button type="button" id="say-ps" onclick="saySet('ps')" class="px-4 py-2 rounded-full font-semibold transition-colors">PowerShell</button>
+                  <button type="button" id="say-unix" onclick="saySet('unix')" class="px-4 py-2 rounded-full font-semibold transition-colors">zsh / bash</button>
+                  <button type="button" id="say-turn" onclick="sayTurn()" class="ml-auto w-9 h-9 rounded-full border border-white/15 text-base text-white/70 hover:bg-white/10 transition-colors" title="turn all cards" aria-label="turn all cards">⇄</button>
+                </div>
+                <p id="say-note" class="text-[11px] sm:text-xs text-white/50 font-mono"></p>
+                <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
                   <span class="text-white/50 mr-1">level:</span>
                   <button type="button" id="say-l0" onclick="saySetLevel(0)" class="px-2.5 py-1 rounded-full border transition-colors">beginner</button>
                   <button type="button" id="say-l1" onclick="saySetLevel(1)" class="px-2.5 py-1 rounded-full border transition-colors">advanced</button>
                   <button type="button" id="say-l2" onclick="saySetLevel(2)" class="px-2.5 py-1 rounded-full border transition-colors">bonus</button>
                 </div>
-              </div>
-
-              <div class="relative z-10 space-y-3">
-                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-                  <button type="button" id="say-win" onclick="saySet('win')" class="px-4 py-2 rounded-full font-semibold transition-colors">Windows · cmd, PowerShell</button>
-                  <button type="button" id="say-unix" onclick="saySet('unix')" class="px-4 py-2 rounded-full font-semibold transition-colors">Mac, Linux · zsh, bash</button>
-                  <button type="button" id="say-turn" onclick="sayTurn()" class="ml-auto w-9 h-9 rounded-full border border-white/15 text-base text-white/70 hover:bg-white/10 transition-colors" title="turn all cards" aria-label="turn all cards">⇄</button>
-                </div>
-                <p id="say-note" class="text-[11px] sm:text-xs text-white/50 font-mono"></p>
                 <div id="say-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
               </div>
             </div>
@@ -58,12 +59,13 @@
     // ==========================================
     // SAY IT IN FULL  (what the short words stand for, per shell)
     // ==========================================
-    // Both decks are in the same order: the card in a given place means the same thing on Windows and on Mac/Linux.
+    // All three decks are in the same order: the card in a given place means the same thing in cmd, PowerShell and zsh/bash.
+    // A card is [front, headline, note] or, for PowerShell, [front, headline = the old words, note, small line on the back].
     const SAY = {
-      win: { note: 'cmd and PowerShell understand the same old words. PowerShell’s real names are Verb-Noun pairs such as Get-ChildItem; the old words live on as aliases.',
-        cards: [['dir', 'directory', 'Show me the folder. A directory is a folder; the word is older than the icon. PowerShell: Get-ChildItem.'],
-                ['cd', 'change directory', 'Go to another folder. On its own it tells you where you are. PowerShell: Set-Location.'],
-                ['cls', 'clear screen', 'Wipe the window. PowerShell: Clear-Host.'],
+      cmd: { note: 'The old Windows shell, with the words of MS-DOS from the 1980s. Short, because every letter was typed by hand.',
+        cards: [['dir', 'directory', 'Show me the folder. A directory is a folder; the word is older than the icon.'],
+                ['cd', 'change directory', 'Go to another folder. On its own it tells you where you are.'],
+                ['cls', 'clear screen', 'Wipe the window.'],
                 ['copy', 'copy', 'Copy a file. Spelled out.'],
                 ['del', 'delete', 'Remove a file. No recycle bin.'],
                 ['md', 'make directory', 'A new folder. mkdir works too.'],
@@ -82,6 +84,28 @@
                 ['schtasks', 'scheduled tasks', 'Run something every night at three.'],
                 ['tar', 'tape archive', 'Packs files into one. The name is from the days of magnetic tape, and Windows has had it since 2018.'],
                 ['nslookup', 'name server lookup', 'Which address hides behind belindata.com?']] },
+      ps: { note: 'PowerShell spells everything out as Verb-Noun. Nothing to guess here; turn a card to see which old words still work as aliases.',
+        cards: [['Get-ChildItem', 'dir · ls · gci', 'Show me the folder. The aliases are the old words of cmd and Unix, side by side.', 'aliases'],
+                ['Set-Location', 'cd · sl', 'Go to another folder.', 'aliases'],
+                ['Clear-Host', 'cls · clear', 'Wipe the window.', 'aliases'],
+                ['Copy-Item', 'copy · cp · cpi', 'Copy a file.', 'aliases'],
+                ['Remove-Item', 'del · rm · ri', 'Remove a file. No recycle bin.', 'aliases'],
+                ['New-Item', 'md · mkdir · ni', 'A new file or folder. mkdir fills in -ItemType Directory for you.', 'aliases'],
+                ['Move-Item', 'move · mv · mi', 'Move a file, or rename it.', 'aliases'],
+                ['Get-Content', 'type · cat · gc', 'Shows a file.', 'aliases'],
+                ['Write-Output', 'echo · write', 'Says back what you give it.', 'aliases'],
+                ['Remove-Item', 'rd · rmdir', 'The same cmdlet deletes files and folders; rd and rmdir are two more aliases for it.', 'aliases'],
+                ['Select-String', 'sls', 'Search for text inside files. The old findstr.exe still works too.', 'alias'],
+                ['Compare-Object', 'compare · diff', 'Shows where two files, or two lists, differ.', 'aliases'],
+                ['Get-Help', 'help · man', 'Get-Help Copy-Item explains Copy-Item.', 'aliases'],
+                ['Get-Command', 'gcm', 'Which program runs when I type python? Shows its path. where.exe does the same.', 'alias'],
+                ['Get-Process', 'ps · gps', 'Which programs are running right now.', 'aliases'],
+                ['Get-NetIPConfiguration', 'gip', 'Your network addresses. ipconfig.exe still works too.', 'alias'],
+                ['more', 'more', 'The one old word PowerShell kept as it is: a small helper function, no Verb-Noun name.', 'no alias needed'],
+                ['Start-Process -Verb RunAs', 'runas', 'Run a program as the administrator. Long, so most people still type runas.exe.', 'the old way'],
+                ['Register-ScheduledTask', 'schtasks', 'Run something every night at three. schtasks.exe still works too.', 'the old way'],
+                ['tar', 'tar', 'No Verb-Noun name here: PowerShell just runs tar.exe, tape archive, like everyone else.', 'no alias needed'],
+                ['Resolve-DnsName', 'nslookup', 'Which address hides behind belindata.com? nslookup.exe still works too.', 'the old way']] },
       unix: { note: 'zsh on a Mac and bash on Linux are sisters, both grown from the first Unix shell. They speak the same language, and Unix likes its words short.',
         cards: [['ls', 'list', 'Show me the folder.'],
                 ['cd', 'change directory', 'Go to another folder. On its own it takes you home; pwd tells you where you are.'],
@@ -105,21 +129,22 @@
                 ['tar', 'tape archive', 'Packs files into one. The name is from the days of magnetic tape.'],
                 ['dig', 'domain information groper', 'Which address hides behind belindata.com? Yes, that is really what it stands for.']] },
     };
-    let sayShell = 'win', sayLevel = 0;
+    let sayShell = 'cmd', sayLevel = 0;
     // nine cards for beginner and advanced, three for the bonus
     function sayHand() { return sayLevel === 2 ? SAY[sayShell].cards.slice(18) : SAY[sayShell].cards.slice(9 * sayLevel, 9 * sayLevel + 9); }
     function saySetLevel(l) { sayLevel = l; sayRender(); }
     function sayRender() {
       document.getElementById('say-note').textContent = SAY[sayShell].note;
-      document.getElementById('say-grid').innerHTML = sayHand().map(([short, long, note]) => `
+      document.getElementById('say-grid').innerHTML = sayHand().map(([short, long, note, small]) => `
         <button type="button" onclick="sayFlip(this)" class="say-card text-left h-32 sm:h-28">
           <span class="say-inner block">
-            <span class="say-face say-front flex items-center justify-center rounded-xl bg-black/60 border border-white/10 hover:border-brand-coral/60 transition-colors">
-              <span class="font-mono text-base font-bold text-brand-coral">${short}</span>
+            <span class="say-face say-front flex items-center justify-center rounded-xl bg-black/60 border border-white/10 hover:border-brand-coral/60 transition-colors px-2">
+              <span class="font-mono ${short.length > 12 ? 'text-xs sm:text-sm' : 'text-base'} font-bold text-brand-coral text-center break-words">${short}</span>
             </span>
             <span class="say-face say-back flex flex-col justify-center rounded-xl bg-brand-plum/30 border border-brand-plum px-3 py-2">
-              <span class="block font-mono text-[11px] font-bold text-brand-coral leading-tight">${short}</span>
-              <span class="block font-bold text-white text-sm leading-tight">${long}</span>
+              ${small
+                ? `<span class="block font-mono text-xs font-bold text-brand-coral leading-tight">${small}: ${long}</span>`
+                : `<span class="block font-mono text-[11px] font-bold text-brand-coral leading-tight">${short}</span><span class="block font-bold text-white text-sm leading-tight">${long}</span>`}
               <span class="block text-[11px] text-white/70 leading-snug mt-1">${note}</span>
             </span>
           </span>
@@ -128,7 +153,7 @@
       for (let l = 0; l < 3; l++) {
         document.getElementById('say-l' + l).className = 'px-2.5 py-1 rounded-full border transition-colors ' + (sayLevel === l ? 'border-brand-coral bg-brand-coral/20 text-brand-coral font-bold' : 'border-white/15 text-white/70 hover:bg-white/10');
       }
-      for (const k of ['win', 'unix']) {
+      for (const k of ['cmd', 'ps', 'unix']) {
         document.getElementById('say-' + k).className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (sayShell === k ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
       }
     }
