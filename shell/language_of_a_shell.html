@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Language of a Shell • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    /* Say It in Full: a card shows the short word, a tap turns it over */
+    .say-card { perspective: 800px; }
+    .say-inner { position: relative; width: 100%; height: 100%; transition: transform .55s; transform-style: preserve-3d; }
+    .say-card.say-open .say-inner { transform: rotateY(180deg); }
+    .say-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .say-back { transform: rotateY(180deg); }
+  </style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/shell.html" class="underline text-brand-terracotta">Open the Shell. Which Shell?</a> on belindata.com. Open this file in any browser.</p>
+            <!-- ================= INTERACTIVE: SAY IT IN FULL ================= -->
+            <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-4 space-y-5 relative overflow-hidden">
+              <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+              <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Interactive</span>
+                </div>
+                <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Language of a Shell</h3>
+                <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                  Every card shows a command, and almost every one is short for something: guess what, then tap the card to turn it over. Switch the shell, and you get the same commands in the words of the other shell.
+                </p>
+                <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono pt-1">
+                  <span class="text-white/50 mr-1">level:</span>
+                  <button type="button" id="say-l0" onclick="saySetLevel(0)" class="px-2.5 py-1 rounded-full border transition-colors">beginner</button>
+                  <button type="button" id="say-l1" onclick="saySetLevel(1)" class="px-2.5 py-1 rounded-full border transition-colors">advanced</button>
+                  <button type="button" id="say-l2" onclick="saySetLevel(2)" class="px-2.5 py-1 rounded-full border transition-colors">bonus</button>
+                </div>
+              </div>
+
+              <div class="relative z-10 space-y-3">
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                  <button type="button" id="say-win" onclick="saySet('win')" class="px-4 py-2 rounded-full font-semibold transition-colors">Windows · cmd, PowerShell</button>
+                  <button type="button" id="say-unix" onclick="saySet('unix')" class="px-4 py-2 rounded-full font-semibold transition-colors">Mac, Linux · zsh, bash</button>
+                  <button type="button" id="say-turn" onclick="sayTurn()" class="ml-auto w-9 h-9 rounded-full border border-white/15 text-base text-white/70 hover:bg-white/10 transition-colors" title="turn all cards" aria-label="turn all cards">⇄</button>
+                </div>
+                <p id="say-note" class="text-[11px] sm:text-xs text-white/50 font-mono"></p>
+                <div id="say-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+              </div>
+            </div>
+  </main>
+  <script>
+    // ==========================================
+    // SAY IT IN FULL  (what the short words stand for, per shell)
+    // ==========================================
+    // Both decks are in the same order: the card in a given place means the same thing on Windows and on Mac/Linux.
+    const SAY = {
+      win: { note: 'cmd and PowerShell understand the same old words. PowerShell’s real names are Verb-Noun pairs such as Get-ChildItem; the old words live on as aliases.',
+        cards: [['dir', 'directory', 'Show me the folder. A directory is a folder; the word is older than the icon. PowerShell: Get-ChildItem.'],
+                ['cd', 'change directory', 'Go to another folder. On its own it tells you where you are. PowerShell: Set-Location.'],
+                ['cls', 'clear screen', 'Wipe the window. PowerShell: Clear-Host.'],
+                ['copy', 'copy', 'Copy a file. Spelled out.'],
+                ['del', 'delete', 'Remove a file. No recycle bin.'],
+                ['md', 'make directory', 'A new folder. mkdir works too.'],
+                ['move', 'move', 'Move a file somewhere else, or rename it on the way.'],
+                ['type', 'type', 'Types a file onto the screen, so you can read it.'],
+                ['echo', 'echo', 'Says back what you give it. Not short for anything.'],
+                ['rd', 'remove directory', 'Delete an empty folder. rmdir works too.'],
+                ['findstr', 'find string', 'Search for text inside files.'],
+                ['fc', 'file compare', 'Shows where two files differ.'],
+                ['help', 'help', 'help copy explains copy. Spelled out.'],
+                ['where', 'where', 'Which program runs when I type python? Shows its path.'],
+                ['tasklist', 'task list', 'Which programs are running right now.'],
+                ['ipconfig', 'IP configuration', 'Your network addresses.'],
+                ['more', 'more', 'Reads a file page by page: press space for more.'],
+                ['runas', 'run as', 'Run a program as another user, usually the administrator.'],
+                ['schtasks', 'scheduled tasks', 'Run something every night at three.'],
+                ['tar', 'tape archive', 'Packs files into one. The name is from the days of magnetic tape, and Windows has had it since 2018.'],
+                ['nslookup', 'name server lookup', 'Which address hides behind belindata.com?']] },
+      unix: { note: 'zsh on a Mac and bash on Linux are sisters, both grown from the first Unix shell. They speak the same language, and Unix likes its words short.',
+        cards: [['ls', 'list', 'Show me the folder.'],
+                ['cd', 'change directory', 'Go to another folder. On its own it takes you home; pwd tells you where you are.'],
+                ['clear', 'clear', 'Wipe the window. Spelled out, for once.'],
+                ['cp', 'copy', 'Copy a file.'],
+                ['rm', 'remove', 'Remove a file. No recycle bin, no question asked.'],
+                ['mkdir', 'make directory', 'A new folder.'],
+                ['mv', 'move', 'Move a file, or rename it: the same thing to Unix.'],
+                ['cat', 'concatenate', 'Glues files together; mostly used with one file, to read it.'],
+                ['echo', 'echo', 'Says back what you give it. Not short for anything.'],
+                ['rmdir', 'remove directory', 'Delete an empty folder.'],
+                ['grep', 'global regular expression print', 'Search for text inside files. The name is an old editor command.'],
+                ['diff', 'difference', 'Shows where two files differ.'],
+                ['man', 'manual', 'man ls opens the manual page for ls. Leave it with q.'],
+                ['which', 'which', 'Which program runs when I type python? Shows its path.'],
+                ['ps', 'process status', 'Which programs are running right now.'],
+                ['ifconfig', 'interface configuration', 'Your network addresses.'],
+                ['less', 'less', 'Reads a file page by page. A joke on its predecessor more: less is more.'],
+                ['sudo', 'superuser do', 'Do this as the administrator. Asks for your password.'],
+                ['cron', 'chronos', 'Greek for time. Runs something every night at three.'],
+                ['tar', 'tape archive', 'Packs files into one. The name is from the days of magnetic tape.'],
+                ['dig', 'domain information groper', 'Which address hides behind belindata.com? Yes, that is really what it stands for.']] },
+    };
+    let sayShell = 'win', sayLevel = 0;
+    // nine cards for beginner and advanced, three for the bonus
+    function sayHand() { return sayLevel === 2 ? SAY[sayShell].cards.slice(18) : SAY[sayShell].cards.slice(9 * sayLevel, 9 * sayLevel + 9); }
+    function saySetLevel(l) { sayLevel = l; sayRender(); }
+    function sayRender() {
+      document.getElementById('say-note').textContent = SAY[sayShell].note;
+      document.getElementById('say-grid').innerHTML = sayHand().map(([short, long, note]) => `
+        <button type="button" onclick="sayFlip(this)" class="say-card text-left h-32 sm:h-28">
+          <span class="say-inner block">
+            <span class="say-face say-front flex items-center justify-center rounded-xl bg-black/60 border border-white/10 hover:border-brand-coral/60 transition-colors">
+              <span class="font-mono text-base font-bold text-brand-coral">${short}</span>
+            </span>
+            <span class="say-face say-back flex flex-col justify-center rounded-xl bg-brand-plum/30 border border-brand-plum px-3 py-2">
+              <span class="block font-mono text-[11px] font-bold text-brand-coral leading-tight">${short}</span>
+              <span class="block font-bold text-white text-sm leading-tight">${long}</span>
+              <span class="block text-[11px] text-white/70 leading-snug mt-1">${note}</span>
+            </span>
+          </span>
+        </button>`).join('');
+      sayTurnLabel();
+      for (let l = 0; l < 3; l++) {
+        document.getElementById('say-l' + l).className = 'px-2.5 py-1 rounded-full border transition-colors ' + (sayLevel === l ? 'border-brand-coral bg-brand-coral/20 text-brand-coral font-bold' : 'border-white/15 text-white/70 hover:bg-white/10');
+      }
+      for (const k of ['win', 'unix']) {
+        document.getElementById('say-' + k).className = 'px-4 py-2 rounded-full font-semibold transition-colors ' + (sayShell === k ? 'bg-brand-terracotta hover:bg-brand-coral text-white' : 'bg-white/10 hover:bg-white/20 border border-white/15');
+      }
+    }
+    function saySet(k) { sayShell = k; sayRender(); }
+    function sayFlip(btn) { btn.classList.toggle('say-open'); sayTurnLabel(); }
+    function sayTurn() {
+      // one button: turn every card over, or every card back, depending on what is showing
+      const cards = [...document.querySelectorAll('.say-card')];
+      const open = cards.some(b => !b.classList.contains('say-open'));
+      cards.forEach(b => b.classList.toggle('say-open', open));
+      sayTurnLabel();
+    }
+    function sayTurnLabel() {
+      const cards = [...document.querySelectorAll('.say-card')];
+      const anyClosed = cards.some(b => !b.classList.contains('say-open'));
+      const t = document.getElementById('say-turn');
+      t.textContent = anyClosed ? '⇄' : '⇆';
+      t.title = t.ariaLabel = anyClosed ? 'turn all cards' : 'turn all cards back';
+    }
+    sayRender();
+  </script>
+</body>
+</html>

@@ -9,7 +9,8 @@
     tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
       fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
   </script>
-  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  </style>
 </head>
 <body>
   <main class="max-w-3xl mx-auto px-4 py-6">
@@ -27,7 +28,7 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Shell Am I In?</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                A pretend terminal. Type <code class="text-brand-coral">python</code> to enter the Python shell, <code class="text-brand-coral">exit()</code> to leave it, and watch the prompt. Then try the classic mistakes: <code class="text-brand-coral">print("hi")</code> in the system shell, <code class="text-brand-coral">pip install numpy</code> in the Python shell.
+                A fake terminal. Type <code class="text-brand-coral">python</code> to enter the Python shell, <code class="text-brand-coral">exit()</code> to leave it, and watch the prompt. Then try the classic mistakes: <code class="text-brand-coral">print("hi")</code> in the system shell, <code class="text-brand-coral">pip install numpy</code> in the Python shell.
               </p>
             </div>
 
@@ -46,19 +47,31 @@
               <div class="flex flex-wrap gap-1.5 text-[11px] font-mono">
                 <span class="text-white/50 mr-1">try:</span>
                 <button type="button" onclick="shType('python')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">python</button>
+                <button type="button" onclick="shType('python --version')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">python --version</button>
+                <button type="button" onclick="shType('python hello.py')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">python hello.py</button>
                 <button type="button" onclick="shType('2 + 2')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">2 + 2</button>
+                <button type="button" onclick="shType('2 ** 10')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">2 ** 10</button>
+                <button type="button" onclick="shType('len(&quot;shell&quot;)')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">len("shell")</button>
                 <button type="button" onclick="shType('print(&quot;hi&quot;)')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">print("hi")</button>
+                <button type="button" onclick="shType('import math')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">import math</button>
                 <button type="button" onclick="shType('pip install numpy')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">pip install numpy</button>
                 <button type="button" onclick="shType('dir')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">dir</button>
                 <button type="button" onclick="shType('ls')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">ls</button>
+                <button type="button" onclick="shType('cd Documents')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">cd Documents</button>
+                <button type="button" onclick="shType('pwd')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">pwd</button>
+                <button type="button" onclick="shType('cls')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">cls</button>
+                <button type="button" onclick="shType('clear')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">clear</button>
+                <button type="button" onclick="shType('echo hello')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">echo hello</button>
+                <button type="button" onclick="shType('whoami')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">whoami</button>
                 <button type="button" onclick="shType('exit()')" class="px-2 py-0.5 rounded-full border border-white/15 text-white/70 hover:bg-white/10">exit()</button>
               </div>
             </div>
           </div>
+
   </main>
   <script>
     // ==========================================
-    // WHICH SHELL AM I IN?  (a pretend terminal)
+    // WHICH SHELL AM I IN?  (a fake terminal)
     // ==========================================
     // Two modes: the system shell (PowerShell on Windows, zsh on a Mac) and the Python shell. The prompt tells them apart.
     let shOS = 'win', shPy = false;
@@ -88,7 +101,7 @@
       document.getElementById('sh-screen').innerHTML = '';
       shPy = false;
       shPrint(shOS === 'win' ? 'Windows PowerShell' : 'Last login: today on ttys001', 'text-white/50');
-      shPrint('This is a pretend terminal: nothing here touches your computer.', 'text-white/40');
+      shPrint('This is a fake terminal: nothing here touches your computer.', 'text-white/40');
       shUpdate();
     }
     function shType(cmd) { const i = document.getElementById('sh-input'); i.value = cmd; i.focus(); }
@@ -109,12 +122,31 @@
           shPrint('Python 3.12.4 (main) [64 bit]', 'text-white/60');
           shPrint('Type "help", "copyright", "credits" or "license" for more information.', 'text-white/60');
           shPrint('→ the prompt changed to >>> : you are now talking to Python', 'text-emerald-300');
+        } else if (/^(python|python3|py)\s+(--version|-V)$/.test(c)) {
+          shPrint('Python 3.12.4');
+          shPrint('→ Python only answered a question and quit again; you are still in the system shell', 'text-emerald-300');
+        } else if (/^(python|python3|py)\s+hello\.py$/.test(c)) {
+          shPrint('Hello, world!');
+          shPrint('→ hello.py ran and finished; the prompt is still the system shell', 'text-emerald-300');
+        } else if (/^(python|python3|py)\s+\S+\.py$/.test(c)) {
+          shPrint(`python: can't open file '${c.split(/\s+/)[1]}': [Errno 2] No such file or directory`, 'text-red-300');
+        } else if (/^pip(3)?\s+(--version|-V)$/.test(c)) {
+          shPrint('pip 24.0 from C:\\Python312\\Lib\\site-packages\\pip (python 3.12)');
         } else if (/^(dir|ls)$/.test(c)) {
           if ((c === 'dir') === (shOS === 'win')) shPrint(SH_FILES[shOS]);
           else if (shOS === 'win') shPrint(SH_FILES.win);           // PowerShell knows ls as an alias
           else shPrint('zsh: command not found: dir', 'text-red-300');
-        } else if (/^cd\b/.test(c)) {
+        } else if (/^(cls|clear)$/.test(c)) {
+          if (c === 'cls' && shOS === 'mac') shPrint('zsh: command not found: cls', 'text-red-300');
+          else { document.getElementById('sh-screen').innerHTML = ''; shPrint('(screen cleared)', 'text-white/40'); }
+        } else if (/^(pwd|cd)$/.test(c)) {
+          shPrint(shOS === 'win' ? 'C:\\Users\\you' : '/Users/you');
+        } else if (/^cd\s/.test(c)) {
           shPrint('(folder changed, pretend)', 'text-white/50');
+        } else if (/^echo\s/.test(c)) {
+          shPrint(c.replace(/^echo\s+/, '').replace(/^["']|["']$/g, ''));
+        } else if (/^whoami$/.test(c)) {
+          shPrint(shOS === 'win' ? 'laptop\\you' : 'you');
         } else if (/^pip(3)? install\b/.test(c)) {
           shPrint('Collecting ' + c.split(/\s+/).slice(2).join(' ')); shPrint('Successfully installed ' + c.split(/\s+/).slice(2).join(' ') + ' (pretend)');
           shPrint('→ right place: pip is a program, you run it from the system shell', 'text-emerald-300');
@@ -137,14 +169,23 @@
         } else if (/^pip(3)? install\b/.test(c)) {
           shPrint('  File "<stdin>", line 1', 'text-red-300'); shPrint('    ' + c, 'text-red-300'); shPrint('SyntaxError: invalid syntax', 'text-red-300');
           shPrint('→ pip is not Python code. Leave the Python shell with exit() and run it in the system shell.', 'text-brand-coral');
-        } else if (/^(dir|ls|cd\b|cd$)/.test(c)) {
+        } else if (/^(python|python3|py)(\s|$)/.test(c)) {
+          shPrint("NameError: name 'python' is not defined", 'text-red-300');
+          shPrint('→ you are already inside Python. To run a file or start over, leave with exit() first.', 'text-brand-coral');
+        } else if (/^(dir|ls|cd\b|cd$|cls$|clear$|pwd$|echo\s)/.test(c)) {
           if (c === 'dir') shPrint('<built-in function dir>', 'text-white/70');
           else shPrint(`NameError: name '${c.split(/\s/)[0]}' is not defined`, 'text-red-300');
           shPrint('→ that is a system-shell command. Python does not know it.', 'text-brand-coral');
         } else if (shCalc(c) !== null) {
           shPrint(shCalc(c));
+        } else if (/^len\s*\(\s*(["']).*\1\s*\)$/.test(c)) {
+          shPrint(String(c.replace(/^len\s*\(\s*["']/, '').replace(/["']\s*\)$/, '').length));
+        } else if (/^help\(\)$/.test(c)) {
+          shPrint('Welcome to Python 3.12\'s help utility! (pretend: type quit to leave help)', 'text-white/70');
         } else if (/^import\s+\w+$/.test(c)) {
           shPrint('(imported, pretend)', 'text-white/50');
+        } else if (/^[A-Za-z_]\w*\s*=[^=]/.test(c)) {
+          // an assignment: Python says nothing, that is the correct answer
         } else {
           shPrint(`NameError: name '${c.split(/[\s(]/)[0]}' is not defined`, 'text-red-300');
         }
