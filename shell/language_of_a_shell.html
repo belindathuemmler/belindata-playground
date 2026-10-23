@@ -142,9 +142,8 @@
               <span class="font-mono ${short.length > 12 ? 'text-xs sm:text-sm' : 'text-base'} font-bold text-brand-coral text-center break-words">${short}</span>
             </span>
             <span class="say-face say-back flex flex-col justify-center rounded-xl bg-brand-plum/30 border border-brand-plum px-3 py-2">
-              ${small
-                ? `<span class="block font-mono text-xs font-bold text-brand-coral leading-tight">${small}: ${long}</span>`
-                : `<span class="block font-mono text-[11px] font-bold text-brand-coral leading-tight">${short}</span><span class="block font-bold text-white text-sm leading-tight">${long}</span>`}
+              <span class="block font-mono text-[11px] font-bold text-brand-coral leading-tight break-words">${short}</span>
+              <span class="block font-bold text-white ${small ? 'text-xs font-mono' : 'text-sm'} leading-tight">${small ? small + ': ' + long : long}</span>
               <span class="block text-[11px] text-white/70 leading-snug mt-1">${note}</span>
             </span>
           </span>

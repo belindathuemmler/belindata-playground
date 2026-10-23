@@ -19,7 +19,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [Is Zig-Zag Better Than Stumbling Around?](https://belindata.com/projects/zig-zag.html) | [`zig-zag/`](zig-zag/) |  | `zigzag_trajectory.py` |
 | [AI vs. Me: A Data Analysis Duel](https://belindata.com/projects/me-vs-ai.html) | [`me-vs-ai/`](me-vs-ai/) |  | `dashboard_card.py`, `coming_soon_cards.py` |
 | [How a Machine Understands Similar Questions](https://belindata.com/projects/embeddings.html) | [`embeddings/`](embeddings/) |  | `coming_soon_cards.py` |
-| [A Bracket and a Man Called Lie](https://belindata.com/projects/lie-bracket.html) | [`lie-bracket/`](lie-bracket/) |  | `lie_bracket_parking.py` |
+| [A Bracket and a Man Called Lie](https://belindata.com/projects/lie-bracket.html) | [`lie-bracket/`](lie-bracket/) | [`parking_lot.html`](lie-bracket/parking_lot.html) | `lie_bracket_parking.py` |
 | [Open the Shell. Which Shell?](https://belindata.com/projects/shell.html) | [`shell/`](shell/) | [`language_of_a_shell.html`](shell/language_of_a_shell.html), [`which_shell.html`](shell/which_shell.html) | `shell_api_cards.py` |
 | [What Is an API?](https://belindata.com/projects/api.html) | [`api/`](api/) |  | `shell_api_cards.py` |
 | [Never Divide by Zero!](https://belindata.com/projects/divide-by-zero.html) | [`divide-by-zero/`](divide-by-zero/) |  | `divide_by_zero_card.py` |

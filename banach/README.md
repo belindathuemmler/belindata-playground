@@ -1,8 +1,9 @@
 # Robots Aiming for Banach Fixed Points
 
-Why does reinforcement learning work, at least in theory? Because the Bellman
-optimality operator is a **contraction**, and Banach's fixed-point theorem then
-guarantees a unique optimal value function and geometric convergence to it.
+Why does reinforcement learning work, at least in theory? Because the robot's
+thinking rule (the Bellman operator) is a **contraction**, and Banach's fixed-point
+theorem, a second-semester theorem, then guarantees a unique true value map and
+geometric convergence to it.
 
 This folder contains a small Python implementation that accompanies the
 article and interactive demo on
@@ -78,8 +79,8 @@ general no longer a contraction, and Banach alone is not enough.
 
 ## Further reading
 
-- Gerald Teschl, *Topics in Real and Functional Analysis* (free PDF), for the
-  Banach fixed-point theorem.
+- Walter Rudin, *Principles of Mathematical Analysis* (3rd ed., 1976), Theorem 9.23:
+  the contraction principle as taught in a second-semester analysis course.
 - Andrew Ng, *Machine Learning Specialization* (Coursera / DeepLearning.AI),
   where this exploration started.
 
