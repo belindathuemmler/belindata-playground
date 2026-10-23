@@ -35,23 +35,23 @@ def rope(xs, ys, fill=None, alpha=0.5):
 # the rope, unrolled
 y_r = 5.2
 rope(np.array([-L / 2, L / 2]), np.array([y_r, y_r]))
-ax.text(0, y_r + 0.35, 'one rope, length $L = 18$ m', ha='center', va='bottom', fontsize=36, color=DARK, family='serif')
+ax.text(0, y_r + 0.35, 'one fence, length $L = 18$ m', ha='center', va='bottom', fontsize=36, color=DARK, family='serif')
 
-# the same rope around three fields, side by side, standing on one line
+# the same fence around three fields, everything a little to the right so the row label survives the phone crop, side by side, standing on one line
 floor = -1.5
 t = np.linspace(0, 2 * np.pi, 400)
 fields = [  # (name, centre x, outline, area)
-    ('rectangle', -6.6, (np.array([-a / 2, a / 2, a / 2, -a / 2, -a / 2]), floor + np.array([0, 0, b, b, 0])), a * b),
-    ('square', 0.3, (np.array([-s / 2, s / 2, s / 2, -s / 2, -s / 2]), floor + np.array([0, 0, s, s, 0])), s * s),
-    ('circle', 6.8, (r * np.cos(t), floor + r + r * np.sin(t)), np.pi * r * r),
+    ('rectangle', -5.9, (np.array([-a / 2, a / 2, a / 2, -a / 2, -a / 2]), floor + np.array([0, 0, b, b, 0])), a * b),
+    ('square', 1.0, (np.array([-s / 2, s / 2, s / 2, -s / 2, -s / 2]), floor + np.array([0, 0, s, s, 0])), s * s),
+    ('circle', 7.5, (r * np.cos(t), floor + r + r * np.sin(t)), np.pi * r * r),
 ]
 for name, cx, (xs, ys), area in fields:
     rope(cx + xs, ys, fill=FILL[name])
     win = name == 'circle'
     ax.text(cx, floor - 0.5, name, ha='center', va='top', fontsize=32, color=INK[name], family='serif')
     ax.text(cx, floor - 1.5, (f'{area:.2f}'.replace('.00', '') + ' m²'), ha='center', va='top', fontsize=38, color=INK[name], family='serif', weight='bold' if win else 'normal')
-ax.text(-10.85, floor - 1.5, 'area $A$', ha='left', va='top', fontsize=32, color=DARK, family='serif')   # row label, like a little table
-for x in (-3.15, 3.55):   # growing area
+ax.text(-10.1, floor - 1.5, 'area $A$', ha='left', va='top', fontsize=32, color=DARK, family='serif')   # row label, like a little table
+for x in (-2.45, 4.25):   # growing area
     ax.text(x, floor - 1.5, '<', ha='center', va='top', fontsize=40, color=DARK, family='serif')
 
 fig.savefig(out, dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})

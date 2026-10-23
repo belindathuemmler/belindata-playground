@@ -25,30 +25,29 @@ def save(fig, name):
     plt.close(fig)
 
 
-# 1. Two shells: the system shell, and the Python shell started inside it
+# 1. Two shells: the system shell, and the Python shell started inside it. The black window is the whole card.
 fig, ax = canvas()
-ax.add_patch(FancyBboxPatch((0.6, 0.75), 7.0, 4.0, boxstyle='round,pad=0,rounding_size=0.25', fc='#241D20', ec='none'))
-ax.add_patch(FancyBboxPatch((0.6, 4.35), 7.0, 0.4, boxstyle='round,pad=0,rounding_size=0.25', fc='#3A2F33', ec='none'))
+TOP = 10 * H / W
+fig.patch.set_facecolor('#241D20'); ax.set_facecolor('#241D20')
+ax.add_patch(plt.Rectangle((0, TOP - 0.62), 10, 0.62, fc='#3A2F33', ec='none'))
 for k, c in enumerate([TERRA, '#F4C98F', SAGE]):
-    ax.add_patch(plt.Circle((0.95 + 0.3 * k, 4.55), 0.08, color=c))
-mono = dict(family='monospace', fontsize=21)
+    ax.add_patch(plt.Circle((0.45 + 0.4 * k, TOP - 0.31), 0.11, color=c))
+mono = dict(family='monospace', fontsize=34)
 lines = [
-    ('C:\\Users\\me> ', CORAL, 'python', '#FFFFFF', 3.75),
-    ('>>> ', '#9FD3A8', '2 + 3', '#FFFFFF', 2.85),
-    ('', None, '5', '#FFFFFF', 2.25),
-    ('>>> ', '#9FD3A8', 'exit()', '#FFFFFF', 1.65),
-    ('C:\\Users\\me> ', CORAL, '', '#FFFFFF', 1.05),
+    ('C:\\Users\\me> ', CORAL, 'python', '#FFFFFF', 4.05),
+    ('>>> ', '#9FD3A8', '2 + 3', '#FFFFFF', 3.15),
+    ('', None, '5', '#FFFFFF', 2.45),
+    ('>>> ', '#9FD3A8', 'exit()', '#FFFFFF', 1.75),
+    ('C:\\Users\\me> ', CORAL, '', '#FFFFFF', 0.85),
 ]
 for prompt, pc, cmd, cc, y in lines:
-    t = ax.text(1.0, y, prompt, color=pc or '#FFFFFF', **mono)
+    t = ax.text(0.55, y, prompt, color=pc or '#FFFFFF', **mono)
     fig.canvas.draw()
-    x1 = t.get_window_extent().transformed(ax.transData.inverted()).x1 if prompt else 1.0
+    x1 = t.get_window_extent().transformed(ax.transData.inverted()).x1 if prompt else 0.55
     ax.text(x1, y, cmd, color=cc, **mono)
-ax.text(7.95, 3.8, 'system shell', color=TERRA, fontsize=17, family='serif', style='italic')
-ax.text(7.95, 2.3, 'Python shell', color=SAGE, fontsize=17, family='serif', style='italic')
-ax.plot([7.8, 7.8], [1.55, 3.15], color=SAGE, lw=2)
-ax.text(4.1, 5.05, 'Open the shell. Which one?', ha='center', fontsize=22, color=PLUM, family='serif', style='italic')
-save(fig, 'card_shell.jpg')
+ax.add_patch(plt.Rectangle((x1 + 0.02, 0.78), 0.3, 0.5, fc='#FFFFFF', ec='none', alpha=0.85))   # the cursor, after the last prompt
+fig.savefig(os.path.join(OUT, 'card_shell.jpg'), dpi=100, facecolor='#241D20', pil_kwargs={'quality': 92})
+plt.close(fig)
 
 # 2. API: the menu between you and the kitchen
 fig, ax = canvas()

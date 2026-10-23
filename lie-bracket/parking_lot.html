@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Parking Lot • belindata playground</title>
+  <title>The Parking Lot and The Bracket Fields • belindata playground</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
@@ -13,7 +13,7 @@
 </head>
 <body>
   <main class="max-w-3xl mx-auto px-4 py-6">
-    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/lie-bracket.html" class="underline text-brand-terracotta">A Bracket and a Man Called Lie</a> on belindata.com. Open this file in any browser.</p>
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the two interactives from <a href="https://belindata.com/projects/lie-bracket.html" class="underline text-brand-terracotta">A Bracket and a Man Called Lie</a> on belindata.com. Open this file in any browser.</p>
           <!-- ================= INTERACTIVE: THE PARKING LOT ================= -->
           <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
 
@@ -27,24 +27,36 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Parking Lot</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                Your car has two controls, <strong>steer</strong> and <strong>drive</strong>, and no third one for sideways. The gap at the kerb is right below you. Try to get in by hand, or let the two prepared move sequences show you what the order of moves leaves behind.
+                Your car has two controls, <strong>steer</strong> and <strong>drive</strong>, and no third one for sideways. The gap at the kerb is right below you. Try to get in by hand, or let the prepared move sequences show you what the order of moves leaves behind.
               </p>
             </div>
 
             <div class="relative z-10 space-y-3">
-              <svg id="pk-svg" viewBox="0 0 640 360" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb at the bottom with two parked cars and a gap between them; your car in the lane above, drawn with its path"></svg>
               <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-                <button type="button" onclick="pkMove('steer', 1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left</button>
-                <button type="button" onclick="pkMove('steer', -1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right ▶</button>
-                <button type="button" onclick="pkMove('drive', 1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive</button>
-                <button type="button" onclick="pkMove('drive', -1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse</button>
+                <button type="button" onclick="pkMove('steer', 1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left (+X)</button>
+                <button type="button" onclick="pkMove('steer', -1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right (−X) ▶</button>
+                <button type="button" onclick="pkMove('drive', 1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive (+Y)</button>
+                <button type="button" onclick="pkMove('drive', -1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse (−Y)</button>
                 <button type="button" onclick="pkReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
               </div>
               <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                 <span class="text-white/50 font-mono text-[11px] mr-1">sequences:</span>
-                <button type="button" onclick="pkSquare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⟲ the square: steer, drive, unsteer, reverse</button>
-                <button type="button" onclick="pkWiggle()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⇅ one parking wiggle</button>
+                <button type="button" onclick="pkCompare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⇆ X then Y, against Y then X  →  their difference is XY − YX</button>
+                <button type="button" onclick="pkSquare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⟲ X, Y, −X, −Y  →  [X, Y]</button>
+                <button type="button" onclick="pkUndo()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 font-semibold transition-colors">⟲ X, Y, −Y, −X  →  0, always</button>
+                <button type="button" onclick="pkWiggle()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⇅ −X, −Y, 2X, −Y, −X, 2Y  →  [[X, Y], Y] (one parking wiggle)</button>
               </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-mono text-white/70">
+                <label class="flex items-center gap-3">
+                  <span class="whitespace-nowrap">follow X for <span id="pk-delta-val" class="text-brand-coral font-bold">30°</span></span>
+                  <input id="pk-delta" type="range" min="5" max="30" step="5" value="30" oninput="pkSetSize()" class="flex-1 accent-[#DF7654]">
+                </label>
+                <label class="flex items-center gap-3">
+                  <span class="whitespace-nowrap">follow Y for <span id="pk-eps-val" class="text-brand-coral font-bold">1.5 m</span></span>
+                  <input id="pk-eps" type="range" min="0.5" max="3" step="0.5" value="1.5" oninput="pkSetSize()" class="flex-1 accent-[#DF7654]">
+                </label>
+              </div>
+              <svg id="pk-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb with two parked cars and a gap between them; your car in the lane next to it, drawn with its path. On a phone the street runs top to bottom"></svg>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-white/50">wheels</div><div id="pk-phi" class="font-mono font-bold text-white">0°</div></div>
                 <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-white/50">heading</div><div id="pk-theta" class="font-mono font-bold text-white">0°</div></div>
@@ -52,6 +64,53 @@
                 <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-brand-coral">sideways</div><div id="pk-dy" class="font-mono font-bold text-brand-coral">0.00 m</div></div>
               </div>
               <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+            </div>
+          </div>
+
+          <!-- ================= INTERACTIVE: THE BRACKET FIELDS ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Bracket Fields</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Each button spells a bracket out as moves and plays them one by one: <code class="text-brand-coral">X</code> is one click of steering, <code class="text-brand-coral">Y</code> one click of driving, a minus sign undoes it. At the end the start (pale) and the end (solid) are compared, and what is left between them is the bracket field.
+              </p>
+            </div>
+
+            <div class="relative z-10 space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <button type="button" onclick="bfField('xy')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[X, Y]</button>
+                <button type="button" onclick="bfField('yx')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[Y, X]</button>
+                <button type="button" onclick="bfField('xyy')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], Y]</button>
+                <button type="button" onclick="bfField('xyx')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], X]</button>
+                <button type="button" onclick="bfField('xx')" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[X, X]</button>
+                <button type="button" onclick="bfField('yy')" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[Y, Y]</button>
+                <button type="button" onclick="bfReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2 text-xs font-mono text-white/70">
+                <label class="flex items-center gap-3">
+                  <span class="whitespace-nowrap">wheels at <span id="bf-phi-val" class="text-brand-coral font-bold">0°</span></span>
+                  <input id="bf-phi" type="range" min="-15" max="15" step="5" value="0" oninput="bfSetState()" class="flex-1 accent-[#DF7654]">
+                </label>
+                <label class="flex items-center gap-3">
+                  <span class="whitespace-nowrap">follow X for <span id="bf-delta-val" class="text-brand-coral font-bold">30°</span></span>
+                  <input id="bf-delta" type="range" min="5" max="30" step="5" value="30" oninput="bfSetState()" class="flex-1 accent-[#DF7654]">
+                </label>
+                <label class="flex items-center gap-3">
+                  <span class="whitespace-nowrap">follow Y for <span id="bf-eps-val" class="text-brand-coral font-bold">1.5 m</span></span>
+                  <input id="bf-eps" type="range" min="0.5" max="3" step="0.5" value="1.5" oninput="bfSetState()" class="flex-1 accent-[#DF7654]">
+                </label>
+              </div>
+              <div id="bf-steps" class="flex flex-wrap items-center gap-1.5 text-[12px] font-mono min-h-[1.75rem]"></div>
+              <svg id="bf-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street with a kerb; a car that follows one bracket field directly, with an arrow showing the field's effect"></svg>
+              <div id="bf-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
 
@@ -63,13 +122,15 @@
     // Bicycle model, reference point = middle of the rear axle, world coordinates in metres, x along the street, y away from the kerb.
     // Two controls: steer changes the wheel angle phi (flow of S), drive moves the car along an arc with the current phi (flow of D).
     const PK_L = 2.5;                 // wheelbase
-    const PK_DELTA = Math.PI / 6;     // one steer click: 30°
-    const PK_EPS = 1.5;               // one drive click: 1.5 m
-    const PK_SCALE = 40;              // px per metre, scene 16 m x 9 m
-    const PK_H = 360;
+    let PK_DELTA = Math.PI / 6;       // one steer click, set by the slider: 5° … 30°
+    let PK_EPS = 1.5;                 // one drive click, set by the slider: 0.5 … 3 m
+    const PK_SCALE = 40;              // px per metre, scene 16 m x 5.2 m
+    const PK_H = 208;
     const PK_START = { x: 6.8, y: 3.6, th: 0, phi: 0 };
     const PK_GAP = [2.5, 13.5];       // the gap between the parked cars
     let pk = { ...PK_START }, pkPath = [], pkQueue = [], pkBusy = false, pkMovesDone = 0;
+    let pkGhosts = [];                // end states left standing by the compare sequence: {state, label, color}
+    let pkMark = null;                // the bracket made visible: a turn arrow {x, y, from, to} drawn after the square
 
     const pkX = x => x * PK_SCALE, pkY = y => PK_H - y * PK_SCALE;
     const pkDeg = r => (r * 180 / Math.PI);
@@ -99,24 +160,46 @@
       const s = PK_SCALE, svg = document.getElementById('pk-svg');
       if (!svg) return;
       const path = pkPath.length > 1 ? `<polyline points="${pkPath.map(p => pkX(p.x) + ',' + pkY(p.y)).join(' ')}" fill="none" stroke="#EE9779" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.8"/>` : '';
-      svg.innerHTML = `
+      // on a narrow screen the street runs top to bottom: the whole scene is turned by 90 degrees, kerb on the left
+      const portrait = window.innerWidth < 640;
+      svg.setAttribute('viewBox', portrait ? `0 0 ${PK_H} 640` : `0 0 640 ${PK_H}`);
+      svg.classList.toggle('max-h-[70vh]', portrait); svg.classList.toggle('mx-auto', portrait);
+      const gapLabel = portrait ? `transform="rotate(-90 ${pkX((PK_GAP[0] + PK_GAP[1]) / 2)} ${pkY(0.35)})"` : '';
+      svg.innerHTML = `<g transform="${portrait ? `matrix(0 1 -1 0 ${PK_H} 0)` : ''}">
           <rect x="0" y="${pkY(2.3)}" width="640" height="${2.3 * s}" fill="#2A2124"/>
           <line x1="0" y1="${pkY(0)}" x2="640" y2="${pkY(0)}" stroke="#CFC6C9" stroke-width="3"/>
           <line x1="0" y1="${pkY(2.3)}" x2="640" y2="${pkY(2.3)}" stroke="#FAF8F5" stroke-opacity="0.15" stroke-width="1" stroke-dasharray="6 6"/>
-          <line x1="0" y1="${pkY(6)}" x2="640" y2="${pkY(6)}" stroke="#FAF8F5" stroke-opacity="0.25" stroke-width="2" stroke-dasharray="14 10"/>
           ${pkCarSvg({ x: PK_GAP[0] - 3.2, y: 1.15, th: 0, phi: 0 }, '#6E6266', 0.9, false)}
           ${pkCarSvg({ x: PK_GAP[1] + 0.8, y: 1.15, th: 0, phi: 0 }, '#6E6266', 0.9, false)}
           <rect x="${pkX(PK_GAP[0])}" y="${pkY(2.3)}" width="${(PK_GAP[1] - PK_GAP[0]) * s}" height="${2.3 * s}" fill="#874C62" fill-opacity="0.18" stroke="#874C62" stroke-opacity="0.5" stroke-dasharray="4 4"/>
-          <text x="${pkX((PK_GAP[0] + PK_GAP[1]) / 2)}" y="${pkY(0.35)}" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="#D8A9BF">the gap</text>
+          <text x="${pkX((PK_GAP[0] + PK_GAP[1]) / 2)}" y="${pkY(0.35)}" ${gapLabel} text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="#D8A9BF">the gap</text>
           ${pkCarSvg(PK_START, '#EE9779', 0.18, false)}
+          ${pkGhosts.map(g => pkCarSvg(g.state, g.color, 0.55, true) + `<text x="${pkX(g.state.x + 1.2)}" y="${pkY(g.state.y) + (g.below ? 50 : -44)}" ${portrait ? `transform="rotate(-90 ${pkX(g.state.x + 1.2)} ${pkY(g.state.y) + (g.below ? 50 : -44)})"` : ''} text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="${g.color}">${g.label}</text>`).join('')}
           ${path}
-          ${pkCarSvg(pk, '#DF7654', 1, true)}`;
+          ${pkCarSvg(pk, '#DF7654', 1, true)}
+          ${pkMark ? pkTurnArrow(pkMark) : ''}</g>`;
       document.getElementById('pk-phi').textContent = Math.round(pkDeg(pk.phi)) + '°';
       document.getElementById('pk-theta').textContent = (Math.round(pkDeg(pk.th) * 10) / 10) + '°';
       document.getElementById('pk-dx').textContent = pkFmt(pk.x - PK_START.x, 'm');
       document.getElementById('pk-dy').textContent = pkFmt(pk.y - PK_START.y, 'm');
     }
 
+    // the bracket made visible: a curved arrow around the rear axle (a turn) or a straight arrow (a slide), with its label
+    function pkTurnArrow(m) {
+      const head = `<defs><marker id="pk-turn-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#DF7654"/></marker></defs>`;
+      if (m.kind === 'slide') {
+        const x0 = pkX(m.x), y0 = pkY(m.y), x1 = pkX(m.x + m.dx), y1 = pkY(m.y + m.dy);
+        const nx = -(y1 - y0), ny = (x1 - x0), n = Math.hypot(nx, ny) || 1;
+        return `${head}<path d="M ${x0.toFixed(1)},${y0.toFixed(1)} L ${x1.toFixed(1)},${y1.toFixed(1)}" fill="none" stroke="#DF7654" stroke-width="3" marker-end="url(#pk-turn-head)"/>
+          <text x="${((x0 + x1) / 2 + 46 * nx / n).toFixed(1)}" y="${((y0 + y1) / 2 + 46 * ny / n).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#DF7654">${m.label}</text>`;
+      }
+      const r = 2.2 * PK_SCALE, cx = pkX(m.x), cy = pkY(m.y);
+      const P = a => `${(cx + r * Math.cos(a)).toFixed(1)},${(cy - r * Math.sin(a)).toFixed(1)}`;
+      const a0 = m.from, a1 = m.to, mid = (a0 + a1) / 2, ccw = a1 > a0;
+      const lx = cx + (r + 16) * Math.cos(mid), ly = cy - (r + 16) * Math.sin(mid);
+      return `${head}<path d="M ${P(a0)} A ${r} ${r} 0 0 ${ccw ? 0 : 1} ${P(a1)}" fill="none" stroke="#DF7654" stroke-width="3" marker-end="url(#pk-turn-head)"/>
+          <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#DF7654">${m.label}</text>`;
+    }
     function pkStatus(t) { const el = document.getElementById('pk-status'); if (el) el.innerHTML = t; }
     function pkParked() {
       const inGap = pk.x - 0.8 > PK_GAP[0] && pk.x + 3.2 < PK_GAP[1];
@@ -127,8 +210,19 @@
     function pkRunQueue(done) {
       if (!pkQueue.length) { pkBusy = false; if (done) done(); return; }
       pkBusy = true;
-      const m = pkQueue.shift(), from = { ...pk }, t0 = performance.now(), dur = m.kind === 'steer' ? 260 : 420;
-      if (m.kind === 'steer') {
+      const m = pkQueue.shift(), from = { ...pk }, t0 = performance.now(), dur = m.kind === 'steer' ? 260 : (m.kind === 'drive' ? 420 : 700);
+      if (m.kind === 'turn' || m.kind === 'slide') {
+        // the bracket fields themselves: a turn in place by m.d radians, or a slide of m.d metres perpendicular to the heading
+        const frame = now => {
+          const u = Math.min(1, (now - t0) / dur);
+          pk = m.kind === 'turn' ? { ...from, th: from.th + m.d * u }
+                                 : { ...from, x: from.x - m.d * u * Math.sin(from.th), y: from.y + m.d * u * Math.cos(from.th) };
+          if (m.kind === 'slide') pkPath.push({ x: pk.x, y: pk.y });
+          pkRender();
+          if (u < 1) requestAnimationFrame(frame); else { pkMovesDone++; pkRunQueue(done); }
+        };
+        requestAnimationFrame(frame);
+      } else if (m.kind === 'steer') {
         const target = Math.max(-PK_DELTA, Math.min(PK_DELTA, from.phi + m.d * PK_DELTA));
         if (Math.abs(target - from.phi) < 1e-9) { pkRunQueue(done); return; }
         const frame = now => {
@@ -160,10 +254,50 @@
     function pkSquare() {
       if (pkBusy) return;
       const before = { ...pk };
+      pkMark = null;
+      pkGhosts = [{ state: before, label: 'start', color: '#EE9779', below: true }];
       pkQueue.push({ kind: 'steer', d: 1 }, { kind: 'drive', d: 1 }, { kind: 'steer', d: -1 }, { kind: 'drive', d: -1 });
       pkRunQueue(() => {
         const turn = pkDeg(pk.th - before.th);
-        pkStatus(`Four moves, and each one undone by the next: steer, drive, unsteer, reverse. Yet the car is not back where it was: it has <strong>turned by ${turn.toFixed(1)}°</strong> (and shifted a little). This leftover is the Lie bracket [steer, drive]: a turn.`);
+        pkMark = { kind: 'turn', x: pk.x, y: pk.y, from: before.th, to: pk.th, label: '[X, Y]' };
+        pkRender();
+        const predicted = pkDeg(PK_DELTA * PK_EPS / PK_L);   // t²-rule: size of X times size of Y times the bracket, which is 1/ℓ ∂θ at straight wheels
+        pkStatus(`X, Y, −X, −Y: steer, drive, then undo <em>in the same order</em>, unsteer first, reverse second. Every move is undone, yet the car is not back where it was: it has <strong>turned by ${turn.toFixed(1)}°</strong> (and shifted a little). This leftover is the Lie bracket [X, Y]: a turn. The bracket predicts it, the smaller the moves the better: steer × drive × [X, Y] = ${Math.round(pkDeg(PK_DELTA))}° × ${PK_EPS.toFixed(1)} m × 1/${PK_L} m = <strong>${predicted.toFixed(1)}°</strong>. Move the sliders: twice the steering or twice the driving doubles the turn, both together quadruple it.`);
+      });
+    }
+
+    // compare the two orders: steer then drive, and drive then steer, both from the start. The two end states differ: that difference is XY − YX.
+    function pkCompare() {
+      if (pkBusy) return;
+      pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }]; pkGhosts = []; pkMark = null;
+      pkStatus('First order: steer, then drive …');
+      pkRender();
+      pkQueue.push({ kind: 'steer', d: 1 }, { kind: 'drive', d: 1 });
+      pkRunQueue(() => {
+        const A = { ...pk };
+        pkGhosts.push({ state: A, label: 'A: steer, then drive', color: '#EE9779', below: false });
+        pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }];
+        pkStatus('Back at the start. Second order: drive, then steer …');
+        pkRender();
+        pkQueue.push({ kind: 'drive', d: 1 }, { kind: 'steer', d: 1 });
+        pkRunQueue(() => {
+          const B = { ...pk };
+          pkGhosts.push({ state: B, label: 'B: drive, then steer', color: '#D8A9BF', below: true });
+          const turn = pkDeg(A.th - B.th), dx = A.x - B.x, dy = A.y - B.y;
+          pkStatus(`Same two moves, opposite order, and the car ends in two different states: A is turned by <strong>${turn.toFixed(1)}°</strong> relative to B and sits ${pkFmt(Math.hypot(dx, dy), 'm')} away from it. This difference between “steer then drive” and “drive then steer” is what <strong>XY − YX</strong> means. The square measures exactly it: go to A, then come back the way B went.`);
+          pkRender();
+        });
+      });
+    }
+
+    // for comparison: undo in reverse order, X, Y, −Y, −X. Closes for any two moves, says nothing about commuting.
+    function pkUndo() {
+      if (pkBusy) return;
+      const before = { ...pk };
+      pkQueue.push({ kind: 'steer', d: 1 }, { kind: 'drive', d: 1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: -1 });
+      pkRunQueue(() => {
+        const turn = pkDeg(pk.th - before.th);
+        pkStatus(`X, Y, −Y, −X: steer, drive, then undo <em>in reverse order</em>, the last move first. Back exactly where you started (turned by ${turn.toFixed(1)}°). That always happens, for any two moves, like putting on a coat and shoes and taking off shoes and coat; it says nothing about commuting. The square undoes in the same order, and that is where [X, Y] shows.`);
       });
     }
 
@@ -175,21 +309,125 @@
       for (let k = 0; k < Math.abs(toZero); k++) pkQueue.push({ kind: 'steer', d: Math.sign(toZero) });
       // wheels right (phi < 0), reverse: the rear swings towards the kerb; wheels left, reverse: heading back; straight, forward: back along the street
       pkQueue.push({ kind: 'steer', d: -1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: 1 }, { kind: 'steer', d: 1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: -1 }, { kind: 'drive', d: 1 }, { kind: 'drive', d: 1 });
+      pkMark = null; pkGhosts = [{ state: before, label: 'start', color: '#EE9779', below: false }];
       pkRunQueue(() => {
         const dy = pk.y - before.y, dx = pk.x - before.x, turn = pkDeg(pk.th - before.th);
+        pkMark = { kind: 'slide', x: before.x, y: before.y, dx, dy, label: '[[X, Y], Y]' };
+        pkRender();
         pkStatus(pkParked()
           ? `Parked. 🚗 Sideways in total: <strong>${pkFmt(pk.y - PK_START.y, 'm')}</strong>, with only steering and driving.`
-          : `Six moves and the wheels are straight again, the heading is back (${turn.toFixed(1)}°), the car is almost at the same spot along the street (${pkFmt(dx, 'm')}), but it has moved <strong>${pkFmt(dy, 'm')} sideways</strong>. That is the bracket of the bracket, [[steer, drive], drive]: the direction the car cannot drive, built from the two it can.`);
+          : `−X, −Y, 2X, −Y, −X, 2Y: wheels right, reverse, wheels left, reverse, straight, forward. Six moves, and the wheels are straight again, the heading is back (${turn.toFixed(1)}°), the car is almost at the same spot along the street (${pkFmt(dx, 'm')}), but it has moved <strong>${pkFmt(dy, 'm')} sideways</strong>. That is the bracket of the bracket, [[X, Y], Y]: the direction the car cannot drive, built from the two it can.`);
       });
     }
 
+    function pkSetSize() {
+      PK_DELTA = Number(document.getElementById('pk-delta').value) * Math.PI / 180;
+      PK_EPS = Number(document.getElementById('pk-eps').value);
+      document.getElementById('pk-delta-val').textContent = Math.round(pkDeg(PK_DELTA)) + '°';
+      document.getElementById('pk-eps-val').textContent = PK_EPS.toFixed(1) + ' m';
+    }
     function pkReset() {
       if (pkBusy) return;
-      pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }]; pkMovesDone = 0;
+      pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }]; pkMovesDone = 0; pkGhosts = []; pkMark = null;
       pkStatus('The gap is 2.5 m to your right-hand side, straight below. Steer and drive are all you have.');
       pkRender();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pkReset); else pkReset();
+    window.addEventListener('resize', pkRender);
+
+    // ==========================================
+    // THE BRACKET FIELDS  (follow a bracket field directly)
+    // ==========================================
+    const BF_START = { x: 7.0, y: 3.0, th: 0, phi: 0 };
+    let bf = { ...BF_START }, bfMark = null, bfGhost = null, bfBusy = false, bfDelta = Math.PI / 6, bfEps = 1.5;
+
+    function bfRender() {
+      const s = PK_SCALE, svg = document.getElementById('bf-svg');
+      if (!svg) return;
+      const portrait = window.innerWidth < 640;
+      svg.setAttribute('viewBox', portrait ? `0 0 ${PK_H} 640` : `0 0 640 ${PK_H}`);
+      svg.classList.toggle('max-h-[70vh]', portrait); svg.classList.toggle('mx-auto', portrait);
+      svg.innerHTML = `<g transform="${portrait ? `matrix(0 1 -1 0 ${PK_H} 0)` : ''}">
+          <rect x="0" y="${pkY(2.3)}" width="640" height="${2.3 * s}" fill="#2A2124"/>
+          <line x1="0" y1="${pkY(0)}" x2="640" y2="${pkY(0)}" stroke="#CFC6C9" stroke-width="3"/>
+          <line x1="0" y1="${pkY(2.3)}" x2="640" y2="${pkY(2.3)}" stroke="#FAF8F5" stroke-opacity="0.15" stroke-width="1" stroke-dasharray="6 6"/>
+          ${bfGhost ? pkCarSvg(bfGhost, '#EE9779', 0.3, true) : ''}
+          ${pkCarSvg(bf, '#DF7654', 1, true)}
+          ${bfMark ? pkTurnArrow(bfMark) : ''}</g>`;
+    }
+    function bfStatus(t) { const el = document.getElementById('bf-status'); if (el) el.innerHTML = t; }
+    function bfSetState() {
+      if (bfBusy) return;
+      const phi = Number(document.getElementById('bf-phi').value);
+      bfDelta = Number(document.getElementById('bf-delta').value) * Math.PI / 180;
+      bfEps = Number(document.getElementById('bf-eps').value);
+      document.getElementById('bf-phi-val').textContent = phi + '°';
+      document.getElementById('bf-delta-val').textContent = Math.round(pkDeg(bfDelta)) + '°';
+      document.getElementById('bf-eps-val').textContent = bfEps.toFixed(1) + ' m';
+      bf = { ...BF_START, phi: phi * Math.PI / 180 }; bfMark = null; bfGhost = null;
+      bfRender();
+    }
+    function bfReset() {
+      if (bfBusy) return;
+      document.getElementById('bf-phi').value = 0;
+      bfSetState();
+      bfSteps([], 0);
+      bfStatus('Pick a bracket. Its moves are played one by one; at the end, start and end are compared.');
+    }
+    // the moves that spell out each bracket: a token is ±X (steer by ±delta) or ±Y (drive by ±eps)
+    const BF_SEQ = {
+      xy:  { seq: ['X', 'Y', '-X', '-Y'], label: '[X, Y]' },
+      yx:  { seq: ['Y', 'X', '-Y', '-X'], label: '[Y, X]' },
+      xyy: { seq: ['X', 'Y', '-X', '-Y', 'Y', 'Y', 'X', '-Y', '-X', '-Y'], label: '[[X, Y], Y]' },   // [X,Y], then Y, then [X,Y] backwards, then −Y
+      xyx: { seq: ['X', 'Y', '-X', '-Y', 'X', 'Y', 'X', '-Y', '-X', '-X'], label: '[[X, Y], X]' },   // [X,Y], then X, then [X,Y] backwards, then −X
+      xx:  { seq: ['X', 'X', '-X', '-X'], label: '[X, X]' },
+      yy:  { seq: ['Y', 'Y', '-Y', '-Y'], label: '[Y, Y]' },
+    };
+    const bfPretty = t => t.replace('-', '−');
+    function bfSteps(seq, k) {
+      const el = document.getElementById('bf-steps'); if (!el) return;
+      el.innerHTML = seq.map((t, n) => `<span class="px-2 py-0.5 rounded-full border ${n === k ? 'border-brand-coral bg-brand-coral/25 text-brand-coral font-bold' : n < k ? 'border-white/10 text-white/40' : 'border-white/15 text-white/70'}">${bfPretty(t)}</span>`).join('<span class="text-white/30">→</span>');
+    }
+    // play one token with animation: steer turns the wheels by ±delta, drive moves ±eps along the arc the wheels allow
+    function bfPlay(token, d, e, done) {
+      const from = { ...bf }, t0 = performance.now(), isSteer = token.endsWith('X'), sign = token.startsWith('-') ? -1 : 1, dur = isSteer ? 300 : 480;
+      const frame = now => {
+        const u = Math.min(1, (now - t0) / dur);
+        bf = isSteer ? { ...from, phi: from.phi + sign * d * u } : pkDrive(from, sign * e * u);
+        bfRender();
+        if (u < 1) requestAnimationFrame(frame); else done();
+      };
+      requestAnimationFrame(frame);
+    }
+    function bfField(which) {
+      if (bfBusy) return;
+      const { seq, label } = BF_SEQ[which];
+      // [[X, Y], X] is third order and only matches its formula for tiny moves: play it with small steps
+      const small = which === 'xyx';
+      const before = { ...bf }, c = 1 / (PK_L * Math.cos(bf.phi) ** 2), d = small ? Math.min(bfDelta, Math.PI / 18) : bfDelta, e = small ? Math.min(bfEps, 1) : bfEps;
+      bfGhost = before; bfMark = null; bfBusy = true;
+      bfStatus(`Playing ${bfPretty(seq.join(', '))} …`);
+      let k = 0;
+      const next = () => {
+        if (k < seq.length) { bfSteps(seq, k); bfPlay(seq[k++], d, e, next); return; }
+        bfSteps(seq, seq.length); bfBusy = false;
+        const turn = bf.th - before.th, dx = bf.x - before.x, dy = bf.y - before.y, dist = Math.hypot(dx, dy);
+        const nothing = Math.abs(pkDeg(turn)) < 0.3 && dist < 0.03;
+        if (!nothing && Math.abs(pkDeg(turn)) >= 0.3) bfMark = { kind: 'turn', x: bf.x, y: bf.y, from: before.th, to: bf.th, label };
+        else if (!nothing) bfMark = { kind: 'slide', x: before.x, y: before.y, dx, dy, label };
+        bfRender();
+        const pred = { xy: `predicted turn: steer × drive × 1/(ℓ cos²φ) = ${pkDeg(d * e * c).toFixed(1)}°`,
+                       yx: `predicted turn: −${pkDeg(d * e * c).toFixed(1)}°, the sign flips with the order`,
+                       xyy: `predicted slide: steer × drive × drive × 1/(ℓ cos²φ) = ${(d * e * e * c).toFixed(2)} m sideways`,
+                       xyx: Math.abs(before.phi) < 1e-9 ? 'predicted: 0 at straight wheels' : `predicted: a small turn ${before.phi > 0 ? 'to the right' : 'to the left'}, third order (steer × steer × drive), played here with steps of at most 10° and 1 m`,
+                       xx: 'predicted: 0, a field commutes with itself', yy: 'predicted: 0, driving then driving is just driving' }[which];
+        const seen = nothing ? 'Start and end coincide: nothing is left.' : `Start and end differ: the car has turned by <strong>${pkDeg(turn).toFixed(1)}°</strong> and moved ${dist.toFixed(2)} m${dist > 0.03 ? ` (${(Math.abs(dy * Math.cos(before.th) - dx * Math.sin(before.th))).toFixed(2)} m of it sideways)` : ''}.`;
+        bfStatus(`<strong>${label}</strong> as moves: ${bfPretty(seq.join(', '))}. ${seen} ${pred.charAt(0).toUpperCase() + pred.slice(1)}. The leftover is the bracket field, to leading order; the rest is the small print of order t³.`);
+      };
+      next();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bfReset); else bfReset();
+    window.addEventListener('resize', bfRender);
   </script>
 </body>
 </html>
