@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Falling Blocks • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: FALLING BLOCKS ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-3">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Falling Blocks</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Keyboard: ← → to move, ↑ to turn, ↓ to drop faster, space to drop at once, P to pause. On a tablet: the buttons below, or swipe left, right and down on the board, and tap it to turn.
+              </p>
+            </div>
+
+            <div class="relative z-10 flex flex-col sm:flex-row gap-4 items-center sm:items-start justify-center">
+              <canvas id="fb-board" width="300" height="600" tabindex="0" class="rounded-2xl bg-black/60 border border-white/10 touch-none outline-none h-[480px] sm:h-[540px] w-auto"></canvas>
+              <div class="flex sm:flex-col gap-3 items-center sm:items-stretch font-mono text-xs sm:text-sm">
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center">
+                  <div class="text-[10px] uppercase tracking-wider text-white/50">next</div>
+                  <canvas id="fb-next" width="120" height="90" class="mx-auto"></canvas>
+                </div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center min-w-[90px]"><div class="text-[10px] uppercase tracking-wider text-white/50">score</div><div id="fb-score" class="text-lg font-bold text-brand-coral">0</div></div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center min-w-[90px]"><div class="text-[10px] uppercase tracking-wider text-white/50">rows</div><div id="fb-rows" class="text-lg font-bold text-white">0</div></div>
+                <div class="rounded-2xl bg-white/5 border border-white/10 p-3 text-center min-w-[90px]"><div class="text-[10px] uppercase tracking-wider text-white/50">level</div><div id="fb-level" class="text-lg font-bold text-white">1</div></div>
+                <button type="button" id="fb-start" onclick="fbStart()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors font-body">▶ start</button>
+              </div>
+            </div>
+            <div class="relative z-10 flex justify-center gap-2 sm:hidden">
+              <button type="button" onpointerdown="fbKey('left')" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-lg transition-colors select-none">◀</button>
+              <button type="button" onpointerdown="fbKey('turn')" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-lg transition-colors select-none">↻</button>
+              <button type="button" onpointerdown="fbKey('right')" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-lg transition-colors select-none">▶</button>
+              <button type="button" onpointerdown="fbKey('down')" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-lg transition-colors select-none">▼</button>
+              <button type="button" onpointerdown="fbKey('drop')" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-lg transition-colors select-none">⤓</button>
+            </div>
+            <div id="fb-status" class="relative z-10 text-center text-xs sm:text-sm text-white/80 min-h-[1.5rem]"></div>
+          </div>
+
+  </main>
+<script>
+    // ==========================================
+    // FALLING BLOCKS  (the classic game, my own code)
+    // ==========================================
+    (() => {
+      const COLS = 10, ROWS = 20, C = 30;
+      const COLORS = ['#EE9779', '#D8A9BF', '#C0D1B9', '#F4C98F', '#DF7654', '#B77A8A', '#9FC5D6'];
+      const SHAPES = [[[1, 1, 1, 1]], [[1, 1], [1, 1]], [[0, 1, 0], [1, 1, 1]], [[1, 0, 0], [1, 1, 1]], [[0, 0, 1], [1, 1, 1]], [[0, 1, 1], [1, 1, 0]], [[1, 1, 0], [0, 1, 1]]];
+      let board, cur, next, score, rows, level, timer = null, running = false, over = false, bag = [];
+      const cv = document.getElementById('fb-board'); if (!cv) return;
+      const g = cv.getContext('2d'), nx = document.getElementById('fb-next').getContext('2d');
+      const draw7 = () => { if (!bag.length) bag = [0, 1, 2, 3, 4, 5, 6].sort(() => Math.random() - .5); return bag.pop(); };   // all seven before any repeats
+      const piece = t => ({ t, m: SHAPES[t].map(r => r.slice()), x: 3, y: 0 });
+      const turn = m => m[0].map((_, i) => m.map(r => r[i]).reverse());
+      const hits = (m, x, y) => m.some((r, j) => r.some((v, i) => v && (x + i < 0 || x + i >= COLS || y + j >= ROWS || (y + j >= 0 && board[y + j][x + i] !== null))));
+      function cell(ctx, x, y, col, s = C, a = 1) {
+        ctx.globalAlpha = a; ctx.fillStyle = col; ctx.fillRect(x * s + 1, y * s + 1, s - 2, s - 2);
+        ctx.strokeStyle = '#1F1A1C'; ctx.lineWidth = 1.5; ctx.strokeRect(x * s + 1.5, y * s + 1.5, s - 3, s - 3); ctx.globalAlpha = 1;
+      }
+      function render() {
+        g.clearRect(0, 0, cv.width, cv.height);
+        g.strokeStyle = 'rgba(250,248,245,0.06)';
+        for (let i = 1; i < COLS; i++) { g.beginPath(); g.moveTo(i * C, 0); g.lineTo(i * C, ROWS * C); g.stroke(); }
+        for (let j = 1; j < ROWS; j++) { g.beginPath(); g.moveTo(0, j * C); g.lineTo(COLS * C, j * C); g.stroke(); }
+        board.forEach((r, y) => r.forEach((v, x) => { if (v !== null) cell(g, x, y, COLORS[v]); }));
+        if (cur) {
+          let gy = cur.y; while (!hits(cur.m, cur.x, gy + 1)) gy++;   // where it would land
+          cur.m.forEach((r, j) => r.forEach((v, i) => { if (v && gy + j >= 0) cell(g, cur.x + i, gy + j, COLORS[cur.t], C, .22); }));
+          cur.m.forEach((r, j) => r.forEach((v, i) => { if (v && cur.y + j >= 0) cell(g, cur.x + i, cur.y + j, COLORS[cur.t]); }));
+        }
+        nx.clearRect(0, 0, 120, 90);
+        if (next) { const m = next.m, s = 22, ox = (120 - m[0].length * s) / 2, oy = (90 - m.length * s) / 2;
+          nx.save(); nx.translate(ox, oy); m.forEach((r, j) => r.forEach((v, i) => { if (v) cell(nx, i, j, COLORS[next.t], s); })); nx.restore(); }
+        document.getElementById('fb-score').textContent = score; document.getElementById('fb-rows').textContent = rows; document.getElementById('fb-level').textContent = level;
+      }
+      function status(t) { document.getElementById('fb-status').innerHTML = t; }
+      function lock() {
+        cur.m.forEach((r, j) => r.forEach((v, i) => { if (v && cur.y + j >= 0) board[cur.y + j][cur.x + i] = cur.t; }));
+        const before = board.length;
+        board = board.filter(r => r.some(v => v === null));
+        const n = ROWS - board.length;
+        while (board.length < ROWS) board.unshift(new Array(COLS).fill(null));
+        if (n) { score += [0, 100, 300, 500, 800][n] * level; rows += n; const nl = 1 + Math.floor(rows / 10); if (nl !== level) { level = nl; restartTimer(); } }
+        cur = next; next = piece(draw7());
+        if (hits(cur.m, cur.x, cur.y)) { over = true; running = false; clearInterval(timer); cur = null;
+          status(`Game over: ${score} points, ${rows} rows. Press “start” for a new game.`); document.getElementById('fb-start').textContent = '▶ start'; }
+      }
+      function tick() { if (!running) return; if (!hits(cur.m, cur.x, cur.y + 1)) cur.y++; else lock(); render(); }
+      function restartTimer() { clearInterval(timer); timer = setInterval(tick, Math.max(90, 650 - (level - 1) * 60)); }
+      window.fbKey = k => {
+        if (!running || !cur) return;
+        if (k === 'left' && !hits(cur.m, cur.x - 1, cur.y)) cur.x--;
+        else if (k === 'right' && !hits(cur.m, cur.x + 1, cur.y)) cur.x++;
+        else if (k === 'down') { if (!hits(cur.m, cur.x, cur.y + 1)) { cur.y++; score += 1; } }
+        else if (k === 'drop') { while (!hits(cur.m, cur.x, cur.y + 1)) { cur.y++; score += 2; } lock(); }
+        else if (k === 'turn') { const m = turn(cur.m); for (const dx of [0, -1, 1, -2, 2]) if (!hits(m, cur.x + dx, cur.y)) { cur.m = m; cur.x += dx; break; } }   // nudge off the walls
+        render();
+      };
+      window.fbStart = () => {
+        if (running) { running = false; clearInterval(timer); status('Paused. Press “continue”.'); document.getElementById('fb-start').textContent = '▶ continue'; return; }
+        if (over || !cur) { board = Array.from({ length: ROWS }, () => new Array(COLS).fill(null)); score = 0; rows = 0; level = 1; over = false; bag = []; cur = piece(draw7()); next = piece(draw7()); }
+        running = true; restartTimer(); status(''); document.getElementById('fb-start').textContent = '⏸ pause'; cv.focus(); render();
+      };
+      // keyboard only while the board has the focus, so the page itself still scrolls
+      cv.addEventListener('keydown', e => {
+        const map = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'turn', ArrowDown: 'down', ' ': 'drop' };
+        if (e.key === 'p' || e.key === 'P') { fbStart(); e.preventDefault(); return; }
+        if (map[e.key]) { fbKey(map[e.key]); e.preventDefault(); }
+      });
+      // touch: swipe left / right / down on the board, tap to turn
+      let t0 = null;
+      cv.addEventListener('pointerdown', e => { t0 = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY }; cv.setPointerCapture(e.pointerId); if (!running && !over && !cur) fbStart(); });
+      cv.addEventListener('pointermove', e => {
+        if (!t0) return;
+        const step = cv.getBoundingClientRect().width / COLS;
+        while (e.clientX - t0.x > step) { fbKey('right'); t0.x += step; }
+        while (t0.x - e.clientX > step) { fbKey('left'); t0.x -= step; }
+        while (e.clientY - t0.y > step) { fbKey('down'); t0.y += step; }
+      });
+      cv.addEventListener('pointerup', e => { if (t0 && Math.hypot(e.clientX - t0.sx, e.clientY - t0.sy) < 8) fbKey('turn'); t0 = null; });
+      board = Array.from({ length: ROWS }, () => new Array(COLS).fill(null)); score = 0; rows = 0; level = 1; next = piece(draw7());
+      render(); status('Press “start” (or tap the board) to play.');
+    })();
+  </script>
+</body>
+</html>

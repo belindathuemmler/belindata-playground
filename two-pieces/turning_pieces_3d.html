@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Two Build the Block? • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: TURNING PIECES IN 3D ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-3">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Two Build the Block?</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                The same game with cubes: four pieces, and exactly two of them build the 3 × 2 × 2 block. Drag a piece onto the block; turn it with the buttons. It snaps to the grid. When the block is filled exactly, you have it. Swipe across the empty floor to look at everything from another side.
+              </p>
+            </div>
+
+            <div class="relative z-10 space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <button type="button" onclick="cuTurn('y')" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">↻ spin</button>
+                <button type="button" onclick="cuTurn('x')" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">⤵ tip forward</button>
+                <button type="button" onclick="cuTurn('z')" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">⤸ roll sideways</button>
+                <button type="button" onclick="cuBack()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↩ back to the tray</button>
+                <button type="button" onclick="cuNew()" class="ml-auto px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">✨ new puzzle</button>
+              </div>
+              <div id="cu-view" class="relative w-full h-[420px] sm:h-[460px] rounded-2xl bg-black/50 border border-white/10 overflow-hidden touch-none">
+                <div id="cu-win" class="hidden absolute left-1/2 top-6 -translate-x-1/2 px-6 py-3 rounded-full bg-[#181315]/85 border-2 border-emerald-400 font-heading text-xl sm:text-2xl font-extrabold text-emerald-400 pointer-events-none">🎉 Well done!</div>
+              </div>
+              <div id="cu-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+            </div>
+          </div>
+
+  </main>
+  <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<script type="module">
+    // ==========================================
+    // TURNING PIECES IN 3D  (which two polycubes build the block?)
+    // ==========================================
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const BX = 3, BY = 2, BZ = 2;                                   // the block, in cubes (x wide, y high, z deep)
+    const COLORS = [0xEE9779, 0xD8A9BF, 0xC0D1B9, 0xF4C98F];
+    const SLOTS = [[1.5, -2.6], [6.0, -2.6], [1.5, 2.6], [6.0, 2.6]];   // tray positions (x, z) on the floor
+    const BLOCK_AT = [-3.7, 0.0];
+    const rnd = n => Math.floor(Math.random() * n);
+
+    // ---- cube sets: arrays of [x, y, z] integer triples ----
+    const key = c => c.join(',');
+    const norm = cs => { const m = [0, 1, 2].map(k => Math.min(...cs.map(c => c[k]))); return cs.map(c => c.map((v, k) => v - m[k])).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]); };
+    const sig = cs => norm(cs).map(key).join(';');
+    const rotX = cs => norm(cs.map(([x, y, z]) => [x, -z, y]));
+    const rotY = cs => norm(cs.map(([x, y, z]) => [z, y, -x]));
+    const rotZ = cs => norm(cs.map(([x, y, z]) => [-y, x, z]));
+    const mirror = cs => norm(cs.map(([x, y, z]) => [-x, y, z]));
+    function orientations(cs) {                                       // all 24 turns of a piece (fewer if it is symmetric)
+      const seen = new Map(), queue = [norm(cs)];
+      while (queue.length) { const c = queue.pop(), k = sig(c); if (seen.has(k)) continue; seen.set(k, c); queue.push(rotX(c), rotY(c), rotZ(c)); }
+      return [...seen.values()];
+    }
+    const box = cs => [0, 1, 2].map(k => Math.max(...cs.map(c => c[k])) + 1);
+
+    // do pieces P and Q, exactly as they are turned now, fill the block (with some shift each)?
+    function fits(P, Q) {
+      if (P.length + Q.length !== BX * BY * BZ) return null;
+      const [pw, ph, pd] = box(P), [qw, qh, qd] = box(Q);
+      for (let ax = 0; ax <= BX - pw; ax++) for (let ay = 0; ay <= BY - ph; ay++) for (let az = 0; az <= BZ - pd; az++) {
+        const used = new Set(P.map(([x, y, z]) => key([x + ax, y + ay, z + az])));
+        for (let bx = 0; bx <= BX - qw; bx++) for (let by = 0; by <= BY - qh; by++) for (let bz = 0; bz <= BZ - qd; bz++) {
+          if (Q.every(([x, y, z]) => !used.has(key([x + bx, y + by, z + bz])))) return [[ax, ay, az], [bx, by, bz]];
+        }
+      }
+      return null;
+    }
+    const fitsSomehow = (P, Q) => orientations(Q).some(q => fits(P, q));
+
+    // split the block into two connected pieces of 4 to 8 cubes
+    function split() {
+      const all = []; for (let x = 0; x < BX; x++) for (let y = 0; y < BY; y++) for (let z = 0; z < BZ; z++) all.push([x, y, z]);
+      const nb = ([x, y, z]) => [[x + 1, y, z], [x - 1, y, z], [x, y + 1, z], [x, y - 1, z], [x, y, z + 1], [x, y, z - 1]];
+      const inBlock = ([x, y, z]) => x >= 0 && y >= 0 && z >= 0 && x < BX && y < BY && z < BZ;
+      const connected = cs => { const set = new Set(cs.map(key)), seen = new Set([key(cs[0])]), st = [cs[0]];
+        while (st.length) for (const n of nb(st.pop())) if (set.has(key(n)) && !seen.has(key(n))) { seen.add(key(n)); st.push(n); } return seen.size === cs.length; };
+      for (;;) {
+        const size = 4 + rnd(5), A = [all[rnd(all.length)]], inA = new Set([key(A[0])]);
+        while (A.length < size) {
+          const front = A.flatMap(nb).filter(c => inBlock(c) && !inA.has(key(c)));
+          const c = front[rnd(front.length)]; inA.add(key(c)); A.push(c);
+        }
+        const B = all.filter(c => !inA.has(key(c)));
+        if (connected(B)) return [norm(A), norm(B)];
+      }
+    }
+    // one cube more: the size trap
+    function plusOne(cs) {
+      const set = new Set(cs.map(key));
+      const free = cs.flatMap(([x, y, z]) => [[x + 1, y, z], [x - 1, y, z], [x, y + 1, z], [x, y, z + 1], [x, y, z - 1]]).filter(c => !set.has(key(c)));
+      return norm([...cs, free[rnd(free.length)]]);
+    }
+    const isChiral = cs => !orientations(cs).some(o => sig(o) === sig(mirror(cs)));
+
+    // ---- the scene ----
+    let renderer, scene, camera, controls, view, blockGroup, pieces = [], picked = [], busy = false;
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1F1A1C, transparent: true, opacity: 0.85 });
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1), edgeGeo = new THREE.EdgesGeometry(cubeGeo);
+
+    function makePiece(cells, color) {
+      const g = new THREE.Group();
+      const [w, h, d] = box(cells);
+      const mat = new THREE.MeshLambertMaterial({ color });
+      for (const [x, y, z] of cells) {
+        const m = new THREE.Mesh(cubeGeo, mat); m.position.set(x - w / 2 + 0.5, y + 0.5, z - d / 2 + 0.5); g.add(m);
+        const e = new THREE.LineSegments(edgeGeo, edgeMat); e.position.copy(m.position); g.add(e);   // the squares on every face
+      }
+      return g;
+    }
+    function makeBlock(color = 0xFAF8F5, opacity = 0.35) {
+      const g = new THREE.Group();
+      const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+      for (let x = 0; x < BX; x++) for (let y = 0; y < BY; y++) for (let z = 0; z < BZ; z++) {
+        const e = new THREE.LineSegments(edgeGeo, mat); e.position.set(x - BX / 2 + 0.5, y + 0.5, z - BZ / 2 + 0.5); g.add(e);
+      }
+      const outer = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BX, BY, BZ)), new THREE.LineBasicMaterial({ color, transparent: true, opacity: Math.min(1, opacity * 2.5) }));
+      outer.position.set(0, BY / 2, 0); g.add(outer);
+      g.position.set(BLOCK_AT[0], 0, BLOCK_AT[1]);
+      return g;
+    }
+    function status(t) { const el = document.getElementById('cu-status'); if (el) el.innerHTML = t; }
+
+    function layout() {
+      const w = view.clientWidth, h = view.clientHeight;
+      renderer.setSize(w, h); camera.aspect = w / h;
+      const dist = 13.5 / Math.min(1, camera.aspect / 1.45);           // step back on narrow screens so everything stays in view
+      camera.position.set(1.0, dist * 0.72, dist * 0.78); camera.updateProjectionMatrix(); controls.update();
+    }
+    function init() {
+      view = document.getElementById('cu-view'); if (!view) return;
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+      view.appendChild(renderer.domElement);
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(6, 12, 8); scene.add(sun);
+      const floor = new THREE.GridHelper(26, 26, 0x3A2F33, 0x2A2124); floor.position.y = -0.01; scene.add(floor);
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.target.set(1.0, 0.6, 0); controls.enablePan = false; controls.minDistance = 8; controls.maxDistance = 40; controls.maxPolarAngle = Math.PI * 0.48;
+      layout(); window.addEventListener('resize', layout);
+      // a piece under the finger is dragged (the view stays put); anywhere else a drag turns the view
+      const ndc = e => { const r = renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); };
+      const ray = new THREE.Raycaster(), floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hitPt = new THREE.Vector3();
+      let drag = null;
+      renderer.domElement.addEventListener('pointerdown', e => {
+        if (busy) return;
+        ray.setFromCamera(ndc(e), camera);
+        const hit = ray.intersectObjects(pieces.map(p => p.group), true).find(h => h.object.isMesh);
+        if (!hit) return;
+        let o = hit.object; while (o && o.userData.i === undefined) o = o.parent;
+        const p = pieces[o.userData.i];
+        controls.enabled = false;
+        ray.ray.intersectPlane(floorPlane, hitPt);
+        drag = { p, x0: e.clientX, y0: e.clientY, moved: false, dx: p.group.position.x - hitPt.x, dz: p.group.position.z - hitPt.z };
+        renderer.domElement.setPointerCapture(e.pointerId);
+      });
+      renderer.domElement.addEventListener('pointermove', e => {
+        if (!drag) return;
+        if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) > 6) drag.moved = true;
+        if (!drag.moved) return;
+        if (drag.p.placed) unplace(drag.p);   // lifting a piece out of the block
+        ray.setFromCamera(ndc(e), camera);
+        if (ray.ray.intersectPlane(floorPlane, hitPt)) drag.p.group.position.set(hitPt.x + drag.dx, 2.4, hitPt.z + drag.dz);
+        showGhost(drag.p);
+      });
+      const end = e => {
+        if (!drag) return;
+        const { p, moved } = drag; drag = null; controls.enabled = true; hideGhost();
+        if (!moved) { select(p.i); return; }
+        select(p.i, true);
+        drop(p);
+      };
+      renderer.domElement.addEventListener('pointerup', end);
+      renderer.domElement.addEventListener('pointercancel', end);
+      (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+      cuNew();
+    }
+
+    // ---- placing ----
+    let selected = -1;
+    const blockOrigin = () => [BLOCK_AT[0] - BX / 2, BLOCK_AT[1] - BZ / 2];   // world x, z of the block's corner cell
+    function toSlot(p) { p.placed = false; p.at = null; p.group.position.set(SLOTS[p.i][0], 0, SLOTS[p.i][1]); p.group.rotation.set(0, 0, 0); }
+    function unplace(p) { p.placed = false; p.at = null; refreshBlock(); }
+    function occupied(except) {
+      const set = new Set();
+      pieces.filter(q => q.placed && q !== except).forEach(q => q.cells.forEach(([x, y, z]) => set.add(key([x + q.at[0], y + q.at[1], z + q.at[2]]))));
+      return set;
+    }
+    function drop(p) {
+      const [w, h, d] = box(p.cells), [cx, cz] = blockOrigin();
+      const px = p.group.position.x, pz = p.group.position.z;
+      const near = px > cx - 1.5 && px < cx + BX + 1.5 && pz > cz - 1.5 && pz < cz + BZ + 1.5;
+      if (!near) { toSlot(p); evaluate(); return; }
+      settle(p, Math.round(px - w / 2 - cx), Math.round(pz - d / 2 - cz));
+      evaluate();
+    }
+    // put a piece on the block's grid at (ox, oz), as low as it goes without hitting another piece; it may stick out or
+    // overlap, exactly like in 2D, and then the block turns red
+    function landing(p, ox, oz) {   // the grid place a piece would take: clamped to the block, as low as it goes
+      const [w, h, d] = box(p.cells);
+      ox = Math.max(Math.min(0, BX - w), Math.min(Math.max(0, BX - w), ox));
+      oz = Math.max(Math.min(0, BZ - d), Math.min(Math.max(0, BZ - d), oz));
+      const occ = occupied(p);
+      let oy = 0;
+      for (let y = 0; y <= Math.max(0, BY - h); y++) if (p.cells.every(([x, yy, z]) => !occ.has(key([x + ox, yy + y, z + oz])))) { oy = y; break; }
+      return [ox, oy, oz];
+    }
+    function settle(p, ox, oz) {
+      const [w, h, d] = box(p.cells), [cx, cz] = blockOrigin();
+      p.at = landing(p, ox, oz); p.placed = true;
+      p.group.position.set(cx + p.at[0] + w / 2, p.at[1], cz + p.at[2] + d / 2);
+    }
+    // while dragging: a see-through copy of the piece shows where it will land
+    let ghost = null;
+    function showGhost(p) {
+      const [w, h, d] = box(p.cells), [cx, cz] = blockOrigin();
+      const px = p.group.position.x, pz = p.group.position.z;
+      const near = px > cx - 1.5 && px < cx + BX + 1.5 && pz > cz - 1.5 && pz < cz + BZ + 1.5;
+      if (!near) { hideGhost(); return; }
+      if (!ghost || ghost.userData.piece !== p.i || ghost.userData.sig !== sig(p.cells)) {
+        hideGhost();
+        ghost = new THREE.Group(); ghost.userData = { piece: p.i, sig: sig(p.cells) };
+        const mat = new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.35, depthWrite: false });
+        const lines = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.6 });
+        for (const [x, y, z] of p.cells) {
+          const m = new THREE.Mesh(cubeGeo, mat); m.position.set(x - w / 2 + 0.5, y + 0.5, z - d / 2 + 0.5); ghost.add(m);
+          const e = new THREE.LineSegments(edgeGeo, lines); e.position.copy(m.position); ghost.add(e);
+        }
+        scene.add(ghost);
+      }
+      const [ox, oy, oz] = landing(p, Math.round(px - w / 2 - cx), Math.round(pz - d / 2 - cz));
+      ghost.position.set(cx + ox + w / 2, oy, cz + oz + d / 2);
+    }
+    function hideGhost() { if (ghost) { scene.remove(ghost); ghost = null; } }
+    let cuState = 'ok';
+    function evaluate() {
+      const placed = pieces.filter(q => q.placed), N = BX * BY * BZ, count = new Map();
+      let out = false;
+      placed.forEach(q => q.cells.forEach(([x, y, z]) => {
+        const c = [x + q.at[0], y + q.at[1], z + q.at[2]];
+        if (c[0] < 0 || c[1] < 0 || c[2] < 0 || c[0] >= BX || c[1] >= BY || c[2] >= BZ) out = true;
+        count.set(key(c), (count.get(key(c)) || 0) + 1);
+      }));
+      const overlap = [...count.values()].some(n => n > 1), filled = [...count.keys()].length;
+      cuState = (!placed.length) ? 'ok' : (overlap || out || placed.length > 2) ? 'bad' : (filled === N && placed.length === 2) ? 'win' : 'ok';
+      scene.remove(blockGroup);
+      blockGroup = cuState === 'win' ? makeBlock(0x34D399, 0.6) : cuState === 'bad' ? makeBlock(0xF87171, 0.55) : makeBlock();
+      scene.add(blockGroup);
+      document.getElementById('cu-win').classList.toggle('hidden', cuState !== 'win');
+      if (!placed.length) status('Two of these four build the block. Drag one onto it and see.');
+      else if (placed.length > 2) status(`${placed.length} pieces on the block; only two are needed. Send one back to the tray.`);
+      else if (overlap) status('The pieces overlap. Turn one of them, or try another piece.');
+      else if (out) status('A piece sticks out of the block. Move it, turn it, or try another.');
+      else if (cuState === 'win') status('🎉 <strong>Well done! Exactly filled: two pieces, one block.</strong> Press “new puzzle” for the next one.');
+      else if (placed.length === 1) status(`👍 It fits in: ${filled} of ${N} cubes filled. Now find the piece that fills the rest.`);
+      else status(`No overlap, but ${filled} of ${N} cubes are filled and there are gaps: these two do not build the block. Try another pair.`);
+    }
+    function refreshBlock() { evaluate(); }
+    function select(i, quiet) {
+      selected = i;
+      pieces.forEach(p => p.group.traverse(o => { if (o.isLineSegments) o.material = (p.i === i ? selEdgeMat : edgeMat); }));
+
+    }
+    const selEdgeMat = new THREE.LineBasicMaterial({ color: 0xFFFFFF });
+    function rebuild(p) {    // redraw a piece after a turn, keeping its place
+      const pos = p.group.position.clone(); scene.remove(p.group);
+      p.group = makePiece(p.cells, p.color); p.group.userData.i = p.i; p.group.position.copy(pos);
+      scene.add(p.group); select(p.i, true);
+    }
+    window.cuTurn = axis => {
+      if (busy || selected < 0) { status('Tap a piece first, then turn it.'); return; }
+      const p = pieces[selected];
+      busy = true;
+      const t0 = performance.now(), dur = 260, start = p.group.rotation[axis];
+      const sign = axis === 'y' ? -1 : 1;
+      (function step(now) {
+        const u = Math.min(1, (now - t0) / dur);
+        p.group.rotation[axis] = start + sign * u * Math.PI / 2;
+        if (u < 1) return requestAnimationFrame(step);
+        p.cells = axis === 'x' ? rotX(p.cells) : axis === 'y' ? rotY(p.cells) : rotZ(p.cells);
+        p.group.rotation.set(0, 0, 0);
+        rebuild(p);
+        if (p.placed) { settle(p, p.at[0], p.at[2]); evaluate(); }   // turned on the block: it stays there, like in 2D
+        busy = false;
+      })(t0);
+    };
+    window.cuBack = () => { if (selected < 0 || !pieces[selected].placed) return; toSlot(pieces[selected]); evaluate(); };
+    window.cuNew = () => {
+      if (busy) return;
+      pieces.forEach(p => scene.remove(p.group)); if (blockGroup) scene.remove(blockGroup);
+      blockGroup = makeBlock(); scene.add(blockGroup);
+      let set;
+      for (;;) {   // deal until exactly one pair of the four builds the block
+        const [A, B] = split();
+        const trapSize = plusOne(Math.random() < 0.5 ? A : B);
+        const pickM = Math.random() < 0.5 ? A : B;
+        const other = pickM === A ? B : A, m = mirror(pickM);
+        const trap2 = isChiral(pickM) ? m : plusOne(other);   // the mirror trap, or one cube more
+        set = [A, B, trapSize, trap2];
+        let pairs = 0;
+        for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) if (orientations(set[i]).some(o => fitsSomehow(o, set[j]))) pairs++;
+        if (pairs === 1) break;
+      }
+      let cells = set.map(c => { const os = orientations(c); return os[rnd(os.length)]; });
+      for (let k = cells.length - 1; k > 0; k--) { const j = rnd(k + 1); [cells[k], cells[j]] = [cells[j], cells[k]]; }
+      pieces = cells.map((c, i) => ({ i, cells: c, color: COLORS[i], group: null, placed: false, at: null }));
+      pieces.forEach(p => { p.group = makePiece(p.cells, p.color); p.group.userData.i = p.i; toSlot(p); scene.add(p.group); });
+      selected = -1;
+      cuState = 'ok'; document.getElementById('cu-win').classList.add('hidden');
+      status('Two of these four build the block. Drag one onto it and see.');
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  </script>
+</body>
+</html>

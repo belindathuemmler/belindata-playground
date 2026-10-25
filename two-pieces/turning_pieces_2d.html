@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Two Build the Rectangle? • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: TWO PIECES, ONE RECTANGLE ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-3">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Two Build the Rectangle?</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                Four pieces, and exactly two of them make the 8 × 6 rectangle. Drag a piece onto the rectangle; turn it with the buttons, or twist it with two fingers. It snaps to the grid. When the rectangle is covered exactly, you have it.
+              </p>
+            </div>
+
+            <div class="relative z-10 space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <button type="button" onclick="tpRotate(-1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">↺ turn left</button>
+                <button type="button" onclick="tpRotate(1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">turn right ↻</button>
+                <button type="button" onclick="tpBack()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↩ back to the tray</button>
+                <button type="button" onclick="tpNew()" class="ml-auto px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">✨ new puzzle</button>
+              </div>
+              <svg id="tp-svg" viewBox="0 0 1000 620" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10 select-none touch-none" role="img" aria-label="A 6 by 4 grid at the top and four puzzle pieces below it; pieces can be dragged onto the grid and turned"></svg>
+              <div id="tp-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+            </div>
+          </div>
+
+  </main>
+<script>
+    // ==========================================
+    // TWO PIECES, ONE RECTANGLE  (a drag-and-turn puzzle)
+    // ==========================================
+    // Grid units: the target is W x H cells. A piece is a lattice polygon (integer vertices, so diagonal half-cells are
+    // allowed) with its bounding box at the origin, plus a position in grid units. 90-degree turns keep the lattice.
+    const TP_W = 8, TP_H = 6, TP_CELL = 34;
+    // layout: on a wide screen the rectangle sits on the left and the tray on the right; on a narrow one the tray sits below
+    let TP_VW, TP_VH, TP_OX, TP_OY, TP_TRAY_X, TP_TRAY_Y, TP_TRAY_W, TP_TRAY_H, tpWide = null;
+    function tpSetLayout() {
+      const wide = window.innerWidth >= 900;
+      if (wide === tpWide) return false;
+      tpWide = wide;
+      if (wide) {
+        TP_VW = 1000; TP_VH = 620;
+        TP_OX = 24; TP_OY = (TP_VH - TP_H * TP_CELL) / 2 - 12;
+        TP_TRAY_X = TP_OX + TP_W * TP_CELL + 44; TP_TRAY_Y = 10; TP_TRAY_W = TP_VW - TP_TRAY_X - 10; TP_TRAY_H = TP_VH - 20;
+      } else {
+        TP_VW = 640; TP_VH = 880;
+        TP_OX = (TP_VW - TP_W * TP_CELL) / 2; TP_OY = 24;
+        TP_TRAY_X = 0; TP_TRAY_Y = TP_OY + TP_H * TP_CELL + 40; TP_TRAY_W = TP_VW; TP_TRAY_H = TP_VH - TP_TRAY_Y - 12;
+      }
+      const svg = document.getElementById('tp-svg');
+      if (svg) svg.setAttribute('viewBox', `0 0 ${TP_VW} ${TP_VH}`);
+      return true;
+    }
+    tpSetLayout();
+    const TP_COLORS = ['#EE9779', '#D8A9BF', '#C0D1B9', '#F4C98F'];
+    let tpState = 'ok';                                         // 'ok', 'bad' (overlap / sticking out) or 'win'
+    let tpPieces = [], tpSel = -1, tpDrag = null, tpPointers = new Map(), tpTwist = null;
+
+    const tpRnd = n => Math.floor(Math.random() * n);
+    function tpNormalize(poly) {
+      const mx = Math.min(...poly.map(p => p[0])), my = Math.min(...poly.map(p => p[1]));
+      return poly.map(([x, y]) => [x - mx, y - my]);
+    }
+    const tpBox = poly => [Math.max(...poly.map(p => p[0])), Math.max(...poly.map(p => p[1]))];
+    const tpRot = (poly, d) => tpNormalize(poly.map(([x, y]) => d > 0 ? [-y, x] : [y, -x]));   // turn right (clockwise on screen) or left
+    const tpMirror = poly => tpNormalize(poly.map(([x, y]) => [-x, y]));
+    function tpArea(poly) { let a = 0; for (let i = 0; i < poly.length; i++) { const [x1, y1] = poly[i], [x2, y2] = poly[(i + 1) % poly.length]; a += x1 * y2 - x2 * y1; } return Math.abs(a) / 2; }
+    function tpInside(poly, px, py) {   // ray casting
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const [xi, yi] = poly[i], [xj, yj] = poly[j];
+        if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
+      }
+      return inside;
+    }
+
+    // a random cut from the left edge to the right edge: steps right, up/down, and (tricky level) diagonally, staying inside.
+    // easy: at most one bend, no diagonals. tricky: bends anywhere, diagonals through single cells.
+    const tpLevel = 'easy';   // straight cuts with at most one bend; 'tricky' (bends anywhere, diagonals) is kept in the code but not offered
+    function tpCut() {
+      // keep only balanced cuts, like the workbook: each piece between 30 % and 70 % of the rectangle
+      for (let k = 0; k < 200; k++) {
+        const pair = tpCutOnce(), share = tpArea(pair[0]) / (TP_W * TP_H);
+        if (share >= 0.3 && share <= 0.7) return pair;
+      }
+      return tpCutOnce();
+    }
+    // two kinds of cut, like the workbook: a step cut, or a long diagonal that misses the corner by a cell or two
+    let tpLastCut = null;                                        // how the last pair was cut, for the size trap
+    function tpCutOnce() { return Math.random() < 0.5 ? tpCutStep() : tpCutTriangle(); }
+    // the triangle cut: from the top edge a 45-degree line down through H - 1 cells, then one straight step to the bottom edge,
+    // so one piece is almost a triangle ("not quite the diagonal, one below it"); mirrored at random
+    function tpCutTriangle(x0 = 1 + tpRnd(TP_W - TP_H + 2), flip = Math.random() < 0.5) {
+      const xe = x0 + TP_H - 1;                                     // x0: where the line starts on the top edge; xe: where it reaches the last row
+      let left = [[0, 0], [x0, 0], [xe, TP_H - 1], [xe, TP_H], [0, TP_H]];
+      let right = [[x0, 0], [TP_W, 0], [TP_W, TP_H], [xe, TP_H], [xe, TP_H - 1]];
+      if (flip) { left = left.map(([x, y]) => [TP_W - x, y]); right = right.map(([x, y]) => [TP_W - x, y]); }
+      tpLastCut = { kind: 'triangle', x0, flip };
+      return [tpClean(tpNormalize(left)), tpClean(tpNormalize(right))];
+    }
+    function tpCutStep() {
+      tpLastCut = { kind: 'step' };
+      // a cut from the left edge to the right edge with one step up or down (one or two cells)
+      // and one diagonal stretch through one or two cells
+      const path = [];
+      let y = 1 + tpRnd(TP_H - 1);
+      const stepAt = 1 + tpRnd(TP_W - 1), diagAt = tpRnd(TP_W), diagLen = 1 + tpRnd(2), diagDir = Math.random() < 0.5 ? -1 : 1;
+      path.push([0, y]);
+      for (let x = 0; x < TP_W; x++) {
+        const inDiag = x >= diagAt && x < diagAt + diagLen;
+        if (x === stepAt && !inDiag) {                                   // the step: straight up or down along a grid line
+          const h = 1 + tpRnd(2), up = Math.random() < 0.5;
+          const ny = Math.max(1, Math.min(TP_H - 1, y + (up ? -h : h)));
+          if (ny !== y) { y = ny; path.push([x, y]); }
+        }
+        if (inDiag && y + diagDir >= 1 && y + diagDir <= TP_H - 1) { y += diagDir; path.push([x + 1, y]); }   // diagonal through a cell
+        else path.push([x + 1, y]);
+      }
+      const top = tpNormalize([[0, 0], ...path, [TP_W, 0]]);
+      const bottom = tpNormalize([...path, [TP_W, TP_H], [0, TP_H]]);
+      return [tpClean(top), tpClean(bottom)];
+    }
+    function tpClean(poly) {   // drop duplicate and collinear vertices
+      const out = [];
+      for (const p of poly) if (!out.length || out[out.length - 1][0] !== p[0] || out[out.length - 1][1] !== p[1]) out.push(p);
+      if (out.length > 1 && out[0][0] === out[out.length - 1][0] && out[0][1] === out[out.length - 1][1]) out.pop();
+      const res = [];
+      for (let i = 0; i < out.length; i++) {
+        const a = out[(i + out.length - 1) % out.length], b = out[i], c = out[(i + 1) % out.length];
+        if ((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]) !== 0) res.push(b);
+      }
+      return res;
+    }
+    const tpSameDir = (a, b) => { for (let s = 0; s < a.length; s++) if (a.every((p, i) => p[0] === b[(i + s) % b.length][0] && p[1] === b[(i + s) % b.length][1])) return true; return false; };
+    const tpSame = (a, b) => a.length === b.length && (tpSameDir(a, b) || tpSameDir(a, b.slice().reverse()));   // a mirror image runs the other way round
+    function tpSymmetric(poly) { let m = tpMirror(poly); for (let k = 0; k < 4; k++) { if (tpSame(poly, m)) return true; m = tpRot(m, 1); } return false; }
+
+    // the size trap: one row more along the piece's long straight edge (the edge that lay on the rectangle's border)
+    function tpStretch(poly) {
+      const [bw, bh] = tpBox(poly);
+      // find a side of the bounding box that is one whole straight edge of the piece, and add one row or column there
+      const edge = (fx, fy) => poly.some((p, i) => { const q = poly[(i + 1) % poly.length]; return fx(p, q) && fy(p, q); });
+      if (edge((p, q) => p[1] === 0 && q[1] === 0, (p, q) => Math.abs(p[0] - q[0]) === bw)) return tpClean(tpNormalize(poly.map(([x, y]) => [x, y === 0 ? 0 : y + 1])));
+      if (edge((p, q) => p[1] === bh && q[1] === bh, (p, q) => Math.abs(p[0] - q[0]) === bw)) return tpClean(tpNormalize(poly.map(([x, y]) => [x, y === bh ? bh + 1 : y])));
+      if (edge((p, q) => p[0] === 0 && q[0] === 0, (p, q) => Math.abs(p[1] - q[1]) === bh)) return tpClean(tpNormalize(poly.map(([x, y]) => [x === 0 ? 0 : x + 1, y])));
+      return tpClean(tpNormalize(poly.map(([x, y]) => [x === bw ? bw + 1 : x, y])));
+    }
+    function tpNew() {
+      const [a, b] = tpCut();
+      let polys = [a, b];
+      // distractors, like the workbook: a true piece one row or one column too big (the size trap), and the mirror image of
+      // a true piece (if it is not symmetric) or else a piece from another cut
+      const cut = tpLastCut, k = tpRnd(2);
+      if (cut.kind === 'triangle') {   // the same piece from the neighbouring cut: same shape, one size bigger or smaller
+        const xs = [cut.x0 - 1, cut.x0 + 1].filter(v => v >= 1 && v <= TP_W - TP_H + 1);
+        polys.push(tpCutTriangle(xs[tpRnd(xs.length)], cut.flip)[k]);
+      } else polys.push(tpStretch(k ? b : a));
+      const pick = Math.random() < 0.5 ? a : b;
+      polys.push(tpSymmetric(pick) ? tpCut()[tpRnd(2)] : tpMirror(pick));
+      // random turns and a random order
+      polys = polys.map(p => { let q = p; for (let k = tpRnd(4); k > 0; k--) q = tpRot(q, 1); return q; });
+      for (let i = polys.length - 1; i > 0; i--) { const j = tpRnd(i + 1); [polys[i], polys[j]] = [polys[j], polys[i]]; }
+      tpPieces = polys.map((poly, i) => ({ poly, x: 0, y: 0, home: true, color: TP_COLORS[i] }));
+      tpLayoutTray();
+      tpSel = -1; tpState = 'ok';
+      tpStatus('Two of these four fit together. Drag one onto the rectangle and see.');
+      tpRender();
+    }
+    function tpLayoutTray() {   // four slots below the target; every piece scaled so that it fits its slot completely
+      const slotW = TP_TRAY_W / 2, slotH = TP_TRAY_H / 2;      // two by two slots
+      // the pieces lie in the tray at their real size, the same cells as the rectangle
+      const s = TP_CELL;
+      tpPieces.forEach((p, i) => {
+        if (!p.home) return;
+        const [bw, bh] = tpBox(p.poly);
+        p.s = s;   // pixels per cell in the tray
+        p.px = TP_TRAY_X + slotW * (i % 2) + (slotW - bw * p.s) / 2;
+        p.py = TP_TRAY_Y + slotH * Math.floor(i / 2) + (slotH - bh * p.s) / 2;
+      });
+    }
+    // the cells of a piece, drawn like on the worksheet: every grid line, clipped to the piece's outline
+    function tpCells(p, i, scale) {
+      const [bw, bh] = tpBox(p.poly);
+      let lines = '';
+      for (let k = 1; k < bw; k++) lines += `<line x1="${k * scale}" y1="0" x2="${k * scale}" y2="${bh * scale}"/>`;
+      for (let k = 1; k < bh; k++) lines += `<line x1="0" y1="${k * scale}" x2="${bw * scale}" y2="${k * scale}"/>`;
+      return `<clipPath id="tp-clip-${i}"><path d="${tpPath(p.poly, scale)}"/></clipPath>
+          <g clip-path="url(#tp-clip-${i})" stroke="#1F1A1C" stroke-opacity="0.55" stroke-width="1" pointer-events="none">${lines}</g>`;
+    }
+
+    function tpPath(poly, scale) { return poly.map(([x, y], i) => (i ? 'L' : 'M') + (x * scale).toFixed(1) + ',' + (y * scale).toFixed(1)).join(' ') + ' Z'; }
+    function tpRender() {
+      const svg = document.getElementById('tp-svg'); if (!svg) return;
+      let g = '';
+      // the target
+      const won = tpState === 'win', bad = tpState === 'bad';
+      g += `<rect x="${TP_OX}" y="${TP_OY}" width="${TP_W * TP_CELL}" height="${TP_H * TP_CELL}" fill="${won ? '#34D399' : '#FAF8F5'}" fill-opacity="${won ? 0.12 : 0.06}" stroke="${won ? '#34D399' : bad ? '#F87171' : '#FAF8F5'}" stroke-opacity="${won || bad ? 1 : 0.6}" stroke-width="${won || bad ? 4 : 2}"/>`;
+      for (let i = 1; i < TP_W; i++) g += `<line x1="${TP_OX + i * TP_CELL}" y1="${TP_OY}" x2="${TP_OX + i * TP_CELL}" y2="${TP_OY + TP_H * TP_CELL}" stroke="#FAF8F5" stroke-opacity="0.18"/>`;
+      for (let j = 1; j < TP_H; j++) g += `<line x1="${TP_OX}" y1="${TP_OY + j * TP_CELL}" x2="${TP_OX + TP_W * TP_CELL}" y2="${TP_OY + j * TP_CELL}" stroke="#FAF8F5" stroke-opacity="0.18"/>`;
+      g += `<text x="${TP_OX + TP_W * TP_CELL / 2}" y="${TP_OY + TP_H * TP_CELL + 22}" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="#D8A9BF">the rectangle, 8 × 6</text>`;
+      g += tpWide ? `<line x1="${TP_TRAY_X - 20}" y1="10" x2="${TP_TRAY_X - 20}" y2="${TP_VH - 10}" stroke="#FAF8F5" stroke-opacity="0.12" stroke-dasharray="6 6"/>`
+                  : `<line x1="0" y1="${TP_TRAY_Y - 6}" x2="${TP_VW}" y2="${TP_TRAY_Y - 6}" stroke="#FAF8F5" stroke-opacity="0.12" stroke-dasharray="6 6"/>`;
+      // pieces: tray pieces small, placed or dragged pieces full size; the selected one on top
+      const order = tpPieces.map((_, i) => i).sort((a, b) => (a === tpSel) - (b === tpSel));
+      for (const i of order) {
+        const p = tpPieces[i], scale = p.home ? p.s : TP_CELL;
+        const tx = p.home ? p.px : TP_OX + p.x * TP_CELL, ty = p.home ? p.py : TP_OY + p.y * TP_CELL;
+        g += `<g data-i="${i}" transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)})" style="cursor: grab">
+          <path d="${tpPath(p.poly, scale)}" fill="${p.color}" fill-opacity="${p.home ? 0.9 : 0.8}"/>
+          ${tpCells(p, i, scale)}
+          <path d="${tpPath(p.poly, scale)}" fill="none" stroke="${i === tpSel ? '#FFFFFF' : '#1F1A1C'}" stroke-width="${i === tpSel ? 3 : 2}" stroke-linejoin="round" pointer-events="none"/>
+        </g>`;
+      }
+      if (won) g += `<g pointer-events="none"><rect x="${TP_OX + TP_W * TP_CELL / 2 - 150}" y="${TP_OY + TP_H * TP_CELL / 2 - 34}" width="300" height="68" rx="34" fill="#181315" fill-opacity="0.85" stroke="#34D399" stroke-width="2"/>
+          <text x="${TP_OX + TP_W * TP_CELL / 2}" y="${TP_OY + TP_H * TP_CELL / 2 + 9}" text-anchor="middle" font-family="Outfit, Plus Jakarta Sans, sans-serif" font-size="26" font-weight="800" fill="#34D399">🎉 Well done!</text></g>`;
+      svg.innerHTML = g;
+    }
+    function tpStatus(t) { const el = document.getElementById('tp-status'); if (el) el.innerHTML = t; }
+
+    // coverage: sample points in every cell, counted over the placed pieces; exact tiling = every sample covered once
+    function tpCheck() {
+      const placed = tpPieces.filter(p => !p.home);
+      if (!placed.length) { tpStatus('Two of these four fit together. Drag one onto the rectangle and see.'); return; }
+      const XS = [0.2, 0.5, 0.8], YS = [0.3, 0.6, 0.9];
+      let once = 0, twice = 0, total = 0, outside = 0;
+      for (let i = 0; i < TP_W; i++) for (let j = 0; j < TP_H; j++) for (const sx of XS) for (const sy of YS) {
+        total++;
+        const n = placed.filter(p => tpInside(p.poly, i + sx - p.x, j + sy - p.y)).length;
+        if (n === 1) once++; else if (n > 1) twice++;
+      }
+      // samples of the pieces that fall outside the rectangle
+      for (const p of placed) { const [bw, bh] = tpBox(p.poly); for (let i = 0; i < bw; i++) for (let j = 0; j < bh; j++) for (const sx of XS) for (const sy of YS) {
+        if (tpInside(p.poly, i + sx, j + sy)) { const gx = p.x + i + sx, gy = p.y + j + sy; if (gx < 0 || gy < 0 || gx > TP_W || gy > TP_H) outside++; } } }
+      const cells = (once / total * TP_W * TP_H);
+      tpState = (twice || outside || placed.length > 2) ? 'bad' : (once === total && placed.length === 2) ? 'win' : 'ok';
+      tpRender();
+      if (placed.length > 2) tpStatus(`${placed.length} pieces on the rectangle; only two are needed. Send one back to the tray.`);
+      else if (twice) tpStatus(`The pieces overlap. Turn one of them, or try another piece.`);
+      else if (outside) tpStatus(`A piece sticks out of the rectangle. Move it, turn it, or try another.`);
+      else if (once === total && placed.length === 2) tpStatus(`🎉 <strong>Well done! Exactly covered: two pieces, one rectangle.</strong> Press “new puzzle” for the next one.`);
+      else if (placed.length === 1) tpStatus(`👍 It fits in: ${cells.toFixed(0)} of ${TP_W * TP_H} cells covered. Now find the piece that fills the rest.`);
+      else tpStatus(`No overlap, but ${cells.toFixed(0)} of ${TP_W * TP_H} cells are covered and there are gaps: these two do not fit together. Try another pair.`);
+    }
+
+    // ---- pointer handling: drag with one finger, twist with two ----
+    function tpPt(ev) { const svg = document.getElementById('tp-svg'); const m = svg.getScreenCTM().inverse(); const pt = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m); return [pt.x, pt.y]; }
+    function tpDown(ev) {
+      const svg = document.getElementById('tp-svg');
+      const [x, y] = tpPt(ev);
+      tpPointers.set(ev.pointerId, [x, y]);
+      svg.setPointerCapture(ev.pointerId);
+      if (tpPointers.size === 2 && tpSel >= 0) {   // a second finger: start a twist
+        const pts = [...tpPointers.values()];
+        tpTwist = { a0: Math.atan2(pts[1][1] - pts[0][1], pts[1][0] - pts[0][0]), acc: 0 };
+        tpDrag = null;
+        return;
+      }
+      const g = ev.target.closest('g[data-i]');
+      if (!g) { tpSel = -1; tpRender(); return; }
+      const i = Number(g.dataset.i), p = tpPieces[i];
+      tpSel = i;
+      if (p.home) {   // lift it out of the tray at full size, centred under the finger
+        const [bw, bh] = tpBox(p.poly);
+        p.home = false;
+        p.x = (x - TP_OX) / TP_CELL - bw / 2; p.y = (y - TP_OY) / TP_CELL - bh / 2;
+      }
+      tpDrag = { i, dx: x - (TP_OX + p.x * TP_CELL), dy: y - (TP_OY + p.y * TP_CELL) };
+      tpRender();
+    }
+    function tpMove(ev) {
+      if (!tpPointers.has(ev.pointerId)) return;
+      const [x, y] = tpPt(ev);
+      tpPointers.set(ev.pointerId, [x, y]);
+      if (tpTwist && tpPointers.size === 2) {
+        const pts = [...tpPointers.values()];
+        const a = Math.atan2(pts[1][1] - pts[0][1], pts[1][0] - pts[0][0]);
+        let d = a - tpTwist.a0; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+        if (Math.abs(d) > Math.PI / 4) { tpRotate(d > 0 ? 1 : -1); tpTwist.a0 = a; }
+        return;
+      }
+      if (!tpDrag) return;
+      const p = tpPieces[tpDrag.i];
+      p.x = (x - tpDrag.dx - TP_OX) / TP_CELL; p.y = (y - tpDrag.dy - TP_OY) / TP_CELL;
+      tpRender();
+    }
+    function tpUp(ev) {
+      tpPointers.delete(ev.pointerId);
+      if (tpPointers.size < 2) tpTwist = null;
+      if (!tpDrag) return;
+      const p = tpPieces[tpDrag.i], [bw, bh] = tpBox(p.poly);
+      tpDrag = null;
+      const cx = p.x + bw / 2, cy = p.y + bh / 2;
+      if (cx < -1 || cy < -1 || cx > TP_W + 1 || cy > TP_H + 1.5) { p.home = true; tpLayoutTray(); }   // dropped far away: back to the tray
+      else { p.x = Math.round(p.x); p.y = Math.round(p.y); }                                             // snap to the grid
+      tpRender(); tpCheck();
+    }
+    function tpRotate(d) {
+      if (tpSel < 0) { tpStatus('Tap a piece first, then turn it.'); return; }
+      const p = tpPieces[tpSel], [bw, bh] = tpBox(p.poly);
+      const cx = p.x + bw / 2, cy = p.y + bh / 2;
+      p.poly = tpRot(p.poly, d);
+      if (!p.home) { const [nw, nh] = tpBox(p.poly); p.x = Math.round(cx - nw / 2); p.y = Math.round(cy - nh / 2); }
+      else tpLayoutTray();
+      tpRender(); if (!p.home) tpCheck();
+    }
+    function tpBack() {
+      if (tpSel < 0 || tpPieces[tpSel].home) return;
+      tpPieces[tpSel].home = true; tpLayoutTray(); tpRender(); tpCheck();
+    }
+    function tpInit() {
+      const svg = document.getElementById('tp-svg'); if (!svg) return;
+      svg.addEventListener('pointerdown', tpDown); svg.addEventListener('pointermove', tpMove);
+      svg.addEventListener('pointerup', tpUp); svg.addEventListener('pointercancel', tpUp);
+      tpWide = null; tpSetLayout();
+      window.addEventListener('resize', () => { if (tpSetLayout()) { tpLayoutTray(); tpRender(); } });
+      tpNew();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tpInit); else tpInit();
+  </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Die Is It? • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: FOLDING THE CUBE ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-3">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Which Die Is It?</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                On the left the net of a die, on the right four dice. Only one of them is this net, folded. Drag a die to turn it and look at every side; tap it to pick it, then press “this one”. If you get stuck, let the net fold itself, and turn the folded net like a die.
+              </p>
+            </div>
+
+            <div class="relative z-10 space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <button type="button" onclick="dcCheck()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">✓ this one</button>
+                <button type="button" onclick="dcFold()" id="dc-fold" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">📦 fold the net</button>
+                <button type="button" onclick="dcNew()" class="ml-auto px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">✨ new die</button>
+              </div>
+              <div id="dc-view" class="relative w-full h-[420px] sm:h-[440px] rounded-2xl bg-black/50 border border-white/10 overflow-hidden touch-none">
+                <div id="dc-win" class="hidden absolute left-1/2 top-6 -translate-x-1/2 px-6 py-3 rounded-full bg-[#181315]/85 border-2 border-emerald-400 font-heading text-xl sm:text-2xl font-extrabold text-emerald-400 pointer-events-none">🎉 Well done!</div>
+              </div>
+              <div id="dc-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+            </div>
+          </div>
+
+  </main>
+  <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<script type="module">
+    // ==========================================
+    // FROM 2D TO 3D: FOLDING THE CUBE  (which die is this net?)
+    // ==========================================
+    import * as THREE from 'three';
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const rnd = n => Math.floor(Math.random() * n);
+    const DIE = 1.45;                                               // edge length of a die, and of a net square
+    // the 11 nets of the cube, as cells (column, row)
+    const NETS = [
+      ...[[0, 0], [0, 1], [0, 2], [0, 3], [1, 1], [1, 2]].map(([a, b]) => [[a, 0], [0, 1], [1, 1], [2, 1], [3, 1], [b, 2]]),
+      ...[1, 2, 3].map(b => [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [b, 2]]),
+      [[0, 0], [1, 0], [1, 1], [2, 1], [2, 2], [3, 2]],
+      [[0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1]],
+    ];
+    // pips in face coordinates (x right, y down, from -1 to 1); 2, 3 and 6 have a direction
+    const PIPS = { 1: [[0, 0]], 2: [[-.5, -.5], [.5, .5]], 3: [[-.5, -.5], [0, 0], [.5, .5]], 4: [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]],
+                   5: [[-.5, -.5], [.5, -.5], [0, 0], [-.5, .5], [.5, .5]], 6: [[-.5, -.55], [-.5, 0], [-.5, .55], [.5, -.55], [.5, 0], [.5, .55]] };
+
+    // fold a net: every cell gets its outward normal and its face frame (right r, down d) in 3D. The net lies in the
+    // plane facing the viewer (normal +z, right +x, down -y) and the flaps fold away from the viewer.
+    function fold(cells) {
+      const at = new Map(cells.map((c, i) => [c.join(','), i]));
+      const fr = new Array(cells.length);
+      fr[0] = { n: V(0, 0, 1), r: V(1, 0, 0), d: V(0, -1, 0), parent: -1 };
+      const queue = [0];
+      while (queue.length) {
+        const i = queue.shift(), [c, w] = cells[i], { n, r, d } = fr[i];
+        for (const [dc, dw, mk] of [[1, 0, () => ({ n: r.clone(), r: n.clone().negate(), d: d.clone() })],
+                                    [-1, 0, () => ({ n: r.clone().negate(), r: n.clone(), d: d.clone() })],
+                                    [0, 1, () => ({ n: d.clone(), r: r.clone(), d: n.clone().negate() })],
+                                    [0, -1, () => ({ n: d.clone().negate(), r: r.clone(), d: n.clone() })]]) {
+          const j = at.get([c + dc, w + dw].join(','));
+          if (j === undefined || fr[j]) continue;
+          fr[j] = { ...mk(), parent: i, dir: [dc, dw] }; queue.push(j);
+        }
+      }
+      return fr;
+    }
+    const nkey = v => [v.x, v.y, v.z].map(t => Math.round(t)).join(',');
+
+    // ---- face pictures ----
+    function faceCanvas(num, k, Rc, Dc, tint) {
+      const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S;
+      const g = cv.getContext('2d');
+      g.fillStyle = '#FAF8F5'; g.fillRect(0, 0, S, S);
+      g.strokeStyle = tint || '#874C62'; g.lineWidth = 14; g.strokeRect(7, 7, S - 14, S - 14);
+      g.setTransform(Rc[0] * S * .38, Rc[1] * S * .38, Dc[0] * S * .38, Dc[1] * S * .38, S / 2, S / 2);
+      g.rotate(k * Math.PI / 2);
+      g.fillStyle = '#1F1A1C';
+      for (const [x, y] of PIPS[num]) { g.beginPath(); g.arc(x, y, .2, 0, 2 * Math.PI); g.fill(); }
+      const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+    }
+    // BoxGeometry face order and the 3D directions of each face's texture axes (u right, v up)
+    const BOXF = [[V(1, 0, 0), V(0, 0, -1), V(0, 1, 0)], [V(-1, 0, 0), V(0, 0, 1), V(0, 1, 0)], [V(0, 1, 0), V(1, 0, 0), V(0, 0, -1)],
+                  [V(0, -1, 0), V(1, 0, 0), V(0, 0, 1)], [V(0, 0, 1), V(1, 0, 0), V(0, 1, 0)], [V(0, 0, -1), V(-1, 0, 0), V(0, 1, 0)]];
+    // a die: for every outward normal its number, its frame and its pattern turn k
+    function makeDie(faces, size) {
+      const mats = BOXF.map(([N, U, Vv]) => {
+        const fc = faces.get(nkey(N));
+        const to = v => [v.dot(U), -v.dot(Vv)];
+        return new THREE.MeshLambertMaterial({ map: faceCanvas(fc.num, fc.k, to(fc.r), to(fc.d)) });
+      });
+      return new THREE.Mesh(new THREE.BoxGeometry(size, size, size), mats);
+    }
+
+    // ---- puzzle ----
+    let renderer, scene, camera, view, netRoot, hinges = [], dice = [], answer = -1, chosen = -1, folded = 0, folding = false, wide = null;
+    function status(t) { const el = document.getElementById('dc-status'); if (el) el.innerHTML = t; }
+
+    function deal() {
+      // a random net, turned and maybe flipped on the paper
+      let cells = NETS[rnd(NETS.length)].map(c => c.slice());
+      for (let t = rnd(4); t > 0; t--) cells = cells.map(([c, w]) => [-w, c]);
+      if (Math.random() < .5) cells = cells.map(([c, w]) => [-c, w]);
+      const mc = Math.min(...cells.map(c => c[0])), mw = Math.min(...cells.map(c => c[1]));
+      cells = cells.map(([c, w]) => [c - mc, w - mw]);
+      const fr = fold(cells);
+      // numbers: opposite faces add up to 7
+      const axes = [V(1, 0, 0), V(0, 1, 0), V(0, 0, 1)].sort(() => Math.random() - .5), pairs = [[1, 6], [2, 5], [3, 4]];
+      const numOf = new Map();
+      axes.forEach((a, i) => { const [p, q] = Math.random() < .5 ? pairs[i] : [pairs[i][1], pairs[i][0]]; numOf.set(nkey(a), p); numOf.set(nkey(a.clone().negate()), q); });
+      const net = cells.map((c, i) => ({ c, ...fr[i], num: numOf.get(nkey(fr[i].n)), k: rnd(4) }));
+      const truth = new Map(net.map(f => [nkey(f.n), { num: f.num, k: f.k, r: f.r, d: f.d }]));
+      // traps: two neighbouring numbers swapped (breaks the 7-rule), one opposite pair swapped (the mirror image),
+      // and one 2, 3 or 6 turned by a quarter
+      const copy = () => new Map([...truth].map(([kk, v]) => [kk, { ...v }]));
+      const keys = [...truth.keys()];
+      const adj = copy(); { const a = keys[rnd(6)], A = adj.get(a); const nb = keys.filter(b => b !== a && b !== nkey(truth.get(a) ? V(...a.split(',').map(Number)).negate() : V(0, 0, 0)));
+        const b = nb[rnd(nb.length)], B = adj.get(b); [A.num, B.num] = [B.num, A.num]; }
+      const mir = copy(); { const ax = nkey(axes[rnd(3)]), A = mir.get(ax), B = mir.get(nkey(V(...ax.split(',').map(Number)).negate())); [A.num, B.num] = [B.num, A.num]; }
+      const pip = copy(); { const cand = keys.filter(kk => [2, 3, 6].includes(pip.get(kk).num)); pip.get(cand[rnd(cand.length)]).k += 1; }
+      const all = [{ faces: truth, kind: 'right' }, { faces: adj, kind: 'adjacent' }, { faces: mir, kind: 'mirror' }, { faces: pip, kind: 'turned' }].sort(() => Math.random() - .5);
+      return { net, all };
+    }
+
+    function buildNet(net) {
+      // hinged faces: each face hangs on its parent's shared edge, so the whole net can fold
+      netRoot = new THREE.Group(); hinges = [];
+      const nodes = net.map(f => {
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshLambertMaterial({ map: faceCanvas(f.num, f.k, [1, 0], [0, 1]), side: THREE.DoubleSide }));
+        return { f, plane, pivot: new THREE.Group() };
+      });
+      nodes.forEach((nd, i) => {
+        const { f } = nd;
+        if (f.parent < 0) { nd.pivot.add(nd.plane); netRoot.add(nd.pivot); return; }
+        const [dc, dw] = f.dir, parent = nodes[f.parent];
+        // the hinge sits on the edge between parent and child, in the parent's (flat) frame: x right, y up
+        nd.pivot.position.set(dc * .5, -dw * .5, 0);
+        nd.plane.position.set(dc * .5, -dw * .5, 0);
+        nd.pivot.add(nd.plane);
+        parent.plane.add(nd.pivot);
+        const axis = dc !== 0 ? V(0, 1, 0) : V(1, 0, 0), sign = dc === 1 ? 1 : dc === -1 ? -1 : dw === 1 ? 1 : -1;
+        hinges.push({ pivot: nd.pivot, axis, sign });
+      });
+      // centre the flat net
+      const cs = net.map(f => f.c), w = Math.max(...cs.map(c => c[0])) + 1, h = Math.max(...cs.map(c => c[1])) + 1;
+      nodes[0].pivot.position.set(net[0].c[0] - (w - 1) / 2, -(net[0].c[1] - (h - 1) / 2), 0);
+      netRoot.userData.size = [w, h];
+      netRoot.scale.setScalar(DIE);                               // folded, the net is exactly as big as the dice
+      scene.add(netRoot);
+    }
+    function setFold(t) { hinges.forEach(h => h.pivot.setRotationFromAxisAngle(h.axis, h.sign * t * Math.PI / 2)); }
+
+    function layout() {
+      if (!view) return;
+      const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h); camera.aspect = w / h;
+      const isWide = camera.aspect >= 1.25; wide = isWide;
+      const [nw, nh] = netRoot ? netRoot.userData.size : [4, 3];
+      if (isWide) {
+        if (netRoot) netRoot.position.set(-4.6, 0, 0);
+        const spots = [[1.6, 1.7], [5.0, 1.7], [1.6, -1.7], [5.0, -1.7]];
+        dice.forEach((d, i) => d.mesh.position.set(spots[i][0], spots[i][1], 0));
+        fit(16.5, 8.2, .3);
+      } else {
+        if (netRoot) netRoot.position.set(0, 3.2, 0);
+        const spots = [[-4.2, -2.6], [-1.4, -2.6], [1.4, -2.6], [4.2, -2.6]];
+        dice.forEach((d, i) => d.mesh.position.set(spots[i][0], spots[i][1], 0));
+        fit(10.8, 12.4, 0);
+      }
+    }
+    function fit(W, H, cx) {   // put the camera so a W x H area is in view
+      const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      const dist = Math.max(H / 2 / t, W / 2 / (t * camera.aspect)) + 1.5;
+      camera.position.set(cx, 0, dist); camera.lookAt(cx, 0, 0); camera.updateProjectionMatrix();
+    }
+
+    function init() {
+      view = document.getElementById('dc-view'); if (!view) return;
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+      view.appendChild(renderer.domElement);
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(32, 1, .1, 200);
+      scene.add(new THREE.AmbientLight(0xffffff, 1.4));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(-4, 6, 10); scene.add(sun);
+      window.addEventListener('resize', layout);
+      // drag a die to turn it; a tap picks it
+      const ray = new THREE.Raycaster();
+      let drag = null;
+      const ndc = e => { const r = renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); };
+      renderer.domElement.addEventListener('pointerdown', e => {
+        ray.setFromCamera(ndc(e), camera);
+        const hit = ray.intersectObjects(dice.map(d => d.mesh), false)[0];
+        if (hit) drag = { d: dice.find(d => d.mesh === hit.object), x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY };
+        else if (folded > .99 && netRoot && ray.intersectObject(netRoot, true).length) {
+          // the folded net turns like a die, around the centre of its cube
+          const c = new THREE.Box3().setFromObject(netRoot).getCenter(new THREE.Vector3());
+          drag = { net: true, c, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY };
+        }
+        if (!drag) return;
+        renderer.domElement.setPointerCapture(e.pointerId);
+      });
+      renderer.domElement.addEventListener('pointermove', e => {
+        if (!drag) return;
+        const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+        const q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), dx * .012).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), dy * .012));
+        if (drag.net) { netRoot.quaternion.premultiply(q); netRoot.position.sub(drag.c).applyQuaternion(q).add(drag.c); }
+        else drag.d.mesh.quaternion.premultiply(q);
+      });
+      const end = e => {
+        if (!drag) return;
+        const tap = Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6, d = drag.d; drag = null;
+        if (tap && d) choose(dice.indexOf(d));
+      };
+      renderer.domElement.addEventListener('pointerup', end); renderer.domElement.addEventListener('pointercancel', end);
+      (function loop() { requestAnimationFrame(loop); renderer.render(scene, camera); })();
+      window.dcNew();
+    }
+    // the picked die: a bit bigger, with a bright orange frame around it, the others slightly faded
+    const pickFrame = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.75, 1.75, 1.75)), new THREE.LineBasicMaterial({ color: 0xDF7654 }));
+    function choose(i) {
+      chosen = i;
+      dice.forEach((d, j) => {
+        d.mesh.scale.setScalar(j === i ? 1.15 : 1);
+        d.mesh.material.forEach(m => { m.transparent = true; m.opacity = j === i || i < 0 ? 1 : 0.55; });
+      });
+      if (pickFrame.parent) pickFrame.parent.remove(pickFrame);
+      if (i >= 0) dice[i].mesh.add(pickFrame);
+      status('Picked. Turn it and look at every side; if you are sure, press “this one”.');
+    }
+    window.dcCheck = () => {
+      if (chosen < 0) { status('Tap a die first to pick it, then press “this one”.'); return; }
+      const kind = dice[chosen].kind;
+      document.getElementById('dc-win').classList.toggle('hidden', kind !== 'right');
+      status({ right: '🎉 <strong>Well done! This is the net, folded.</strong> Press “new die” for the next one.',
+               adjacent: 'Not this one. Check the opposite faces: on a die they always add up to 7.',
+               mirror: 'Close! Opposite faces add up to 7 here, but this die is the mirror image of the net. Pick one corner and fold the three faces around it in your head.',
+               turned: 'Almost: all numbers sit where they should, but look at the 2, the 3 and the 6. Do their dots run in the same direction as on the net?' }[kind]);
+    };
+    window.dcFold = () => {
+      if (folding) return;
+      folding = true;
+      if (folded) { netRoot.quaternion.identity(); layout(); }   // unfold from the original position
+      const from = folded, to = folded ? 0 : 1, t0 = performance.now(), dur = 1600;
+      (function step(now) {
+        const u = Math.min(1, (now - t0) / dur), e = u * u * (3 - 2 * u);
+        folded = from + (to - from) * e; setFold(folded);
+        if (u < 1) return requestAnimationFrame(step);
+        folding = false;
+        document.getElementById('dc-fold').textContent = folded ? '📄 unfold the net' : '📦 fold the net';
+      })(t0);
+    };
+    window.dcNew = () => {
+      if (folding) return;
+      if (netRoot) scene.remove(netRoot); dice.forEach(d => scene.remove(d.mesh));
+      const { net, all } = deal();
+      buildNet(net); folded = 0; setFold(0);
+      document.getElementById('dc-fold').textContent = '📦 fold the net';
+      // the dice, each turned at random (a quarter turn grid) and tilted so that three faces show
+      const R = [new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI / 2), new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), Math.PI / 2)];
+      const tilt = new THREE.Quaternion().setFromEuler(new THREE.Euler(.45, -.6, 0));
+      dice = all.map(({ faces, kind }) => {
+        const mesh = makeDie(faces, DIE);
+        const q = new THREE.Quaternion(); for (let t = rnd(12); t > 0; t--) q.premultiply(R[rnd(2)]);
+        mesh.quaternion.copy(tilt).multiply(q);
+        scene.add(mesh); return { mesh, kind };
+      });
+      chosen = -1; if (pickFrame.parent) pickFrame.parent.remove(pickFrame); document.getElementById('dc-win').classList.add('hidden');
+      layout();
+      status('Which of the four dice is this net, folded? Drag a die to turn it, tap it to pick it.');
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  </script>
+</body>
+</html>
