@@ -35,7 +35,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [About Fat and Thin Matrices](https://belindata.com/projects/sparse-dense.html) | [`sparse-dense/`](sparse-dense/) |  | `sparse_dense_card.py` |
 | [The Binomial Formulas in Pictures](https://belindata.com/projects/binomial.html) | [`binomial/`](binomial/) |  | `binomial_card.py` |
 | [Who Induces Whom?](https://belindata.com/projects/who-induces-whom.html) | [`who-induces-whom/`](who-induces-whom/) |  | `who_induces_whom_card.py` |
-| [One of My Sons and the Turning Pieces](https://belindata.com/projects/two-pieces.html) | [`two-pieces/`](two-pieces/) | [`turning_pieces_2d.html`](two-pieces/turning_pieces_2d.html), [`turning_pieces_3d.html`](two-pieces/turning_pieces_3d.html), [`folding_the_die.html`](two-pieces/folding_the_die.html), [`falling_blocks.html`](two-pieces/falling_blocks.html) | `two_pieces_card.py` |
+| [Turning Pieces and Cubes](https://belindata.com/projects/two-pieces.html) | [`two-pieces/`](two-pieces/) | [`turning_pieces_2d.html`](two-pieces/turning_pieces_2d.html), [`turning_pieces_3d.html`](two-pieces/turning_pieces_3d.html), [`folding_the_die.html`](two-pieces/folding_the_die.html), [`falling_blocks.html`](two-pieces/falling_blocks.html) | `two_pieces_card.py` |
 
 Scripts that draw several cards at once live in [`cards/`](cards/).
 

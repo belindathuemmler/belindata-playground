@@ -13,7 +13,7 @@
 </head>
 <body>
   <main class="max-w-4xl mx-auto px-4 py-6">
-    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">Turning Pieces and Cubes</a> on belindata.com. Open this file in any browser.</p>
           <!-- ================= INTERACTIVE: TWO PIECES, ONE RECTANGLE ================= -->
           <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
 
@@ -42,7 +42,6 @@
               <div id="tp-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
-
   </main>
 <script>
     // ==========================================
@@ -335,6 +334,8 @@
       tpNew();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tpInit); else tpInit();
+
+    renderProjectStatusBanner();
   </script>
 </body>
 </html>

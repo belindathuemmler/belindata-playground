@@ -13,7 +13,7 @@
 </head>
 <body>
   <main class="max-w-4xl mx-auto px-4 py-6">
-    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">One of My Sons and the Turning Pieces</a> on belindata.com. Open this file in any browser.</p>
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/two-pieces.html" class="underline text-brand-terracotta">Turning Pieces and Cubes</a> on belindata.com. Open this file in any browser.</p>
           <!-- ================= INTERACTIVE: FOLDING THE CUBE ================= -->
           <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
 
@@ -43,7 +43,6 @@
               <div id="dc-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
-
   </main>
   <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
 <script type="module">
@@ -88,10 +87,12 @@
     const nkey = v => [v.x, v.y, v.z].map(t => Math.round(t)).join(',');
 
     // ---- face pictures ----
+    // every number has its own colour, the same on the net and on the dice (the colours of the games above, plus two)
+    const FACE_COLORS = { 1: '#EE9779', 2: '#D8A9BF', 3: '#C0D1B9', 4: '#F4C98F', 5: '#9FC5D6', 6: '#E8B4A0' };
     function faceCanvas(num, k, Rc, Dc, tint) {
       const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S;
       const g = cv.getContext('2d');
-      g.fillStyle = '#FAF8F5'; g.fillRect(0, 0, S, S);
+      g.fillStyle = FACE_COLORS[num]; g.fillRect(0, 0, S, S);
       g.strokeStyle = tint || '#874C62'; g.lineWidth = 14; g.strokeRect(7, 7, S - 14, S - 14);
       g.setTransform(Rc[0] * S * .38, Rc[1] * S * .38, Dc[0] * S * .38, Dc[1] * S * .38, S / 2, S / 2);
       g.rotate(k * Math.PI / 2);

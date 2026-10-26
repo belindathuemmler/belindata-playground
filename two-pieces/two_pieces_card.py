@@ -1,4 +1,4 @@
-"""Card image for 'One of My Sons and the Turning Pieces', redrawn in the style of a fourth-grade worksheet
+"""Card image for 'Turning Pieces and Cubes', redrawn in the style of a fourth-grade worksheet
 (our own pieces, not a copy): a coloured target rectangle and four grid pieces A-D; two of them make it.
 Usage: python two_pieces_card.py out.jpg"""
 import sys

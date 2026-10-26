@@ -41,10 +41,8 @@
               </div>
               <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                 <span class="text-white/50 font-mono text-[11px] mr-1">sequences:</span>
-                <button type="button" onclick="pkCompare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⇆ X then Y, against Y then X  →  their difference is XY − YX</button>
                 <button type="button" onclick="pkSquare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⟲ X, Y, −X, −Y  →  [X, Y]</button>
                 <button type="button" onclick="pkUndo()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 font-semibold transition-colors">⟲ X, Y, −Y, −X  →  0, always</button>
-                <button type="button" onclick="pkWiggle()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⇅ −X, −Y, 2X, −Y, −X, 2Y  →  [[X, Y], Y] (one parking wiggle)</button>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-mono text-white/70">
                 <label class="flex items-center gap-3">
@@ -57,12 +55,6 @@
                 </label>
               </div>
               <svg id="pk-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb with two parked cars and a gap between them; your car in the lane next to it, drawn with its path. On a phone the street runs top to bottom"></svg>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-white/50">wheels</div><div id="pk-phi" class="font-mono font-bold text-white">0°</div></div>
-                <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-white/50">heading</div><div id="pk-theta" class="font-mono font-bold text-white">0°</div></div>
-                <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-white/50">along the street</div><div id="pk-dx" class="font-mono font-bold text-white">0.00 m</div></div>
-                <div class="rounded-xl bg-white/5 border border-white/10 p-2"><div class="text-[10px] font-mono uppercase tracking-wider text-brand-coral">sideways</div><div id="pk-dy" class="font-mono font-bold text-brand-coral">0.00 m</div></div>
-              </div>
               <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
@@ -178,10 +170,6 @@
           ${path}
           ${pkCarSvg(pk, '#DF7654', 1, true)}
           ${pkMark ? pkTurnArrow(pkMark) : ''}</g>`;
-      document.getElementById('pk-phi').textContent = Math.round(pkDeg(pk.phi)) + '°';
-      document.getElementById('pk-theta').textContent = (Math.round(pkDeg(pk.th) * 10) / 10) + '°';
-      document.getElementById('pk-dx').textContent = pkFmt(pk.x - PK_START.x, 'm');
-      document.getElementById('pk-dy').textContent = pkFmt(pk.y - PK_START.y, 'm');
     }
 
     // the bracket made visible: a curved arrow around the rear axle (a turn) or a straight arrow (a slide), with its label
@@ -266,30 +254,6 @@
       });
     }
 
-    // compare the two orders: steer then drive, and drive then steer, both from the start. The two end states differ: that difference is XY − YX.
-    function pkCompare() {
-      if (pkBusy) return;
-      pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }]; pkGhosts = []; pkMark = null;
-      pkStatus('First order: steer, then drive …');
-      pkRender();
-      pkQueue.push({ kind: 'steer', d: 1 }, { kind: 'drive', d: 1 });
-      pkRunQueue(() => {
-        const A = { ...pk };
-        pkGhosts.push({ state: A, label: 'A: steer, then drive', color: '#EE9779', below: false });
-        pk = { ...PK_START }; pkPath = [{ x: pk.x, y: pk.y }];
-        pkStatus('Back at the start. Second order: drive, then steer …');
-        pkRender();
-        pkQueue.push({ kind: 'drive', d: 1 }, { kind: 'steer', d: 1 });
-        pkRunQueue(() => {
-          const B = { ...pk };
-          pkGhosts.push({ state: B, label: 'B: drive, then steer', color: '#D8A9BF', below: true });
-          const turn = pkDeg(A.th - B.th), dx = A.x - B.x, dy = A.y - B.y;
-          pkStatus(`Same two moves, opposite order, and the car ends in two different states: A is turned by <strong>${turn.toFixed(1)}°</strong> relative to B and sits ${pkFmt(Math.hypot(dx, dy), 'm')} away from it. This difference between “steer then drive” and “drive then steer” is what <strong>XY − YX</strong> means. The square measures exactly it: go to A, then come back the way B went.`);
-          pkRender();
-        });
-      });
-    }
-
     // for comparison: undo in reverse order, X, Y, −Y, −X. Closes for any two moves, says nothing about commuting.
     function pkUndo() {
       if (pkBusy) return;
@@ -298,25 +262,6 @@
       pkRunQueue(() => {
         const turn = pkDeg(pk.th - before.th);
         pkStatus(`X, Y, −Y, −X: steer, drive, then undo <em>in reverse order</em>, the last move first. Back exactly where you started (turned by ${turn.toFixed(1)}°). That always happens, for any two moves, like putting on a coat and shoes and taking off shoes and coat; it says nothing about commuting. The square undoes in the same order, and that is where [X, Y] shows.`);
-      });
-    }
-
-    // one parking wiggle: steer right, reverse, steer left, reverse, straighten, drive forward. Net effect: sideways.
-    function pkWiggle() {
-      if (pkBusy) return;
-      const before = { ...pk };
-      const toZero = Math.round(-pk.phi / PK_DELTA);
-      for (let k = 0; k < Math.abs(toZero); k++) pkQueue.push({ kind: 'steer', d: Math.sign(toZero) });
-      // wheels right (phi < 0), reverse: the rear swings towards the kerb; wheels left, reverse: heading back; straight, forward: back along the street
-      pkQueue.push({ kind: 'steer', d: -1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: 1 }, { kind: 'steer', d: 1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: -1 }, { kind: 'drive', d: 1 }, { kind: 'drive', d: 1 });
-      pkMark = null; pkGhosts = [{ state: before, label: 'start', color: '#EE9779', below: false }];
-      pkRunQueue(() => {
-        const dy = pk.y - before.y, dx = pk.x - before.x, turn = pkDeg(pk.th - before.th);
-        pkMark = { kind: 'slide', x: before.x, y: before.y, dx, dy, label: '[[X, Y], Y]' };
-        pkRender();
-        pkStatus(pkParked()
-          ? `Parked. 🚗 Sideways in total: <strong>${pkFmt(pk.y - PK_START.y, 'm')}</strong>, with only steering and driving.`
-          : `−X, −Y, 2X, −Y, −X, 2Y: wheels right, reverse, wheels left, reverse, straight, forward. Six moves, and the wheels are straight again, the heading is back (${turn.toFixed(1)}°), the car is almost at the same spot along the street (${pkFmt(dx, 'm')}), but it has moved <strong>${pkFmt(dy, 'm')} sideways</strong>. That is the bracket of the bracket, [[X, Y], Y]: the direction the car cannot drive, built from the two it can.`);
       });
     }
 
