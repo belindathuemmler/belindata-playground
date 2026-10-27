@@ -58,7 +58,6 @@
               <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
-
           <!-- ================= INTERACTIVE: THE BRACKET FIELDS ================= -->
           <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
 
@@ -108,6 +107,35 @@
 
   </main>
   <script>
+    // Mobile Menu Toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+
+    if (mobileMenuToggle) {
+      mobileMenuToggle.addEventListener('click', () => {
+        const isClosed = mobileMenu.classList.contains('hidden');
+        if (isClosed) {
+          mobileMenu.classList.remove('hidden');
+          hamburgerIcon.classList.add('hidden');
+          closeIcon.classList.remove('hidden');
+        } else {
+          closeMobileMenu();
+        }
+      });
+    }
+
+    function closeMobileMenu() {
+      if (mobileMenu) {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      }
+    }
+
+
+
     // ==========================================
     // THE PARKING LOT  (a car that can only steer and drive)
     // ==========================================
@@ -145,6 +173,7 @@
             <rect x="${-0.8 * s}" y="${-0.85 * s}" width="${4.0 * s}" height="${1.7 * s}" rx="${0.3 * s}" fill="${color}" stroke="#FAF8F5" stroke-opacity="0.5" stroke-width="1.5"/>
             <rect x="${1.1 * s}" y="${-0.65 * s}" width="${1.4 * s}" height="${1.3 * s}" rx="${0.15 * s}" fill="#FAF8F5" fill-opacity="0.25"/>
             ${w}
+            ${wheels ? `<circle cx="0" cy="0" r="${0.14 * s}" fill="#F4C98F" fill-opacity="0.9" stroke="#FAF8F5" stroke-opacity="0.7" stroke-width="1"/>` : ''}
           </g>`;
     }
 
@@ -173,20 +202,26 @@
     }
 
     // the bracket made visible: a curved arrow around the rear axle (a turn) or a straight arrow (a slide), with its label
+    function pkChip(x, y, label) {
+      // the label on a small dark chip, so it stays readable on top of the car; turned upright on phones
+      const portrait = window.innerWidth < 640, w = label.length * 8.4 + 16, X = x.toFixed(1), Y = y.toFixed(1);
+      return `<g transform="${portrait ? `rotate(-90 ${X} ${Y})` : ''}"><rect x="${(x - w / 2).toFixed(1)}" y="${(y - 12).toFixed(1)}" width="${w.toFixed(1)}" height="24" rx="7" fill="#181315" fill-opacity="0.9" stroke="#DF7654" stroke-width="1.2"/>
+          <text x="${X}" y="${Y}" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#F4C98F">${label}</text></g>`;
+    }
     function pkTurnArrow(m) {
       const head = `<defs><marker id="pk-turn-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#DF7654"/></marker></defs>`;
       if (m.kind === 'slide') {
         const x0 = pkX(m.x), y0 = pkY(m.y), x1 = pkX(m.x + m.dx), y1 = pkY(m.y + m.dy);
         const nx = -(y1 - y0), ny = (x1 - x0), n = Math.hypot(nx, ny) || 1;
         return `${head}<path d="M ${x0.toFixed(1)},${y0.toFixed(1)} L ${x1.toFixed(1)},${y1.toFixed(1)}" fill="none" stroke="#DF7654" stroke-width="3" marker-end="url(#pk-turn-head)"/>
-          <text x="${((x0 + x1) / 2 + 46 * nx / n).toFixed(1)}" y="${((y0 + y1) / 2 + 46 * ny / n).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#DF7654">${m.label}</text>`;
+          ${pkChip((x0 + x1) / 2 + 48 * nx / n, (y0 + y1) / 2 + 48 * ny / n, m.label)}`;
       }
       const r = 2.2 * PK_SCALE, cx = pkX(m.x), cy = pkY(m.y);
       const P = a => `${(cx + r * Math.cos(a)).toFixed(1)},${(cy - r * Math.sin(a)).toFixed(1)}`;
       const a0 = m.from, a1 = m.to, mid = (a0 + a1) / 2, ccw = a1 > a0;
-      const lx = cx + (r + 16) * Math.cos(mid), ly = cy - (r + 16) * Math.sin(mid);
+      const lx = cx + (r + 26) * Math.cos(mid), ly = cy - (r + 26) * Math.sin(mid);
       return `${head}<path d="M ${P(a0)} A ${r} ${r} 0 0 ${ccw ? 0 : 1} ${P(a1)}" fill="none" stroke="#DF7654" stroke-width="3" marker-end="url(#pk-turn-head)"/>
-          <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#DF7654">${m.label}</text>`;
+          ${pkChip(lx, ly, m.label)}`;
     }
     function pkStatus(t) { const el = document.getElementById('pk-status'); if (el) el.innerHTML = t; }
     function pkParked() {
@@ -250,7 +285,7 @@
         pkMark = { kind: 'turn', x: pk.x, y: pk.y, from: before.th, to: pk.th, label: '[X, Y]' };
         pkRender();
         const predicted = pkDeg(PK_DELTA * PK_EPS / PK_L);   // t²-rule: size of X times size of Y times the bracket, which is 1/ℓ ∂θ at straight wheels
-        pkStatus(`X, Y, −X, −Y: steer, drive, then undo <em>in the same order</em>, unsteer first, reverse second. Every move is undone, yet the car is not back where it was: it has <strong>turned by ${turn.toFixed(1)}°</strong> (and shifted a little). This leftover is the Lie bracket [X, Y]: a turn. The bracket predicts it, the smaller the moves the better: steer × drive × [X, Y] = ${Math.round(pkDeg(PK_DELTA))}° × ${PK_EPS.toFixed(1)} m × 1/${PK_L} m = <strong>${predicted.toFixed(1)}°</strong>. Move the sliders: twice the steering or twice the driving doubles the turn, both together quadruple it.`);
+        pkStatus(`X, Y, −X, −Y: steer, drive, then undo in the same order, unsteer first, reverse second. Every move is undone, yet the car is not back where it was: it has <strong>turned by ${turn.toFixed(1)}°</strong> (and shifted a little). This leftover is the Lie bracket [X, Y]: a turn. The bracket predicts it, the smaller the moves the better: steer × drive × [X, Y] = ${Math.round(pkDeg(PK_DELTA))}° × ${PK_EPS.toFixed(1)} m × 1/${PK_L} m = <strong>${predicted.toFixed(1)}°</strong>. Move the sliders: twice the steering or twice the driving doubles the turn, both together quadruple it.`);
       });
     }
 
@@ -261,7 +296,7 @@
       pkQueue.push({ kind: 'steer', d: 1 }, { kind: 'drive', d: 1 }, { kind: 'drive', d: -1 }, { kind: 'steer', d: -1 });
       pkRunQueue(() => {
         const turn = pkDeg(pk.th - before.th);
-        pkStatus(`X, Y, −Y, −X: steer, drive, then undo <em>in reverse order</em>, the last move first. Back exactly where you started (turned by ${turn.toFixed(1)}°). That always happens, for any two moves, like putting on a coat and shoes and taking off shoes and coat; it says nothing about commuting. The square undoes in the same order, and that is where [X, Y] shows.`);
+        pkStatus(`X, Y, −Y, −X: steer, drive, then undo in reverse order, the last move first. Back exactly where you started (turned by ${turn.toFixed(1)}°). That always happens, for any two moves, like putting on a coat and shoes and taking off shoes and coat; it says nothing about commuting. The square undoes in the same order, and that is where [X, Y] shows.`);
       });
     }
 
@@ -373,6 +408,8 @@
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bfReset); else bfReset();
     window.addEventListener('resize', bfRender);
+
+    renderProjectStatusBanner();
   </script>
 </body>
 </html>

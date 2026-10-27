@@ -1,6 +1,6 @@
 """Card image for 'A Car From Above, Taken Literally': left the first-grade drawing (a rectangle,
 a circle at every corner, a cross in the middle), right the same car in 3D if you take the top view
-literally: wheels lying flat like plates, and a roof made entirely of window. Usage: python car_from_above_card.py out.jpg"""
+literally: wheels lying flat like plates, and a roof made entirely of window, bulging up like a Beetle. Usage: python car_from_above_card.py out.jpg"""
 import sys
 import numpy as np
 import matplotlib
@@ -33,9 +33,11 @@ def seg(p, q, k=60):
 corners = [(-2, -1.1), (2, -1.1), (2, 1.1), (-2, 1.1)]
 for p, q in zip(corners, corners[1:] + corners[:1]):
     wobbly(*seg(p, q), color=TERRA, lw=4)
+R = 0.45  # wheels sit outside the corners, touching them only at the corner point
 for cx, cy in corners:
     t = np.linspace(0, 2 * np.pi, 120)
-    wobbly(cx + 0.45 * np.cos(t), cy + 0.45 * np.sin(t), color=DARK, lw=3.5)
+    mx, my = cx + np.sign(cx) * R / np.sqrt(2), cy + np.sign(cy) * R / np.sqrt(2)
+    wobbly(mx + R * np.cos(t), my + R * np.sin(t), color=DARK, lw=3.5)
 wobbly(*seg((-2, 0), (2, 0)), color=SKY, lw=3.5)
 wobbly(*seg((0, -1.1), (0, 1.1)), color=SKY, lw=3.5)
 axl.text(0, -2.15, 'a car, seen from above', ha='center', fontsize=21, color=PLUM, family='serif', style='italic')
@@ -46,30 +48,45 @@ ax.set_facecolor(IVORY)
 ax.view_init(elev=38, azim=-58)
 L, B, z0, z1 = 2.0, 1.1, 0.35, 1.25
 polys, cols = [], []
-# body without its top face (the top is all window)
+# body without its top face (the dome covers it)
 v = np.array([[-L, -B, z0], [L, -B, z0], [L, B, z0], [-L, B, z0], [-L, -B, z1], [L, -B, z1], [L, B, z1], [-L, B, z1]])
 for f in [[0, 1, 2, 3], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]:
     polys.append(v[f]); cols.append(CORAL)
-# roof: four big window panes and the cross between them, as non-overlapping pieces
-g = 0.09
+# roof: a glass dome over the whole top, bulging up like a Beetle, the cross of the drawing as window bars across it
+a, b, h, g = L, B, 0.95, 0.07
+xs = np.unique(np.concatenate([np.linspace(-a, a, 27), [-g, g]]))
+ys = np.unique(np.concatenate([np.linspace(-b, b, 19), [-g, g]]))
 
 
-def rect(xa, xb, ya, yb, z=z1):
-    return np.array([[xa, ya, z], [xb, ya, z], [xb, yb, z], [xa, yb, z]])
+LIGHT = np.array([-0.45, -0.55, 0.7]) / np.linalg.norm([-0.45, -0.55, 0.7])
 
 
-for xs in [(-L, -g), (g, L)]:
-    for ys in [(-B, -g), (g, B)]:
-        polys.append(rect(*xs, *ys)); cols.append(SKY)
-polys.append(rect(-L, L, -g, g)); cols.append(TERRA)
-polys.append(rect(-g, g, -B, -g)); cols.append(TERRA)
-polys.append(rect(-g, g, g, B)); cols.append(TERRA)
-# wheels: flat discs lying at the corners, like plates glued to the car
+def shade(color, quad):
+    # a little light from the front left, so the bulge reads as a bulge
+    n = np.cross(quad[1] - quad[0], quad[3] - quad[0]); n = n / np.linalg.norm(n)
+    k = 0.78 + 0.32 * max(0.0, float(n @ LIGHT))
+    rgb = np.array(matplotlib.colors.to_rgb(color))
+    return tuple(np.clip(rgb * k + (1 - k) * 0.25 * (k < 1), 0, 1))
+
+
+def dome(x, y):
+    return z1 + h * np.clip(1 - np.abs(x / a) ** 2.4, 0, 1) ** 0.42 * np.clip(1 - np.abs(y / b) ** 2.4, 0, 1) ** 0.42
+
+
+for i in range(len(xs) - 1):
+    for j in range(len(ys) - 1):
+        q = [(xs[i], ys[j]), (xs[i + 1], ys[j]), (xs[i + 1], ys[j + 1]), (xs[i], ys[j + 1])]
+        polys.append(np.array([[x, y, dome(x, y)] for x, y in q]))
+        xc, yc = (xs[i] + xs[i + 1]) / 2, (ys[j] + ys[j + 1]) / 2
+        cols.append(shade(TERRA if abs(xc) < g or abs(yc) < g else SKY, polys[-1]))
+# wheels: flat discs lying outside the corners, like plates glued to the car
 t = np.linspace(0, 2 * np.pi, 60)
+r = 0.6
 for cx, cy in [(-L, -B), (L, -B), (L, B), (-L, B)]:
-    polys.append(np.column_stack([cx + 0.6 * np.cos(t), cy + 0.6 * np.sin(t), np.full_like(t, 0.8)])); cols.append(DARK)
-ax.add_collection3d(Poly3DCollection(polys, facecolors=cols, edgecolors=[TERRA if c in (SKY, CORAL) else c for c in cols], linewidths=1.2))
-ax.set_xlim(-2.8, 2.8); ax.set_ylim(-2.8, 2.8); ax.set_zlim(-1.2, 2.6)
+    mx, my = cx + np.sign(cx) * r / np.sqrt(2), cy + np.sign(cy) * r / np.sqrt(2)
+    polys.append(np.column_stack([mx + r * np.cos(t), my + r * np.sin(t), np.full_like(t, 0.8)])); cols.append(DARK)
+ax.add_collection3d(Poly3DCollection(polys, facecolors=cols, edgecolors=[TERRA if isinstance(c, str) and c == CORAL else c for c in cols], linewidths=[1.2 if isinstance(c, str) and c == CORAL else 0.4 for c in cols]))
+ax.set_xlim(-3.0, 3.0); ax.set_ylim(-3.0, 3.0); ax.set_zlim(-1.0, 3.0)
 ax.set_box_aspect((1, 1, 0.68))
 fig.text(0.73, 0.1, '…taken literally', ha='center', fontsize=21, color=PLUM, family='serif', style='italic')
 fig.savefig(out, dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})

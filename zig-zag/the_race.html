@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Race • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/zig-zag.html" class="underline text-brand-terracotta">Is Zig-Zag Better Than Stumbling Around?</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: THE RACE ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-4 sm:p-8 shadow-xl my-8 space-y-4 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-3">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Race</h3>
+              <p class="text-sm sm:text-base text-white/85 leading-relaxed">
+                Now in one dimension, against a known target. At the top of each picture the path of the last steps, below it the histogram of everything so far, against the target curve. The number W₁ says how far the histogram still is from the target: the smaller, the better. And you decide what counts as a fair race.
+              </p>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-center text-xs sm:text-sm">
+              <span class="font-mono font-semibold uppercase tracking-wider text-white/85">target</span>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-rc-target="normal" class="rc-target px-3 py-1.5 rounded-full border font-semibold transition-colors">Gaussian (normal)</button>
+                <button type="button" data-rc-target="cauchy" class="rc-target px-3 py-1.5 rounded-full border font-semibold transition-colors">Cauchy (heavy tails)</button>
+              </div>
+              <span class="font-mono font-semibold uppercase tracking-wider text-white/85">start</span>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-rc-start="centre" class="rc-start px-3 py-1.5 rounded-full border font-semibold transition-colors">in the middle</button>
+                <button type="button" data-rc-start="tail" class="rc-start px-3 py-1.5 rounded-full border font-semibold transition-colors">far out</button>
+              </div>
+              <span class="font-mono font-semibold uppercase tracking-wider text-white/85">zig-zag</span>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-rc-variant="cdf" class="rc-variant px-3 py-1.5 rounded-full border font-semibold font-mono transition-colors">ZZ_CDF</button>
+                <button type="button" data-rc-variant="m" class="rc-variant px-3 py-1.5 rounded-full border font-semibold font-mono transition-colors">ZZ_M</button>
+                <button type="button" data-rc-variant="ode" class="rc-variant px-3 py-1.5 rounded-full border font-semibold font-mono transition-colors">ZZ_ODE</button>
+              </div>
+              <span class="font-mono font-semibold uppercase tracking-wider text-white/85">fair by</span>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-rc-fair="steps" class="rc-fair px-3 py-1.5 rounded-full border font-semibold transition-colors">same number of steps</button>
+                <button type="button" data-rc-fair="evals" class="rc-fair px-3 py-1.5 rounded-full border font-semibold transition-colors">same number of evaluations</button>
+                <button type="button" data-rc-fair="time" class="rc-fair px-3 py-1.5 rounded-full border font-semibold transition-colors">same computing time</button>
+              </div>
+            </div>
+            <p id="rc-explain" class="relative z-10 text-xs sm:text-sm font-mono text-white/80 leading-relaxed"></p>
+
+            <div class="relative z-10 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <div class="flex items-baseline justify-between gap-2">
+                  <div class="font-heading font-bold text-sm sm:text-base">🔦 The flashlight <span class="text-xs sm:text-sm font-mono font-normal text-white/75">Metropolis–Hastings</span></div>
+                  <div id="rc-mh-w" class="text-sm sm:text-base font-semibold font-mono text-brand-coral"></div>
+                </div>
+                <canvas id="rc-mh" width="600" height="720" class="w-full h-auto rounded-2xl border border-white/10 bg-black/60"></canvas>
+                <div id="rc-mh-stats" class="text-xs sm:text-sm font-mono text-white/80"></div>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-baseline justify-between gap-2">
+                  <div class="font-heading font-bold text-sm sm:text-base">✨ The string of lights <span id="rc-zz-name" class="text-xs sm:text-sm font-mono font-normal text-white/75">Zig-Zag</span></div>
+                  <div id="rc-zz-w" class="text-sm sm:text-base font-semibold font-mono text-[#F4C98F]"></div>
+                </div>
+                <canvas id="rc-zz" width="600" height="720" class="w-full h-auto rounded-2xl border border-white/10 bg-black/60"></canvas>
+                <div id="rc-zz-stats" class="text-xs sm:text-sm font-mono text-white/80"></div>
+              </div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-xs sm:text-sm font-mono text-white/85"><span id="rc-w-title">W₁ distance to the target</span>: <span class="text-brand-coral">■ flashlight</span> <span class="text-[#F4C98F]">■ string of lights</span></div>
+                <canvas id="rc-w" width="900" height="240" class="w-full h-auto rounded-2xl border border-white/10 bg-black/60"></canvas>
+              </div>
+            </div>
+
+            <div class="relative z-10 flex flex-wrap items-center gap-2">
+              <button type="button" id="rc-run" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold text-xs sm:text-sm transition-colors">▶ start</button>
+              <button type="button" id="rc-reset" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-xs sm:text-sm transition-colors">↺ again</button>
+              <button type="button" id="rc-speed" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-xs sm:text-sm transition-colors">🐢 slow</button>
+              <span id="rc-k" class="ml-auto text-sm sm:text-base font-semibold font-mono text-white/85"></span>
+            </div>
+            <p id="rc-msg" class="relative z-10 text-sm sm:text-base text-white/90 min-h-[1.25rem]"></p>
+          </div>
+
+  </main>
+  <script>
+  // ================= THE RACE: Metropolis–Hastings vs Zig-Zag (ZZ_CDF, ZZ_M, ZZ_ODE) in 1D, fair by steps, evaluations or computing time =================
+  (function () {
+    const TARGETS = {
+      // view: visible range; tail: far-out start; dens: unnormalised density; rate(u): switching rate at u = θx; tau: exact switching time (ZZ_CDF)
+      normal: { view: [-9, 9], tail: 8, dens: x => Math.exp(-0.5 * x * x),
+        rate: u => Math.max(0, u),
+        tau: (a, E) => -a + Math.sqrt(Math.max(a, 0) ** 2 + 2 * E) },
+      cauchy: { view: [-25, 25], tail: 20, dens: x => 1 / (1 + x * x),
+        rate: u => Math.max(0, 2 * u / (1 + u * u)),
+        tau: (a, E) => -a + Math.sqrt((1 + Math.max(a, 0) ** 2) * Math.exp(E) - 1) },
+    };
+    const KMAX = 5000, MH_SIGMA = 2.4, NB = 120, TRACE = 150, ODE_H = 0.1;
+    const VARIANT_INFO = {
+      cdf: 'ZZ_CDF: the switching time comes from an exact formula. One evaluation per step.',
+      m: 'ZZ_M: propose a switching time from an upper bound, then accept it or not (Poisson thinning). For the Gaussian the bound is exact, so nothing is rejected; for Cauchy a local constant bound, so some proposals are rejected (open rings).',
+      ode: 'ZZ_ODE: the switching time is found numerically by integrating the rate step by step (RK4, step 0.1), quasi-exact. Many evaluations per step.',
+    };
+    const FAIR_INFO = {
+      steps: 'Fair by steps: both make the same number of steps K (a jump proposal, or a proposed change of direction).',
+      evals: 'Fair by evaluations: both may evaluate the density or the switching rate equally often. One evaluation = one battery tick.',
+      time: 'Fair by computing time: both get the same computing time, measured on the device you are reading this on.',
+    };
+    let tgt = 'normal', start = 'centre', variant = 'cdf', fair = 'steps', running = false, fast = false, raf = null;
+    let mh, zz, acc = 0, cost = { mh: 1, zz: 1 }, curve, cdfT;
+
+    function gauss() { let u = 0; while (u === 0) u = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random()); }
+    function targetCdf() {                       // target on the bins of the visible range (truncated to it), for W1
+      const T = TARGETS[tgt], [a, b] = T.view, h = (b - a) / NB, m = new Float64Array(NB);
+      let s = 0;
+      for (let i = 0; i < NB; i++) { let q = 0; for (let j = 0; j < 10; j++) q += T.dens(a + (i + (j + 0.5) / 10) * h); m[i] = q; s += q; }
+      cdfT = new Float64Array(NB); let c = 0;
+      for (let i = 0; i < NB; i++) { c += m[i] / s; cdfT[i] = c; }
+      return m.map(v => v / s / h);
+    }
+    function w1(hist) {
+      const [a, b] = TARGETS[tgt].view, h = (b - a) / NB;
+      let s = 0; for (let i = 0; i < NB; i++) s += hist[i];
+      if (!s) return NaN;
+      let c = 0, w = 0;
+      for (let i = 0; i < NB; i++) { c += hist[i] / s; w += Math.abs(c - cdfT[i]) * h; }
+      return w;
+    }
+    const bin = x => { const [a, b] = TARGETS[tgt].view; return Math.floor((x - a) / (b - a) * NB); };
+
+    // ---------- the samplers; each step returns how many evaluations it used ----------
+    function makeMH(x0, track) {
+      const T = TARGETS[tgt], S = { x: x0, steps: 0, evals: 0, rej: 0, hist: new Float64Array(NB), trace: [{ x: x0 }], w: [] };
+      let dx = T.dens(x0);
+      S.step = () => {
+        const y = S.x + MH_SIGMA * gauss(), dy = T.dens(y);
+        if (Math.random() < dy / dx) { S.x = y; dx = dy; } else S.rej++;
+        S.steps++; S.evals++;
+        if (track) {
+          const i = bin(S.x); if (i >= 0 && i < NB) S.hist[i] += 1;
+          S.trace.push({ x: S.x }); if (S.trace.length > TRACE + 1) S.trace.shift();
+        }
+        return 1;
+      };
+      return S;
+    }
+    function makeZZ(x0, th0, track) {
+      const T = TARGETS[tgt], S = { x: x0, th: th0, steps: 0, evals: 0, rej: 0, hist: new Float64Array(NB), trace: [{ x: x0 }], w: [] };
+      const [a, b] = T.view, h = (b - a) / NB;
+      function move(tau, turn) {               // drive straight for tau; record the time spent in each bin
+        const x1 = S.x + S.th * tau;
+        if (track) {
+          const lo = Math.max(Math.min(S.x, x1), a), hi = Math.min(Math.max(S.x, x1), b);
+          for (let i = Math.max(0, bin(lo)); i <= Math.min(NB - 1, bin(hi)); i++) {
+            const l = Math.max(lo, a + i * h), r = Math.min(hi, a + (i + 1) * h);
+            if (r > l) S.hist[i] += r - l;
+          }
+          S.trace.push({ x: x1, rej: !turn }); if (S.trace.length > TRACE + 1) S.trace.shift();
+        }
+        S.x = x1; if (turn) S.th = -S.th; else S.rej++;
+        S.steps++;
+      }
+      S.step = () => {
+        const u0 = S.th * S.x, E = -Math.log(1 - Math.random());
+        if (variant === 'cdf') { move(T.tau(u0, E), true); S.evals++; return 1; }
+        if (variant === 'm') {
+          if (tgt === 'normal') { move(T.tau(u0, E), true); S.evals++; return 1; }   // exact affine bound (u0 + t)+: no rejections
+          const M = u0 > 1 ? 2 * u0 / (1 + u0 * u0) : 1;                             // local constant bound for Cauchy
+          const tau = E / M, ok = Math.random() < T.rate(u0 + tau) / M;
+          move(tau, ok); S.evals++; return 1;
+        }
+        // ZZ_ODE: integrate Λ' = rate(u0 + t) with RK4 until Λ reaches E, then interpolate inside the last step
+        let t = 0, L = 0, n = 0;
+        while (n < 200000) {
+          const k1 = T.rate(u0 + t), k2 = T.rate(u0 + t + ODE_H / 2), k3 = T.rate(u0 + t + ODE_H / 2), k4 = T.rate(u0 + t + ODE_H);
+          n += 4;
+          const dL = ODE_H / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
+          if (L + dL >= E) { t += ODE_H * (E - L) / dL; break; }
+          L += dL; t += ODE_H;
+        }
+        move(t, true); S.evals += n; return n;
+      };
+      return S;
+    }
+
+    // computing time per step on this device: run each sampler for ~15 ms on scratch copies
+    function calibrate() {
+      const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const per = make => { const S = make(); let n = 0; const t0 = now(); let t1 = t0; while (t1 - t0 < 15) { for (let j = 0; j < 200; j++) S.step(); n += 200; t1 = now(); } return (t1 - t0) * 1000 / n; };
+      per(() => makeMH(0, false)); per(() => makeZZ(0, 1, false));                // warm-up
+      cost = { mh: per(() => makeMH(0, false)), zz: per(() => makeZZ(0, 1, false)) };
+    }
+
+    function paintChoice(sel, key, val) {
+      document.querySelectorAll(sel).forEach(b => b.className = b.className.replace(/ ?(bg-brand-terracotta border-brand-terracotta text-white|bg-white\/10 border-white\/15 text-white\/80)/g, '') + (b.dataset[key] === val ? ' bg-brand-terracotta border-brand-terracotta text-white' : ' bg-white/10 border-white/15 text-white/80'));
+    }
+    function reset() {
+      setRunning(false);
+      const x0 = start === 'tail' ? TARGETS[tgt].tail : 0;
+      curve = targetCdf();
+      calibrate();
+      mh = makeMH(x0, true); zz = makeZZ(x0, start === 'tail' ? -1 : (Math.random() < 0.5 ? -1 : 1), true);
+      acc = 0;
+      paintChoice('.rc-target', 'rcTarget', tgt); paintChoice('.rc-start', 'rcStart', start);
+      paintChoice('.rc-variant', 'rcVariant', variant); paintChoice('.rc-fair', 'rcFair', fair);
+      document.getElementById('rc-zz-name').textContent = 'Zig-Zag, ' + { cdf: 'ZZ_CDF', m: 'ZZ_M', ode: 'ZZ_ODE' }[variant];
+      document.getElementById('rc-explain').innerHTML = FAIR_INFO[fair] + '<br>' + VARIANT_INFO[variant];
+      render();
+    }
+
+    // the budget: the flashlight sets the pace, the string of lights gets the same amount of whatever is fair
+    const spent = S => fair === 'steps' ? S.steps : fair === 'evals' ? S.evals : S.steps * (S === mh ? cost.mh : cost.zz);
+    function tick() {
+      if (!running) return;
+      acc += fast ? 25 : 0.1; const n = Math.floor(acc); acc -= n;
+      for (let j = 0; j < n && mh.steps < KMAX; j++) mh.step();
+      let guard = 0;
+      while (spent(zz) < spent(mh) && guard++ < 100000) zz.step();
+      if (n > 0) { const x = spent(mh); mh.w.push([x, w1(mh.hist)]); zz.w.push([x, w1(zz.hist)]); }
+      render();
+      if (mh.steps >= KMAX) { setRunning(false); return; }
+      raf = requestAnimationFrame(tick);
+    }
+
+    // ---------- drawing ----------
+    const LABEL = 'rgba(255,255,255,0.9)', TICK = 'rgba(255,255,255,0.75)', GRID = 'rgba(255,255,255,0.12)';
+    const FONT = '600 24px ui-monospace, monospace', SMALL = '22px ui-monospace, monospace';
+    function vText(c, txt, x, y) { c.save(); c.translate(x, y); c.rotate(-Math.PI / 2); c.textAlign = 'center'; c.fillText(txt, 0, 0); c.restore(); }
+    function panel(id, S, col) {
+      const cv = document.getElementById(id), c = cv.getContext('2d'), Wd = cv.width, Ht = cv.height;
+      const T = TARGETS[tgt], [a, b] = T.view, padL = 52, padR = 18, top0 = 48, top1 = Ht - 300, base = Ht - 76;   // the path gets the height, the histogram ~190 px
+      const X = x => padL + (x - a) / (b - a) * (Wd - padL - padR), clip = x => Math.max(a, Math.min(b, x));
+      const ticks = tgt === 'normal' ? [-8, -4, 0, 4, 8] : [-20, -10, 0, 10, 20];
+      c.clearRect(0, 0, Wd, Ht);
+      c.strokeStyle = GRID; c.lineWidth = 1;
+      for (const t of ticks) { c.beginPath(); c.moveTo(X(t), top0); c.lineTo(X(t), base); c.stroke(); }
+      c.strokeStyle = 'rgba(255,255,255,0.25)'; c.beginPath(); c.moveTo(padL, top1 + 22); c.lineTo(Wd - padR, top1 + 22); c.stroke();
+      c.fillStyle = LABEL; c.font = FONT; c.textAlign = 'left';
+      c.fillText('path of the last ' + TRACE + ' steps', padL, 30); c.fillText('histogram vs. target', padL, top1 + 54);
+      c.font = SMALL; c.fillStyle = TICK;
+      vText(c, 'step  (newest ↓)', 28, (top0 + top1) / 2); vText(c, 'density', 28, (top1 + 70 + base) / 2);
+      c.textAlign = 'center';
+      for (const t of ticks) c.fillText(String(t), X(t), base + 28);
+      c.fillStyle = LABEL; c.font = FONT; c.fillText('x', (padL + Wd - padR) / 2, base + 62);
+      c.textAlign = 'left';
+      // path: one row per step, newest at the bottom
+      const tr = S.trace, Yk = j => top0 + j / TRACE * (top1 - top0), off = TRACE - (tr.length - 1);
+      if (S === mh) {                            // Metropolis–Hastings: single points, no lines
+        c.fillStyle = col;
+        for (let k = 0; k < tr.length; k++) { c.beginPath(); c.arc(X(clip(tr[k].x)), Yk(off + k), 3.2, 0, 2 * Math.PI); c.fill(); }
+      } else {                                    // Zig-Zag: straight pieces between the turns; rejected proposals as open rings
+        c.strokeStyle = col; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
+        for (let k = 0; k < tr.length; k++) { const px = X(clip(tr[k].x)), py = Yk(off + k); k ? c.lineTo(px, py) : c.moveTo(px, py); }
+        c.stroke();
+        c.lineWidth = 2;
+        for (let k = 0; k < tr.length; k++) if (tr[k].rej) { c.beginPath(); c.arc(X(clip(tr[k].x)), Yk(off + k), 5, 0, 2 * Math.PI); c.stroke(); }
+      }
+      // histogram, upright, against the target curve
+      const h = (b - a) / NB; let s = 0; for (let i = 0; i < NB; i++) s += S.hist[i];
+      const peak = Math.max(...curve) * 1.15, Hh = base - top1 - 74, Yd = d => base - Math.min(1, d / peak) * Hh;
+      if (s) {
+        c.fillStyle = col; c.globalAlpha = 0.6;
+        for (let i = 0; i < NB; i++) { const d = S.hist[i] / s / h; if (d > 0) c.fillRect(X(a + i * h), Yd(d), Math.max(1, X(a + (i + 1) * h) - X(a + i * h)), base - Yd(d)); }
+        c.globalAlpha = 1;
+      }
+      c.strokeStyle = 'rgba(255,255,255,0.95)'; c.lineWidth = 2.5; c.beginPath();
+      for (let i = 0; i < NB; i++) { const px = X(a + (i + 0.5) * h), py = Yd(curve[i]); i ? c.lineTo(px, py) : c.moveTo(px, py); }
+      c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,0.6)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(padL, base); c.lineTo(Wd - padR, base); c.stroke();
+    }
+    const AXIS = { steps: 'steps K', evals: 'evaluations', time: 'computing time (ms, this device)' };
+    function budgetMax() { return fair === 'time' ? KMAX * cost.mh : KMAX; }
+    const tickFmt = v => fair === 'time' ? (v / 1000).toFixed(v / 1000 < 1 ? 2 : 1) : String(Math.round(v));
+    function wChart() {
+      const cv = document.getElementById('rc-w'), c = cv.getContext('2d'), Wd = cv.width, Ht = cv.height, padL = 70, padR = 20, padT = 20, padB = 56;
+      c.clearRect(0, 0, Wd, Ht);
+      const all = mh.w.concat(zz.w).map(p => p[1]).filter(v => isFinite(v));
+      const top = all.reduce((m, v) => Math.max(m, v), 0.05), B = budgetMax();
+      const PX = x => padL + Math.min(1, x / B) * (Wd - padL - padR), PY = v => Ht - padB - Math.min(1, v / top) * (Ht - padT - padB);
+      c.strokeStyle = 'rgba(255,255,255,0.6)'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(padL, padT); c.lineTo(padL, Ht - padB); c.lineTo(Wd - padR, Ht - padB); c.stroke();
+      c.font = SMALL; c.fillStyle = TICK; c.textAlign = 'center';
+      for (let j = 0; j <= 5; j++) c.fillText(tickFmt(B * j / 5), PX(B * j / 5), Ht - padB + 26);
+      c.textAlign = 'right'; c.fillText(top.toFixed(2), padL - 8, padT + 16); c.fillText('0', padL - 8, Ht - padB);
+      c.fillStyle = LABEL; c.font = FONT; c.textAlign = 'center';
+      c.fillText(AXIS[fair], (padL + Wd - padR) / 2, Ht - 8); vText(c, 'W₁', 26, (padT + Ht - padB) / 2);
+      c.textAlign = 'left';
+      for (const [S, col] of [[mh, '#EE9779'], [zz, '#F4C98F']]) {
+        c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); let on = false;
+        for (const [x, v] of S.w) { if (!isFinite(v)) continue; on ? c.lineTo(PX(x), PY(v)) : c.moveTo(PX(x), PY(v)); on = true; }
+        c.stroke();
+      }
+    }
+    const fmt = v => isFinite(v) ? v.toFixed(3) : '–';
+    const last = S => S.w.length ? S.w[S.w.length - 1][1] : NaN;
+    function stats(S, isMH) {
+      const parts = [`${S.steps} steps`, `${S.evals} evaluations`];
+      if (isMH) parts.push(`${S.rej} jumps not taken`); else if (variant === 'm') parts.push(`${S.rej} turns rejected`);
+      parts.push(`≈ ${(isMH ? cost.mh : cost.zz).toFixed(2)} µs per step here`);
+      return parts.join(' · ');
+    }
+    function render() {
+      panel('rc-mh', mh, '#EE9779'); panel('rc-zz', zz, '#F4C98F'); wChart();
+      document.getElementById('rc-mh-w').textContent = 'W₁ = ' + fmt(last(mh));
+      document.getElementById('rc-zz-w').textContent = 'W₁ = ' + fmt(last(zz));
+      document.getElementById('rc-mh-stats').textContent = stats(mh, true);
+      document.getElementById('rc-zz-stats').textContent = stats(zz, false);
+      document.getElementById('rc-w-title').textContent = 'W₁ distance to the target over the ' + AXIS[fair].replace(' (ms, this device)', '');
+      document.getElementById('rc-k').textContent = AXIS[fair].split(' (')[0] + ': ' + tickFmt(spent(mh)) + (fair === 'time' ? ' ms' : '');
+      const msg = document.getElementById('rc-msg');
+      msg.textContent = mh.steps >= KMAX
+        ? `🎉 Done. Flashlight: W₁ = ${fmt(last(mh))} after ${mh.steps} steps. String of lights: W₁ = ${fmt(last(zz))} after ${zz.steps} steps. Change the rules and race again.`
+        : '';
+    }
+    function setRunning(on) {
+      running = on; document.getElementById('rc-run').textContent = on ? '❚❚ pause' : '▶ start';
+      if (on) { if (mh.steps >= KMAX) { reset(); running = true; document.getElementById('rc-run').textContent = '❚❚ pause'; } cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
+    }
+    document.getElementById('rc-run').addEventListener('click', () => setRunning(!running));
+    document.getElementById('rc-reset').addEventListener('click', reset);
+    document.getElementById('rc-speed').addEventListener('click', e => { fast = !fast; e.currentTarget.textContent = fast ? '🐇 fast' : '🐢 slow'; });
+    document.querySelectorAll('.rc-target').forEach(b => b.addEventListener('click', () => { tgt = b.dataset.rcTarget; reset(); }));
+    document.querySelectorAll('.rc-start').forEach(b => b.addEventListener('click', () => { start = b.dataset.rcStart; reset(); }));
+    document.querySelectorAll('.rc-variant').forEach(b => b.addEventListener('click', () => { variant = b.dataset.rcVariant; reset(); }));
+    document.querySelectorAll('.rc-fair').forEach(b => b.addEventListener('click', () => { fair = b.dataset.rcFair; reset(); }));
+    reset();
+  })();
+  </script>
+</body>
+</html>

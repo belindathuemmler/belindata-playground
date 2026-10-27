@@ -16,7 +16,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [True Mathematicians by Heart](https://belindata.com/projects/true-mathematicians.html) | [`true-mathematicians/`](true-mathematicians/) |  | `true_mathematicians_card.py` |
 | [Silence = No Questions?](https://belindata.com/projects/silence.html) | [`silence/`](silence/) | [`any_questions.html`](silence/any_questions.html), [`dnb_counts.html`](silence/dnb_counts.html) | `silence_card.py` |
 | [Playing With Knots](https://belindata.com/projects/knot-twins.html) | [`knot-twins/`](knot-twins/) | [`knots.html`](knot-twins/knots.html) | `reidemeister_card.py`, `knot_moves_check.py` |
-| [Is Zig-Zag Better Than Stumbling Around?](https://belindata.com/projects/zig-zag.html) | [`zig-zag/`](zig-zag/) |  | `zigzag_trajectory.py` |
+| [Is Zig-Zag Better Than Stumbling Around?](https://belindata.com/projects/zig-zag.html) | [`zig-zag/`](zig-zag/) | [`dark_room.html`](zig-zag/dark_room.html), [`the_race.html`](zig-zag/the_race.html) | `zigzag_trajectory.py` |
 | [AI vs. Me: A Data Analysis Duel](https://belindata.com/projects/me-vs-ai.html) | [`me-vs-ai/`](me-vs-ai/) |  | `dashboard_card.py`, `coming_soon_cards.py` |
 | [How a Machine Understands Similar Questions](https://belindata.com/projects/embeddings.html) | [`embeddings/`](embeddings/) |  | `coming_soon_cards.py` |
 | [A Bracket and a Man Called Lie](https://belindata.com/projects/lie-bracket.html) | [`lie-bracket/`](lie-bracket/) | [`parking_lot.html`](lie-bracket/parking_lot.html) | `lie_bracket_parking.py` |
@@ -35,6 +35,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [About Fat and Thin Matrices](https://belindata.com/projects/sparse-dense.html) | [`sparse-dense/`](sparse-dense/) |  | `sparse_dense_card.py` |
 | [The Binomial Formulas in Pictures](https://belindata.com/projects/binomial.html) | [`binomial/`](binomial/) |  | `binomial_card.py` |
 | [Who Induces Whom?](https://belindata.com/projects/who-induces-whom.html) | [`who-induces-whom/`](who-induces-whom/) |  | `who_induces_whom_card.py` |
+| [Convergence: Yay, We Will Get There! But When?](https://belindata.com/projects/convergence.html) | [`convergence/`](convergence/) |  | `convergence_card.py` |
 | [Turning Pieces and Cubes](https://belindata.com/projects/two-pieces.html) | [`two-pieces/`](two-pieces/) | [`turning_pieces_2d.html`](two-pieces/turning_pieces_2d.html), [`turning_pieces_3d.html`](two-pieces/turning_pieces_3d.html), [`folding_the_die.html`](two-pieces/folding_the_die.html), [`falling_blocks.html`](two-pieces/falling_blocks.html) | `two_pieces_card.py` |
 
 Scripts that draw several cards at once live in [`cards/`](cards/).
