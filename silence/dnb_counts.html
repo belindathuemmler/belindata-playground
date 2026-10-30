@@ -83,10 +83,15 @@
     // LIVE COUNTS FROM THE GERMAN NATIONAL LIBRARY (SRU interface, subject headings)
     // ==========================================
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dnbPie); else setTimeout(dnbPie, 0);
-    async function dnbCount(sw) {
+    const dnbWait = ms => new Promise(r => setTimeout(r, ms));
+    async function dnbCount(sw, attempt = 0) {
+      // dnb.de answers one question at a time: parallel requests get "429 Too Many Requests", so the cells are asked
+      // one after another (see dnbRefresh), and a 429 is retried once after a pause
       const url = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&maximumRecords=1&query=' + encodeURIComponent('sw="' + sw + '"');
-      const text = await (await fetch(url)).text();
-      const m = text.match(/<numberOfRecords>(\d+)<\/numberOfRecords>/);
+      const res = await fetch(url);
+      if (res.status === 429 && attempt < 2) { await dnbWait(1500 * (attempt + 1)); return dnbCount(sw, attempt + 1); }
+      if (!res.ok) throw new Error('http ' + res.status);
+      const m = (await res.text()).match(/<numberOfRecords>(\d+)<\/numberOfRecords>/);
       if (!m) throw new Error('no count');
       return parseInt(m[1], 10);
     }
@@ -117,13 +122,18 @@
       const btn = document.getElementById('dnb-refresh'), status = document.getElementById('dnb-status');
       const cells = Array.from(document.querySelectorAll('[data-sw]'));
       btn.disabled = true; btn.classList.add('opacity-50'); status.textContent = 'asking dnb.de …';
-      try {
-        const counts = await Promise.all(cells.map(c => dnbCount(c.dataset.sw)));
-        cells.forEach((c, i) => { c.classList.add('text-brand-coral'); dnbAnimate(c, counts[i]); });
-        status.textContent = 'live from dnb.de, ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-      } catch (e) {
-        status.textContent = 'dnb.de did not answer, showing the counts of 19 October 2026';
+      let failed = 0;
+      for (let i = 0; i < cells.length; i++) {
+        status.textContent = 'asking dnb.de … ' + (i + 1) + ' of ' + cells.length;
+        try {
+          const n = await dnbCount(cells[i].dataset.sw);
+          cells[i].classList.add('text-brand-coral'); dnbAnimate(cells[i], n);
+        } catch (e) { failed++; }
       }
+      const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      status.textContent = failed === cells.length ? 'dnb.de did not answer, showing the counts of 19 October 2026'
+        : failed ? 'live from dnb.de, ' + today + ' (' + failed + ' of ' + cells.length + ' not answered, old count kept)'
+        : 'live from dnb.de, ' + today;
       btn.disabled = false; btn.classList.remove('opacity-50');
     }
 
