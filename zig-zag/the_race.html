@@ -85,7 +85,7 @@
             <div class="relative z-10 flex flex-wrap items-center gap-2">
               <button type="button" id="rc-run" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold text-xs sm:text-sm transition-colors">▶ start</button>
               <button type="button" id="rc-reset" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-xs sm:text-sm transition-colors">↺ again</button>
-              <button type="button" id="rc-speed" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-xs sm:text-sm transition-colors">🐢 slow</button>
+              <button type="button" id="rc-speed" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold text-xs sm:text-sm transition-colors">🐇 make it faster</button>
               <span id="rc-k" class="ml-auto text-sm sm:text-base font-semibold font-mono text-white/85"></span>
             </div>
             <p id="rc-msg" class="relative z-10 text-sm sm:text-base text-white/90 min-h-[1.25rem]"></p>
@@ -327,7 +327,7 @@
     }
     document.getElementById('rc-run').addEventListener('click', () => setRunning(!running));
     document.getElementById('rc-reset').addEventListener('click', reset);
-    document.getElementById('rc-speed').addEventListener('click', e => { fast = !fast; e.currentTarget.textContent = fast ? '🐇 fast' : '🐢 slow'; });
+    document.getElementById('rc-speed').addEventListener('click', e => { fast = !fast; e.currentTarget.textContent = fast ? '🐢 slow down' : '🐇 make it faster'; });
     document.querySelectorAll('.rc-target').forEach(b => b.addEventListener('click', () => { tgt = b.dataset.rcTarget; reset(); }));
     document.querySelectorAll('.rc-start').forEach(b => b.addEventListener('click', () => { start = b.dataset.rcStart; reset(); }));
     document.querySelectorAll('.rc-variant').forEach(b => b.addEventListener('click', () => { variant = b.dataset.rcVariant; reset(); }));
