@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Double the Corners • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/pi.html" class="underline text-brand-terracotta">What π Actually Is</a> on belindata.com. Open this file in any browser.</p>
+                <!-- ================= INTERACTIVE: DOUBLE THE CORNERS ================= -->
+                <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+                  <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+                  <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                  <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>Interactive</span>
+                    </div>
+                    <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Double the Corners</h3>
+                    <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                      Now double the corners: 12, 24, 48, 96. With every doubling the inner polygon grows and the outer one shrinks, and \(\pi\) stays in between. Each new side length follows from the old one by Pythagoras, nothing but square roots. Archimedes had no decimals, so he replaced every root by a fraction, always on the safe side.
+                    </p>
+                  </div>
+
+                  <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                    <div>
+                      <svg id="dc-svg" viewBox="-20 -86 104 104" class="w-full max-w-[320px] mx-auto h-auto" role="img" aria-label="The upper right quarter of a circle of diameter 1 with a regular polygon inside and one outside; the number of corners doubles with every click">
+                        <defs><clipPath id="dc-quarter"><rect x="0" y="-84" width="84" height="84"/></clipPath><pattern id="dc-hatch" width="2.5" height="2.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="2.5" stroke="#F4C98F" stroke-opacity="0.55" stroke-width="0.7"/></pattern></defs>
+                        <circle cx="0" cy="0" r="60" fill="none" stroke="#DF7654" stroke-opacity="0.45" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
+                        <g clip-path="url(#dc-quarter)">
+                        <g id="dc-pieces"></g>
+                        <polygon id="dc-outer" fill="none" stroke="#B77A8A" stroke-width="1.6" vector-effect="non-scaling-stroke" points=""/>
+                        <circle cx="0" cy="0" r="60" fill="rgba(238,151,121,0.10)" stroke="#DF7654" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+                        <polygon id="dc-inner" fill="none" stroke="#FAF8F5" stroke-width="1.6" vector-effect="non-scaling-stroke" points=""/>
+                        <line x1="0" y1="0" x2="60" y2="0" stroke="rgba(255,255,255,0.35)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
+                        <g id="dc-oldnew"></g>
+                        </g>
+                        <g id="dc-labels"></g>
+                        <text x="30" y="7" text-anchor="middle" font-size="5" fill="rgba(255,255,255,0.6)">radius ½</text>
+                        <circle cx="0" cy="0" r="1.6" fill="rgba(255,255,255,0.6)"/>
+                      </svg>
+                      <p class="text-center text-[11px] font-mono text-white/55 mt-1">one quarter · <span class="text-[#FAF8F5]">inside</span> · <span class="text-[#DF7654]">circle</span> · <span class="text-[#D8A9BF]">outside</span></p>
+                    </div>
+                    <div class="space-y-3">
+                      <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                        <button type="button" id="dc-double" onclick="dcDouble()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">double the corners</button>
+                        <button type="button" onclick="dcReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ back to 6</button>
+                      </div>
+                      <div id="dc-level" class="font-mono text-sm text-white/80"></div>
+                      <div class="grid grid-cols-2 gap-3 font-mono text-xs sm:text-sm">
+                        <div class="rounded-2xl bg-white/5 border border-white/10 p-3">
+                          <div class="text-white/45 text-[11px] uppercase tracking-wider font-bold">perimeter inside</div>
+                          <div id="dc-in" class="text-lg font-bold text-[#FAF8F5]"></div>
+                          <div id="dc-in-calc" class="text-[11px] text-white/60 leading-snug"></div>
+                        </div>
+                        <div class="rounded-2xl bg-white/5 border border-white/10 p-3">
+                          <div class="text-white/45 text-[11px] uppercase tracking-wider font-bold">perimeter outside</div>
+                          <div id="dc-out" class="text-lg font-bold text-[#D8A9BF]"></div>
+                          <div id="dc-out-calc" class="text-[11px] text-white/60 leading-snug"></div>
+                        </div>
+                      </div>
+                      <div id="dc-gap" class="text-xs sm:text-sm text-white/75"></div>
+                      <table class="text-xs sm:text-sm font-mono">
+                        <thead><tr class="text-white/45"><th class="text-left pr-4 font-normal">corners</th><th class="text-left pr-4 font-normal">inside</th><th class="text-left font-normal">outside</th></tr></thead>
+                        <tbody id="dc-rows" class="divide-y divide-white/10"></tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                </div>
+  </main>
+  <script>
+    // ==========================================
+    // DOUBLE THE CORNERS: polygons inside and outside the circle of diameter 1, n = 6, 12, 24, 48, 96
+    // ==========================================
+    const DC = { n: 6, rows: [], prev: null };            // prev: the number of corners before the last doubling
+    function dcPoly(r, n, rot) { const pts = []; for (let k = 0; k < n; k++) { const a = rot + 2 * Math.PI * k / n; pts.push((r * Math.cos(a)).toFixed(2) + ',' + (r * Math.sin(a)).toFixed(2)); } return pts.join(' '); }
+    function dcRender() {
+      const n = DC.n, inner = document.getElementById('dc-inner');
+      if (!inner) return;
+      const pIn = n * Math.sin(Math.PI / n), pOut = n * Math.tan(Math.PI / n), R = 60;
+      const rot = -Math.PI / 2;                            // a corner of the inner polygon straight up: after a doubling it is the new corner
+      inner.setAttribute('points', dcPoly(R, n, rot));
+      document.getElementById('dc-outer').setAttribute('points', dcPoly(R / Math.cos(Math.PI / n), n, rot + Math.PI / n));
+      // the triangle pieces: inner triangles shaded alternately, spokes to every inner and outer corner
+      let pieces = '';
+      const Ro = R / Math.cos(Math.PI / n);
+      for (let k = 0; k < n; k++) {
+        const a0 = rot + 2 * Math.PI * k / n, a1 = rot + 2 * Math.PI * (k + 1) / n;
+        pieces += `<polygon points="0,0 ${(R * Math.cos(a0)).toFixed(2)},${(R * Math.sin(a0)).toFixed(2)} ${(R * Math.cos(a1)).toFixed(2)},${(R * Math.sin(a1)).toFixed(2)}" fill="${k % 2 ? 'rgba(250,248,245,0.14)' : 'rgba(250,248,245,0.04)'}" stroke="rgba(250,248,245,0.45)" stroke-width="0.6" vector-effect="non-scaling-stroke"/>`;
+        const b0 = a0 + Math.PI / n;
+        pieces += `<line x1="0" y1="0" x2="${(Ro * Math.cos(b0)).toFixed(2)}" y2="${(Ro * Math.sin(b0)).toFixed(2)}" stroke="rgba(183,122,138,0.5)" stroke-width="0.6" vector-effect="non-scaling-stroke"/>`;
+      }
+      document.getElementById('dc-pieces').innerHTML = pieces;
+      // after a doubling: the old polygons dashed, and one old triangle (gold outline) with the two new triangles that replace it
+      let ov = '', lab = '';
+      if (DC.prev) {
+        const m = DC.prev, P = p => `${(R * Math.cos(p)).toFixed(2)},${(R * Math.sin(p)).toFixed(2)}`;
+        ov += `<polygon points="${dcPoly(R, m, rot)}" fill="none" stroke="#FAF8F5" stroke-opacity="0.5" stroke-width="1.2" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+        ov += `<polygon points="${dcPoly(R / Math.cos(Math.PI / m), m, rot + Math.PI / m)}" fill="none" stroke="#B77A8A" stroke-opacity="0.5" stroke-width="1.2" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+        const a0 = rot, a1 = rot + 2 * Math.PI / m, c = rot + Math.PI / m;   // the old triangle to the right of the top corner, and the new corner in the middle of its arc
+        ov += `<polygon points="0,0 ${P(a0)} ${P(c)}" fill="rgba(244,201,143,0.30)"/><polygon points="0,0 ${P(c)} ${P(a1)}" fill="rgba(244,201,143,0.14)"/>`;
+        ov += `<polygon points="0,0 ${P(a0)} ${P(a1)}" fill="none" stroke="#F4C98F" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+        const cx = R * Math.cos(c), cy = R * Math.sin(c);
+        ov += `<line x1="0" y1="0" x2="${cx.toFixed(2)}" y2="${cy.toFixed(2)}" stroke="#F4C98F" stroke-width="1" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/>`;
+        ov += `<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="2.4" fill="#F4C98F"/>`;
+        lab += `<text x="${(cx * 0.78 + 2).toFixed(1)}" y="${(cy * 0.78 + 2).toFixed(1)}" text-anchor="start" font-size="5" fill="#F4C98F" font-family="ui-monospace, monospace">new corner</text>`;
+        // outside: the tangent at the new touching point cuts the old corner off; where it meets the old sides are the two new corners
+        const Rn = R / Math.cos(Math.PI / n), Rm = R / Math.cos(Math.PI / m), Q = (rad, p) => `${(rad * Math.cos(p)).toFixed(2)},${(rad * Math.sin(p)).toFixed(2)}`;
+        ov += `<polygon points="${Q(Rm, c)} ${Q(Rn, c - Math.PI / n)} ${Q(Rn, c + Math.PI / n)}" fill="url(#dc-hatch)" stroke="#F4C98F" stroke-opacity="0.6" stroke-width="0.8" stroke-dasharray="1.5 1.5" vector-effect="non-scaling-stroke"/>`;
+        ov += `<circle cx="${(Rn * Math.cos(c - Math.PI / n)).toFixed(2)}" cy="${(Rn * Math.sin(c - Math.PI / n)).toFixed(2)}" r="2" fill="#F4C98F"/><circle cx="${(Rn * Math.cos(c + Math.PI / n)).toFixed(2)}" cy="${(Rn * Math.sin(c + Math.PI / n)).toFixed(2)}" r="2" fill="#F4C98F"/>`;
+        lab += `<text x="${(Rm * 1.1 * Math.cos(c) + 2).toFixed(1)}" y="${(Rm * 1.1 * Math.sin(c) + 2).toFixed(1)}" text-anchor="start" font-size="5" fill="#F4C98F" font-family="ui-monospace, monospace">cut off</text>`;
+      }
+      document.getElementById('dc-oldnew').innerHTML = ov;
+      document.getElementById('dc-labels').innerHTML = lab;
+      document.getElementById('dc-level').textContent = `${n} corners`;
+      document.getElementById('dc-in').textContent = pIn.toFixed(4);
+      document.getElementById('dc-out').textContent = pOut.toFixed(4);
+      const sIn = Math.sin(Math.PI / n), sOut = Math.tan(Math.PI / n);          // side lengths for diameter 1
+      document.getElementById('dc-in-calc').textContent = `${n} triangles, outer side ${sIn.toFixed(4)} each: ${n} × ${sIn.toFixed(4)} = ${pIn.toFixed(4)}`;
+      document.getElementById('dc-out-calc').textContent = `${n} triangles, outer side ${sOut.toFixed(4)} each: ${n} × ${sOut.toFixed(4)} = ${pOut.toFixed(4)}`;
+      document.getElementById('dc-gap').textContent = n === 96
+        ? `The gap is down to ${(pOut - pIn).toFixed(4)}. Here Archimedes stopped.`
+        : `\u03c0 is trapped in a gap of ${(pOut - pIn).toFixed(4)}.`;
+      if (!DC.rows.includes(n)) DC.rows.push(n);
+      document.getElementById('dc-rows').innerHTML = DC.rows.map(m => {
+        const cur = m === n ? ' text-white' : ' text-white/50';
+        return `<tr class="${cur}"><td class="py-1 pr-4">${m}</td><td class="py-1 pr-4">${(m * Math.sin(Math.PI / m)).toFixed(4)}</td><td class="py-1">${(m * Math.tan(Math.PI / m)).toFixed(4)}</td></tr>`;
+      }).join('');
+      const btn = document.getElementById('dc-double');
+      btn.disabled = n >= 96; btn.classList.toggle('opacity-40', n >= 96);
+    }
+    function dcDouble() { if (DC.n < 96) { DC.prev = DC.n; DC.n *= 2; dcRender(); } }
+    function dcReset() { DC.n = 6; DC.rows = []; DC.prev = null; dcRender(); }
+    dcRender();
+
+  </script>
+</body>
+</html>

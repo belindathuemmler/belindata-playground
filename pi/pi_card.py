@@ -1,14 +1,12 @@
-"""Card image for the π card: a circle of diameter 1 squeezed between a hexagon inside and a hexagon outside,
-with the bounds 3 < π < 2√3. Usage: python pi_card.py out.jpg"""
+"""Card image for the π card: a circle of diameter 1, and its circumference is π. Usage: python pi_card.py out.jpg"""
 import sys
-import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Polygon
+from matplotlib.patches import Circle, Arc
 
 W, H = 1376, 768
-IVORY, ROSE, TERRA, DARK, PLUM, CORAL = '#FAF8F5', '#B77A8A', '#DF7654', '#1F1A1C', '#874C62', '#EE9779'
+IVORY, TERRA, GREY = '#FAF8F5', '#DF7654', '#6E6266'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 fig = plt.figure(figsize=(W / 100, H / 100), dpi=100)
@@ -20,22 +18,21 @@ ax.set_xlim(0, W)
 ax.set_ylim(0, H)
 ax.set_aspect('equal')
 
-cx, cy, R = W * 0.33, H * 0.52, 250
-ang = np.radians(np.arange(6) * 60)
-inner = np.c_[cx + R * np.cos(ang), cy + R * np.sin(ang)]
-Rc = R / np.cos(np.radians(30))
-outer = np.c_[cx + Rc * np.cos(ang + np.radians(30)), cy + Rc * np.sin(ang + np.radians(30))]
-ax.add_patch(Polygon(outer, closed=True, fill=False, edgecolor=PLUM, lw=3.5))
-ax.add_patch(Circle((cx, cy), R, facecolor=(0.93, 0.59, 0.47, 0.15), edgecolor=TERRA, lw=4.5))
-ax.add_patch(Polygon(inner, closed=True, fill=False, edgecolor=DARK, lw=3.5))
-ax.plot([cx - R, cx + R], [cy, cy], color='#6E6266', lw=1.8, ls=(0, (4, 4)))
-ax.text(cx, cy + 16, r'$d = 1$', ha='center', va='bottom', fontsize=24, color='#6E6266')
-
-x0 = W * 0.62
-ax.text(x0, H * 0.70, r'$3 \;<\; \pi \;<\; 2\sqrt{3}$', ha='left', va='center', fontsize=46, color=DARK)
-ax.text(x0, H * 0.54, 'inside: 6 sides of ½', ha='left', va='center', fontsize=26, family='serif', color=DARK)
-ax.text(x0, H * 0.45, 'outside: 6 sides of 1/√3', ha='left', va='center', fontsize=26, family='serif', color=PLUM)
-ax.text(x0, H * 0.28, 'then double the corners:', ha='left', va='center', fontsize=24, family='serif', color=TERRA)
-ax.text(x0, H * 0.19, r'$6 \to 12 \to 24 \to 48 \to 96$', ha='left', va='center', fontsize=28, color=TERRA)
+cx, cy, R = W * 0.5, H * 0.42, 230
+ax.add_patch(Circle((cx, cy), R, facecolor=(0.93, 0.59, 0.47, 0.15), edgecolor=TERRA, lw=6))
+ax.plot([cx - R, cx + R], [cy, cy], color=GREY, lw=2.4, ls=(0, (4, 4)))
+ax.plot([cx - R, cx + R], [cy, cy], 'o', color=GREY, ms=9)
+ax.text(cx, cy + 18, r'$d = 1$', ha='center', va='bottom', fontsize=44, color=GREY)
+# the circumference, pointed out by a dashed arc just outside the circle
+# the way once around: a dashed arc seven eighths of the way round, with an arrow head at its end
+import numpy as np
+Ra = R + 34
+th = np.radians(np.linspace(67.5, 67.5 - 315, 400))         # clockwise, seven eighths of a turn, the gap centred at the top
+ax.plot(cx + Ra * np.cos(th), cy + Ra * np.sin(th), color=TERRA, lw=2.4, ls=(0, (3, 3)))
+tip = th[-1]
+ax.annotate('', xy=(cx + Ra * np.cos(tip), cy + Ra * np.sin(tip)),
+            xytext=(cx + Ra * np.cos(tip + np.radians(6)), cy + Ra * np.sin(tip + np.radians(6))),
+            arrowprops=dict(arrowstyle='-|>', color=TERRA, lw=2.4, mutation_scale=34))
+ax.text(cx, cy + R + 64, 'circumference = π', ha='center', va='bottom', fontsize=52, family='serif', color=TERRA)
 
 fig.savefig(sys.argv[1], dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})

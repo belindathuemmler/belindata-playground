@@ -45,26 +45,34 @@
               <span id="koch-level" class="text-white/70 font-mono ml-1"></span>
             </div>
 
+            <p class="relative z-10 text-xs text-white/60 leading-relaxed">
+              Each piece of step \(n\) has diameter \(1/3^n\), so the pieces are a cover as in the recipe, with \(\delta = 1/3^n\), and the boxes add up \((\text{diameter})^s\). Three candidates for \(s\):
+            </p>
+
             <div class="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs sm:text-sm">
               <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-1">
-                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">Measured in 1D (length)</div>
+                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">s = 1 · length</div>
+                <div class="text-white/45 text-[11px]">sum over this cover</div>
                 <div id="koch-len" class="text-lg font-bold"></div>
-                <div class="text-white/55 text-[11px]">\(4^n \cdot (1/3)^n\) → \(\infty\)</div>
+                <div class="text-white/80 text-[11px]">as \(\delta \to 0\): \(\infty\)</div>
+                <div class="text-white/45 text-[11px]">s too low for this curve: \(\mathcal{H}^1 = \infty\)</div>
               </div>
               <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-1">
-                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">Measured in 2D</div>
+                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">s = 2 · area</div>
+                <div class="text-white/45 text-[11px]">sum over this cover</div>
                 <div id="koch-area" class="text-lg font-bold"></div>
-                <div class="text-white/55 text-[11px]">\(4^n \cdot (1/3)^{2n}\) → \(0\)</div>
+                <div class="text-white/80 text-[11px]">as \(\delta \to 0\): \(0\)</div>
+                <div class="text-white/45 text-[11px]">s too high for this curve: \(\mathcal{H}^2 = 0\)</div>
               </div>
               <div class="rounded-2xl bg-emerald-400/10 border border-emerald-400/30 p-4 space-y-1">
-                <div class="font-bold text-emerald-300 uppercase tracking-wider text-[11px]">Measured in dimension 1.26</div>
+                <div class="font-bold text-emerald-300 uppercase tracking-wider text-[11px]">s = log 4 / log 3 ≈ 1.26</div>
+                <div class="text-white/45 text-[11px]">sum over this cover</div>
                 <div id="koch-d" class="text-lg font-bold"></div>
-                <div class="text-white/55 text-[11px]">\(4^n \cdot (1/3)^{nd} = 1\) for every \(n\)</div>
+                <div class="text-white/80 text-[11px]">as \(\delta \to 0\): stays \(1\)</div>
+                <div class="text-emerald-300/80 text-[11px]">the dimension: the one \(s\) with a finite, positive answer</div>
               </div>
             </div>
-            <p class="relative z-10 text-xs text-white/60 leading-relaxed">
-              Each box adds up \((\text{piece length})^s\) over all pieces, the same sum Hausdorff’s recipe uses. Length explodes, area vanishes, and only at \(d = \log 4/\log 3\) does the number stay put.
-            </p>
+
           </div>
   </main>
   <script>
@@ -98,10 +106,8 @@
       if (!line) return;
       // SVG y points down, so mirror the curve upwards
       line.setAttribute('points', kochPoints(n).map(([x, y]) => `${x.toFixed(5)},${(-y).toFixed(5)}`).join(' '));
-      document.getElementById('koch-level').textContent =
-        n === 0
-          ? 'Step 0: one piece of length 1'
-          : `Step ${n}: ${Math.pow(4, n).toLocaleString('en')} pieces of length 1/${Math.pow(3, n).toLocaleString('en')}`;
+      const pieces = n === 0 ? 'one piece of length 1' : `${Math.pow(4, n).toLocaleString('en')} pieces of length 1/${Math.pow(3, n).toLocaleString('en')}`;
+      document.getElementById('koch-level').textContent = `Step ${n}: ${pieces}, so \u03b4 = 1/${Math.pow(3, n).toLocaleString('en')}`;
       document.getElementById('koch-len').textContent = Math.pow(4 / 3, n).toFixed(3);
       document.getElementById('koch-area').textContent = Math.pow(4 / 9, n).toPrecision(3);
       document.getElementById('koch-d').textContent = (Math.pow(4, n) * Math.pow(3, -n * KOCH_D)).toFixed(3);

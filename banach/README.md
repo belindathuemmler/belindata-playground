@@ -61,6 +61,8 @@ guess, with `‖V_k − V*‖∞ ≤ γ^k ‖V_0 − V*‖∞`.
 
 `robots_map.html` is the robot demo from the article as a standalone page: open it in any browser.
 
+`start_anywhere.html` is the cobweb demo of Banach's iteration: the graph of f(x) = L·x + 2(1 − L) and the diagonal y = x cross at the fixed point (2, 2); click a start on the x-axis, step up to the graph and across to the diagonal, and watch every move shrink by L; push L past 1 to see the promise fail. Standalone page, open it in any browser.
+
 ## Run it
 
 ```bash
