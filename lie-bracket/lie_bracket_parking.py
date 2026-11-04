@@ -1,5 +1,5 @@
 """Card image for the Lie bracket: a car parallel-parks. It can only drive and steer, yet it ends up
-shifted sideways, the direction of the Lie bracket [steer, drive]. Usage: python lie_bracket_parking.py out.jpg"""
+shifted sideways: not the bracket [steer, drive] itself (that is a pure turn), but the iterated bracket [[steer, drive], drive]. Usage: python lie_bracket_parking.py out.jpg"""
 import sys
 import numpy as np
 import matplotlib
@@ -45,7 +45,7 @@ car(0.0, -0.1, 0, TERRA, 1, 0.85)
 ax.annotate('', xy=(0.95, -0.1), xytext=(0.0, -0.1), arrowprops=dict(arrowstyle='->', color=PLUM, lw=2.4))
 ax.text(1.0, -0.03, 'drive', color=PLUM, fontsize=17, family='serif', style='italic')
 ax.annotate('', xy=(-0.85, -0.1), xytext=(-0.85, 0.85), arrowprops=dict(arrowstyle='->', color=TERRA, lw=2.4, ls='--'))
-ax.text(-0.95, 0.95, '[steer, drive]', ha='right', color=TERRA, fontsize=17, family='serif', style='italic')
+ax.text(-0.95, 0.95, '[[steer, drive], drive]', ha='right', color=TERRA, fontsize=17, family='serif', style='italic')
 ax.text(0, 1.95, r'$[X, Y] = XY - YX$', ha='center', fontsize=34, color=TERRA, family='serif')
 ax.text(0, 1.45, 'steer + drive  →  sideways', ha='center', fontsize=19, color=PLUM, family='serif', style='italic')
 fig.savefig(out, dpi=100, facecolor=IVORY, pil_kwargs={'quality': 92})
