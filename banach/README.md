@@ -61,7 +61,9 @@ guess, with `‖V_k − V*‖∞ ≤ γ^k ‖V_0 − V*‖∞`.
 
 `robots_map.html` is the robot demo from the article as a standalone page: open it in any browser.
 
-`start_anywhere.html` is the cobweb demo of Banach's iteration: the graph of f(x) = L·x + 2(1 − L) and the diagonal y = x cross at the fixed point (2, 2); click a start on the x-axis, step up to the graph and across to the diagonal, and watch every move shrink by L; push L past 1 to see the promise fail. Standalone page, open it in any browser.
+`halfway_to_two.html` is Banach's iteration on a number line: the rule f(x) = x/2 + 1 reads "go halfway to 2"; two walkers start at 10 and 6 (click the line to place them elsewhere), every hop is half the one before, the distance between the walkers halves at every step, and both end at the fixed point 2.
+
+`learning_to_land.html` is the Bellman operator applied round by round to a toy lander (altitude 1 to 6, falling speed 0 to 3, burn or coast, +100 for a soft landing, −100 for a crash, γ = 0.9): all guesses start at zero, each round replaces every guess by its target, the lander flies the current best actions, and two numbers shrink by the factor γ, the gap between guess and target (what the lab can see) and the distance to Q* (what only the theorem promises). The best actions stop changing long before the numbers settle.
 
 ## Run it
 

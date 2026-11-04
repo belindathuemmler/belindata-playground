@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning to Land • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/banach.html" class="underline text-brand-terracotta">Robots Aiming for Banach Fixed Points</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: LEARNING TO LAND (the Bellman operator applied round by round) ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Learning to Land</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                A toy lander, small enough to apply the rule \(T\) to every guess at once. Altitude \(1\) to \(6\), falling speed \(0\) to \(3\), two actions: <strong>burn</strong> (one unit slower, costs \(1\)) or <strong>coast</strong> (one unit faster, free). Touching down at speed \(0\) or \(1\) pays \(+100\), any faster is a crash, \(-100\); \(\gamma = 0.8\). The guesses start as random numbers, the way a network does. Each round replaces every guess by its target, \(Q \leftarrow TQ\). Watch the lander fly the current best actions, and watch two numbers: the <strong>gap</strong> between guess and target, which is all the lab can see, and the <strong>distance to \(Q^*\)</strong>, which only the theorem can promise is shrinking.
+              </p>
+            </div>
+
+            <div class="relative z-10">
+              <svg id="ll-svg" viewBox="0 0 640 230" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="The lander's altitude step by step under the current guesses; it crashes in the first rounds and lands once the guesses are good enough">
+                <g id="ll-axis"></g>
+                <g id="ll-path"></g>
+              </svg>
+            </div>
+
+            <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" id="ll-step" onclick="llStep()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➡ one round of T</button>
+              <button type="button" id="ll-run" onclick="llRun()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">▶ run</button>
+              <button type="button" onclick="llReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ reset</button>
+              <span id="ll-round" class="ml-auto font-mono text-[11px] text-white/60">round 0</span>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono text-xs sm:text-sm space-y-3">
+                <div>
+                  <div class="flex justify-between text-white/60 text-[11px] uppercase tracking-wider font-bold mb-1"><span>gap: guess vs target</span><span id="ll-gap-val" class="text-white/90"></span></div>
+                  <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="ll-gap-bar" class="h-2 rounded-full bg-[#F4C98F] transition-all duration-500" style="width:100%"></div></div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-white/60 text-[11px] uppercase tracking-wider font-bold mb-1"><span>distance to Q*</span><span id="ll-dist-val" class="text-white/90"></span></div>
+                  <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="ll-dist-bar" class="h-2 rounded-full bg-[#6EE7B7] transition-all duration-500" style="width:100%"></div></div>
+                </div>
+                <div id="ll-flight" class="text-white/80 pt-1"></div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 text-xs sm:text-sm leading-relaxed">
+                <div class="text-white/45 text-[11px] font-mono uppercase tracking-wider font-bold mb-1">what Banach says</div>
+                <p id="ll-msg" class="text-white/85"></p>
+              </div>
+            </div>
+          </div>
+
+
+  </main>
+  <script>
+    // ==========================================
+    // LEARNING TO LAND: a toy lander, the Bellman operator T applied to the whole table of guesses, round by round
+    // ==========================================
+    // state (h, v): altitude h = 1..6, falling speed v = 0..3; actions 0 = burn (v-1, reward -1), 1 = coast (v+1, reward 0)
+    // after the action the lander drops by the new speed; reaching the ground at speed <= 1 lands (+100), faster crashes (-100)
+    const LL_H = 6, LL_V = 3, LL_GAMMA = 0.8, LL_START = { h: 6, v: 0 }, LL_MAX_STEPS = 12, LL_ROUNDS = 12, LL_DONE = 0.05;
+    const LL = { q: null, k: 0, timer: null, firstLanding: null, gap0: 1, dist0: 1 };
+    const llIdx = (h, v) => (h - 1) * (LL_V + 1) + v;
+    function llMove(h, v, a) {                        // returns { r, done, h2, v2, landed }
+      const v2 = a === 0 ? Math.max(0, v - 1) : Math.min(LL_V, v + 1), h2 = h - v2;
+      let r = a === 0 ? -1 : 0;
+      if (h2 <= 0) { const landed = v2 <= 1; r += landed ? 100 : -100; return { r, done: true, h2: 0, v2, landed }; }
+      return { r, done: false, h2, v2, landed: false };
+    }
+    function llZeros() { return Array.from({ length: LL_H * (LL_V + 1) }, () => [0, 0]); }
+    function llRandom() { return Array.from({ length: LL_H * (LL_V + 1) }, () => [Math.round(Math.random() * 200 - 100), Math.round(Math.random() * 200 - 100)]); }
+    function llT(q) {                                 // one round: every guess replaced by its target
+      const n = llZeros();
+      for (let h = 1; h <= LL_H; h++) for (let v = 0; v <= LL_V; v++) for (let a = 0; a < 2; a++) {
+        const m = llMove(h, v, a);
+        n[llIdx(h, v)][a] = m.r + (m.done ? 0 : LL_GAMMA * Math.max(...q[llIdx(m.h2, m.v2)]));
+      }
+      return n;
+    }
+    const llGap = (q, n) => Math.max(...q.map((row, i) => Math.max(Math.abs(row[0] - n[i][0]), Math.abs(row[1] - n[i][1]))));
+    const LL_QSTAR = (() => { let q = llZeros(); for (let i = 0; i < 400; i++) q = llT(q); return q; })();   // the fixed point, to a rounding error
+    function llGreedy(q, h, v) { const row = q[llIdx(h, v)]; return row[0] > row[1] ? 0 : 1; }   // ties: coast
+    function llFly(q) {                               // the flight under the current guesses: altitudes, burns, outcome
+      let h = LL_START.h, v = LL_START.v; const alt = [h], burns = [];
+      for (let t = 0; t < LL_MAX_STEPS; t++) {
+        const a = llGreedy(q, h, v), m = llMove(h, v, a);
+        if (a === 0) burns.push(t);
+        alt.push(m.h2);
+        if (m.done) return { alt, burns, outcome: m.landed ? 'landed' : 'crashed', steps: t + 1 };
+        h = m.h2; v = m.v2;
+      }
+      return { alt, burns, outcome: 'hovering', steps: LL_MAX_STEPS };
+    }
+    const LL_X0 = 60, LL_X1 = 600, LL_Y0 = 190, LL_Y1 = 30;
+    const llX = t => LL_X0 + t / LL_MAX_STEPS * (LL_X1 - LL_X0), llY = h => LL_Y0 - h / LL_H * (LL_Y0 - LL_Y1);
+    function llAxis() {
+      const mono = 'font-family="ui-monospace, monospace"';
+      let s = `<rect x="${LL_X0}" y="${llY(0)}" width="${LL_X1 - LL_X0}" height="${230 - llY(0)}" fill="rgba(255,255,255,0.06)"/>`;
+      s += `<line x1="${LL_X0}" y1="${llY(0)}" x2="${LL_X1}" y2="${llY(0)}" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>`;
+      s += `<text x="${LL_X1 - 4}" y="${llY(0) + 16}" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" ${mono}>the moon</text>`;
+      for (let h = 1; h <= LL_H; h++) s += `<line x1="${LL_X0}" y1="${llY(h)}" x2="${LL_X1}" y2="${llY(h)}" stroke="rgba(255,255,255,0.08)"/><text x="${LL_X0 - 8}" y="${llY(h) + 3}" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" ${mono}>${h}</text>`;
+      s += `<text x="${LL_X0 - 8}" y="${llY(0) + 3}" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end" ${mono}>0</text>`;
+      s += `<text x="${LL_X0 - 30}" y="${llY(3)}" fill="rgba(255,255,255,0.45)" font-size="10" text-anchor="middle" transform="rotate(-90 ${LL_X0 - 30} ${llY(3)})" ${mono}>altitude</text>`;
+      for (let t = 0; t <= LL_MAX_STEPS; t += 2) s += `<text x="${llX(t)}" y="${LL_Y1 - 12}" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="middle" ${mono}>${t === 0 ? 'step 0' : t}</text>`;
+      document.getElementById('ll-axis').innerHTML = s;
+    }
+    function llDraw() {
+      const q = LL.q, next = llT(q), gap = llGap(q, next), dist = llGap(q, LL_QSTAR), f = llFly(q), k = LL.k;
+      let p = '', pts = f.alt.map((h, t) => `${llX(t).toFixed(1)},${llY(h).toFixed(1)}`).join(' ');
+      p += `<polyline points="${pts}" fill="none" stroke="#F4C98F" stroke-width="2"/>`;
+      f.alt.forEach((h, t) => { p += `<circle cx="${llX(t).toFixed(1)}" cy="${llY(h).toFixed(1)}" r="3.5" fill="#F4C98F"/>`; });
+      f.burns.forEach(t => { const x = llX(t), y = llY(f.alt[t]); p += `<path d="M${x - 5},${y + 6} L${x + 5},${y + 6} L${x},${y + 18} Z" fill="#DF7654"/>`; });
+      const xe = llX(f.alt.length - 1), ye = llY(f.alt[f.alt.length - 1]);
+      const tag = f.outcome === 'landed' ? '🌙 landed' : f.outcome === 'crashed' ? '💥 crash' : '… still hovering';
+      const tx = Math.min(xe + 10, LL_X1 - 90);
+      p += `<text x="${tx.toFixed(1)}" y="${(ye - 10).toFixed(1)}" fill="${f.outcome === 'landed' ? '#6EE7B7' : f.outcome === 'crashed' ? '#EE9779' : 'rgba(255,255,255,0.7)'}" font-size="12" font-weight="bold" font-family="ui-monospace, monospace">${tag}</text>`;
+      p += `<text x="${LL_X0 + 4}" y="${LL_Y1 - 12}" fill="#DF7654" font-size="10" font-family="ui-monospace, monospace">▼ = burn</text>`;
+      document.getElementById('ll-path').innerHTML = p;
+      document.getElementById('ll-round').textContent = `round ${k}`;
+      document.getElementById('ll-gap-val').textContent = gap.toFixed(2);
+      document.getElementById('ll-dist-val').textContent = dist.toFixed(2);
+      document.getElementById('ll-gap-bar').style.width = `${Math.max(0.5, 100 * gap / LL.gap0)}%`;
+      document.getElementById('ll-dist-bar').style.width = `${Math.max(0.5, 100 * dist / LL.dist0)}%`;
+      document.getElementById('ll-flight').textContent = f.outcome === 'landed' ? `the lander lands after ${f.steps} steps, ${f.burns.length} burn${f.burns.length === 1 ? '' : 's'}`
+        : f.outcome === 'crashed' ? `the lander crashes after ${f.steps} steps` : 'the lander hovers and never lands';
+      if (f.outcome === 'landed' && LL.firstLanding === null) LL.firstLanding = k;
+      const msg = document.getElementById('ll-msg');
+      if (k === 0) msg.textContent = `The guesses are random numbers, the way a network starts. Target and guess disagree by up to ${gap.toFixed(0)}; the true table Q* is ${dist.toFixed(0)} away, a number nobody in the lab can see. The lander, trusting noise, ${f.outcome === 'crashed' ? 'flies into the moon' : f.outcome === 'landed' ? 'lands by sheer luck' : 'never comes down'}.`;
+      else if (gap < LL_DONE) msg.textContent = `Round ${k}: target and guess agree everywhere, to within ${LL_DONE}. The rule has nothing left to move: this is the fixed point Q*, the one table that writes its own answer key. ${LL.firstLanding === null ? 'The lander lands.' : `The lander first landed in round ${LL.firstLanding}, long before the numbers settled: the ranking of the actions was right before their values were.`}`;
+      else if (f.outcome === 'landed') msg.textContent = `Round ${k}: the lander lands${LL.firstLanding === k ? ' for the first time' : ''}. The guesses are still ${dist.toFixed(1)} off, but the ranking of the two actions is already right where it matters. Both numbers shrink by about the factor γ = ${LL_GAMMA} per round, as the contraction promises.`;
+      else msg.textContent = `Round ${k}: the news from the ground, +100 and −100, has travelled ${k} step${k > 1 ? 's' : ''} back up the flight. The guesses still ${f.outcome === 'crashed' ? 'steer the lander into the moon' : 'keep the lander hovering'}, but gap and distance shrink by the factor γ = ${LL_GAMMA} per round, whatever the start.`;
+      document.getElementById('ll-step').disabled = k >= LL_ROUNDS;
+      document.getElementById('ll-step').classList.toggle('opacity-40', k >= LL_ROUNDS);
+    }
+    function llStep() { if (LL.k >= LL_ROUNDS) return; LL.q = llT(LL.q); LL.k++; llDraw(); }
+    function llStop() { if (LL.timer) { clearInterval(LL.timer); LL.timer = null; } document.getElementById('ll-run').textContent = '▶ run'; }
+    function llRun() {
+      if (LL.timer) return llStop();
+      document.getElementById('ll-run').textContent = '❚❚ pause';
+      LL.timer = setInterval(() => { if (LL.k >= LL_ROUNDS) return llStop(); llStep(); }, 450);
+    }
+    function llReset() {
+      llStop(); LL.q = llRandom(); LL.k = 0; LL.firstLanding = null;
+      LL.gap0 = Math.max(1, llGap(LL.q, llT(LL.q))); LL.dist0 = Math.max(1, llGap(LL.q, LL_QSTAR));
+      llAxis(); llDraw();
+    }
+    if (document.getElementById('ll-svg')) llReset();
+  </script>
+</body>
+</html>
