@@ -35,11 +35,11 @@
               <svg id="pk-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb with two parked cars and a gap between them; your car in the lane next to it, drawn with its path. On a phone the street runs top to bottom"></svg>
               <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
               <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 text-[11px] sm:text-sm">
-                <button type="button" onclick="pkMove('steer', 1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left<span class="hidden sm:inline"> (+X)</span></button>
-                <button type="button" onclick="pkMove('drive', 1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive<span class="hidden sm:inline"> (+Y)</span></button>
-                <button type="button" onclick="pkMove('steer', -1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right<span class="hidden sm:inline"> (−X)</span> ▶</button>
-                <button type="button" onclick="pkMove('drive', -1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse<span class="hidden sm:inline"> (−Y)</span></button>
-                <button type="button" onclick="pkReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors" aria-label="Reset">↺<span class="hidden sm:inline"> Reset</span></button>
+                <button type="button" onclick="pkMove('drive', 1)" class="col-start-2 sm:order-3 px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive<span class="hidden sm:inline"> (+Y)</span></button>
+                <button type="button" onclick="pkMove('steer', 1)" class="sm:order-1 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left<span class="hidden sm:inline"> (+X)</span></button>
+                <button type="button" onclick="pkMove('drive', -1)" class="sm:order-4 px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse<span class="hidden sm:inline"> (−Y)</span></button>
+                <button type="button" onclick="pkMove('steer', -1)" class="sm:order-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right<span class="hidden sm:inline"> (−X)</span> ▶</button>
+                <button type="button" onclick="pkReset()" class="col-start-2 sm:order-5 ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors" aria-label="Reset">↺<span class="hidden sm:inline"> Reset</span></button>
               </div>
               <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 text-[11px] sm:text-sm">
                 <span class="text-white/50 font-mono text-[11px] mr-1">sequences:</span>

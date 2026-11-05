@@ -39,7 +39,7 @@
                 <g id="ch-rows"></g>
                 <g id="ch-top"></g>
               </svg>
-              <div id="ch-ineq" class="mt-3 font-mono text-[11px] sm:text-sm text-[#F4C98F] space-y-1 overflow-x-auto whitespace-nowrap"></div>
+              <div id="ch-ineq" class="mt-3 sm:hidden font-mono text-[11px] text-[#F4C98F] space-y-1 overflow-x-auto whitespace-nowrap"></div>
             </div>
 
             <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
@@ -60,13 +60,17 @@
     // THE CHAIN, ROW BY ROW: f(x) = x/2 + 1 applied to two points x and y, one row per round; drag the top row
     // ==========================================
     const CH = { x: 10, y: 6, drag: null };
-    const CH_MIN = -6, CH_MAX = 10, CH_X0 = 60, CH_X1 = 450, CH_ROWS = 6, CH_Y0 = 30, CH_DY = 40, CH_FIX = 2;
+    const CH_MIN = -6, CH_MAX = 10, CH_ROWS = 6, CH_Y0 = 30, CH_DY = 40, CH_FIX = 2;
+    let CH_X0 = 60, CH_X1 = 450, CH_VW = 480;        // set per viewport in chDraw: narrow screens get a narrow picture and the list below
     const chX = v => CH_X0 + (v - CH_MIN) / (CH_MAX - CH_MIN) * (CH_X1 - CH_X0);
     const chF = v => v / 2 + 1;
     const chFmt = v => Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(+v.toFixed(3));
     const CH_SUP = ['', '', '²', '³', '⁴', '⁵'];
     const CH_MONO = 'font-family="ui-monospace, monospace"';
     function chDraw() {
+      const narrow = window.innerWidth < 640, svgEl = document.getElementById('ch-svg');
+      CH_X1 = narrow ? 450 : 560; CH_VW = narrow ? 480 : 840;
+      svgEl.setAttribute('viewBox', `0 0 ${CH_VW} 262`);
       let rows = '', top = '';
       const ineq = [];
       let a = CH.x, b = CH.y;
@@ -77,7 +81,8 @@
         const fk = `f${CH_SUP[k]}`;
         const bound = k === 0 ? `|x − y| = ${chFmt(d0)}` : `|${fk}(x) − ${fk}(y)| ≤ (½)${CH_SUP[k] || '¹'}·|x − y| = ${chFmt(d)}`;
         rows += `<text x="10" y="${yy + 4}" font-size="13" fill="rgba(255,255,255,0.8)" ${CH_MONO}>k = ${k}</text>`;
-        ineq.push(`<div class="flex gap-2"><span class="text-white/50 shrink-0">k = ${k}</span><span>${name}:&nbsp; ${bound}</span></div>`);
+        ineq.push(`<div class="flex gap-2"><span class="text-white/50 shrink-0">k = ${k}</span><span>${bound}</span></div>`);
+        if (!narrow) rows += `<text x="${CH_X1 + 14}" y="${yy + 4}" font-size="12" fill="#F4C98F" ${CH_MONO}>${bound}</text>`;
         rows += `<line x1="${CH_X0}" y1="${yy}" x2="${CH_X1}" y2="${yy}" stroke="rgba(255,255,255,0.18)"/>`;
         rows += `<line x1="${chX(CH_FIX).toFixed(1)}" y1="${yy - 7}" x2="${chX(CH_FIX).toFixed(1)}" y2="${yy + 7}" stroke="#6EE7B7" stroke-width="1.5"/>`;
         rows += `<line x1="${chX(Math.min(a, b)).toFixed(1)}" y1="${yy}" x2="${chX(Math.max(a, b)).toFixed(1)}" y2="${yy}" stroke="#DF7654" stroke-width="3"/>`;
@@ -113,7 +118,7 @@
       const svg = document.getElementById('ch-svg');
       if (!svg) return;
       const toValue = e => {
-        const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * 480;
+        const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * CH_VW;
         return Math.round(Math.max(CH_MIN, Math.min(CH_MAX, CH_MIN + (px - CH_X0) / (CH_X1 - CH_X0) * (CH_MAX - CH_MIN))) * 2) / 2;
       };
       svg.addEventListener('pointerdown', e => {
@@ -129,6 +134,7 @@
       });
       const end = () => { CH.drag = null; };
       svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+      window.addEventListener('resize', chDraw);
       chDraw();
     })();
   </script>
