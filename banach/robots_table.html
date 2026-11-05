@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Robot’s Table • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/banach.html" class="underline text-brand-terracotta">Robots Aiming for Banach Fixed Points</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: THE ROBOT'S TABLE (the Bellman operator applied to a visible Q table) ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Robot’s Table</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                The corridor, the station in cell 5, and the whole table \(Q\): four cells times two actions. The table starts with random numbers, the way a network does. Tap any entry to see its own line of the equation with today’s numbers, then apply one round of \(T\): every entry is replaced by its right-hand side. Watch the largest change per round and the distance to the true table \(Q^*\) shrink by the factor \(\gamma = 0.8\), and watch the arrows under the corridor settle on the way to the station. At any moment, let the robot walk: it follows the arrows of the table as it stands, and only a settled table gets it to the station.
+              </p>
+            </div>
+
+            <div class="relative z-10">
+              <svg id="rt-svg" viewBox="0 0 640 120" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="A corridor of five cells with a charging station in the last one; under each cell an arrow shows the robot's current best action">
+                <g id="rt-corridor"></g>
+              </svg>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono text-xs sm:text-sm">
+                <div class="text-brand-coral text-[11px] uppercase tracking-wider font-bold mb-2">the table Q, round <span id="rt-round">0</span></div>
+                <table class="w-full text-center">
+                  <thead><tr class="text-white/50 text-[11px]"><th class="py-1 text-left">cell</th><th class="py-1">← left</th><th class="py-1">→ right</th></tr></thead>
+                  <tbody id="rt-table"></tbody>
+                </table>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono text-xs sm:text-sm space-y-3">
+                <div>
+                  <div class="text-brand-coral text-[11px] uppercase tracking-wider font-bold mb-1">the equation for the selected entry</div>
+                  <div id="rt-eq" class="text-white/90 leading-relaxed"></div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-white/60 text-[11px] uppercase tracking-wider font-bold mb-1"><span>largest change this round</span><span id="rt-gap-val" class="text-white/90"></span></div>
+                  <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="rt-gap-bar" class="h-2 rounded-full bg-[#F4C98F] transition-all duration-500" style="width:100%"></div></div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-white/60 text-[11px] uppercase tracking-wider font-bold mb-1"><span>distance to Q*</span><span id="rt-dist-val" class="text-white/90"></span></div>
+                  <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="rt-dist-bar" class="h-2 rounded-full bg-[#6EE7B7] transition-all duration-500" style="width:100%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" id="rt-step" onclick="rtStep()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➡ one round of T</button>
+              <button type="button" id="rt-run" onclick="rtRun()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">▶ run</button>
+              <button type="button" onclick="rtReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ new random table</button>
+              <button type="button" id="rt-walk" onclick="rtWalk()" class="px-4 py-2 rounded-full bg-emerald-400/20 hover:bg-emerald-400/35 border border-emerald-400/40 text-emerald-200 font-semibold transition-colors">🤖 let it walk</button>
+              <span id="rt-walkmsg" class="font-mono text-[11px] text-white/60"></span>
+            </div>
+
+            <div class="relative z-10 rounded-2xl bg-white/5 border border-white/10 p-4 text-xs sm:text-sm leading-relaxed">
+              <div class="text-brand-coral text-[11px] font-mono uppercase tracking-wider font-bold mb-1">what Banach says</div>
+              <p id="rt-msg" class="text-white/85"></p>
+            </div>
+          </div>
+
+  </main>
+  <script>
+    // ==========================================
+    // THE ROBOT'S TABLE: a corridor of 5 cells, station in cell 5; Q has 4 rows (cells 1-4) x 2 actions (0 = left, 1 = right)
+    // one round of T replaces every entry by r(s, a) + γ · max_a' Q(s', a'); the station is terminal (value 0 after arrival)
+    // ==========================================
+    const RT_N = 4, RT_GAMMA = 0.8, RT_STEP = -1, RT_STATION = 10, RT_ROUNDS = 12, RT_DONE = 0.05;
+    const RT = { q: null, k: 0, timer: null, sel: [2, 1], gap0: 1, dist0: 1, changed: [], pos: 1, walk: null, firstRight: null };   // sel = [row index 0-3, action]; pos = the robot's cell
+    function rtMove(s, a) {                      // s = 1..4; returns { r, s2, done }
+      if (a === 1) { const s2 = s + 1; return s2 === 5 ? { r: RT_STEP + RT_STATION, s2: 5, done: true } : { r: RT_STEP, s2, done: false }; }
+      return { r: RT_STEP, s2: Math.max(1, s - 1), done: false };
+    }
+    const rtZeros = () => Array.from({ length: RT_N }, () => [0, 0]);
+    const rtRandom = () => Array.from({ length: RT_N }, () => [Math.round(Math.random() * 20 - 10), Math.round(Math.random() * 20 - 10)]);
+    function rtT(q) {
+      const n = rtZeros();
+      for (let s = 1; s <= RT_N; s++) for (let a = 0; a < 2; a++) {
+        const m = rtMove(s, a);
+        n[s - 1][a] = m.r + (m.done ? 0 : RT_GAMMA * Math.max(...q[m.s2 - 1]));
+      }
+      return n;
+    }
+    const rtGap = (q, n) => Math.max(...q.map((row, i) => Math.max(Math.abs(row[0] - n[i][0]), Math.abs(row[1] - n[i][1]))));
+    const RT_QSTAR = (() => { let q = rtZeros(); for (let i = 0; i < 300; i++) q = rtT(q); return q; })();
+    const rtFmt = v => (Math.round(v * 100) / 100).toFixed(2);
+    const rtGreedy = (q, s) => q[s - 1][0] > q[s - 1][1] ? 0 : 1;
+    function rtDrawCorridor() {
+      const q = RT.q, x0 = 40, w = 108, y = 20, h = 56;
+      let g = '';
+      for (let s = 1; s <= 5; s++) {
+        const x = x0 + (s - 1) * w, station = s === 5;
+        g += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${station ? 'rgba(110,231,183,0.18)' : 'rgba(255,255,255,0.05)'}" stroke="${station ? '#6EE7B7' : 'rgba(255,255,255,0.3)'}"/>`;
+        g += `<text x="${x + 8}" y="${y + 15}" font-size="11" fill="rgba(255,255,255,0.55)" font-family="ui-monospace, monospace">${s}</text>`;
+        if (station) g += `<text x="${x + w / 2}" y="${y + 38}" font-size="24" text-anchor="middle">🔋</text><text x="${x + w / 2}" y="${y + h + 22}" font-size="11" fill="#6EE7B7" text-anchor="middle" font-family="ui-monospace, monospace">+10, done</text>`;
+        else {
+          const a = rtGreedy(q, s), best = rtGreedy(RT_QSTAR, s);
+          g += `<text x="${x + w / 2}" y="${y + h + 22}" font-size="18" text-anchor="middle" fill="${a === best ? '#6EE7B7' : '#EE9779'}" font-family="ui-monospace, monospace">${a === 1 ? '→' : '←'}</text>`;
+        }
+        if (s === RT.pos) g += `<text x="${x + w / 2}" y="${y + 38}" font-size="24" text-anchor="middle">🤖</text>`;
+      }
+      g += `<line x1="${x0 - 6}" y1="${y - 4}" x2="${x0 - 6}" y2="${y + h + 4}" stroke="rgba(255,255,255,0.6)" stroke-width="3"/><text x="${x0 - 10}" y="${y + h / 2 + 4}" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="end" font-family="ui-monospace, monospace">wall</text>`;
+      g += `<text x="${x0}" y="${y + h + 40}" font-size="10" fill="rgba(255,255,255,0.45)" font-family="ui-monospace, monospace">arrows: the best action by the current table, green where it already agrees with Q*; every step costs 1</text>`;
+      document.getElementById('rt-corridor').innerHTML = g;
+    }
+    function rtDrawTable() {
+      const q = RT.q, [sr, sa] = RT.sel;
+      document.getElementById('rt-table').innerHTML = q.map((row, i) => `<tr class="border-t border-white/10"><td class="py-1.5 text-left text-white/60">${i + 1}</td>` + row.map((v, a) => {
+        const sel = i === sr && a === sa, ch = RT.changed.some(([ii, aa]) => ii === i && aa === a);
+        return `<td class="py-1"><button type="button" onclick="rtSelect(${i}, ${a})" class="px-2 py-0.5 rounded-lg transition-colors ${sel ? 'bg-brand-terracotta text-white font-bold' : ch ? 'bg-[#F4C98F]/25 text-white' : 'text-white/85 hover:bg-white/10'}">${rtFmt(v)}</button></td>`;
+      }).join('') + '</tr>').join('');
+      // the equation for the selected entry
+      const s = sr + 1, m = rtMove(s, sa), arrow = sa === 1 ? '→' : '←';
+      let eq;
+      if (m.done) eq = `(TQ)(${s}, ${arrow}) = r(${s}, ${arrow}) = −1 + 10 = <span class="text-[#F4C98F] font-bold">${rtFmt(m.r)}</span><br><span class="text-white/55">the station ends the trip: nothing to look ahead to</span>`;
+      else {
+        const nx = q[m.s2 - 1], mx = Math.max(...nx), val = m.r + RT_GAMMA * mx;
+        eq = `(TQ)(${s}, ${arrow}) = r(${s}, ${arrow}) + γ · max<sub>a′</sub> Q(${m.s2}, a′)<br>= −1 + 0.8 · max(${rtFmt(nx[0])}, ${rtFmt(nx[1])}) = <span class="text-[#F4C98F] font-bold">${rtFmt(val)}</span><br><span class="text-white/55">today’s entry is ${rtFmt(q[sr][sa])}; the next round writes ${rtFmt(val)}</span>`;
+      }
+      document.getElementById('rt-eq').innerHTML = eq;
+    }
+    function rtDraw() {
+      const q = RT.q, next = rtT(q), gap = rtGap(q, next), dist = rtGap(q, RT_QSTAR), k = RT.k;
+      rtDrawCorridor(); rtDrawTable();
+      document.getElementById('rt-round').textContent = k;
+      document.getElementById('rt-gap-val').textContent = rtFmt(gap);
+      document.getElementById('rt-dist-val').textContent = rtFmt(dist);
+      document.getElementById('rt-gap-bar').style.width = `${Math.max(0.5, 100 * gap / RT.gap0)}%`;
+      document.getElementById('rt-dist-bar').style.width = `${Math.max(0.5, 100 * dist / RT.dist0)}%`;
+      const msg = document.getElementById('rt-msg');
+      if (k === 0) msg.textContent = `Random numbers everywhere. Applying T once would change some entry by up to ${rtFmt(gap)}, and the true table Q* is ${rtFmt(dist)} away. Nobody in a real lab knows that second number; the first one is all they see.`;
+      else if (gap < RT_DONE) msg.textContent = `Round ${k}: applying T changes nothing any more (less than ${RT_DONE} anywhere). The equation holds in every entry: this table is the fixed point Q*. The arrows all point to the station, and they did so from round ${RT.firstRight} on, long before the numbers settled.`;
+      else msg.textContent = `Round ${k}: the largest change is ${rtFmt(gap)}, the distance to Q* is ${rtFmt(dist)}. Both are at most ${RT_GAMMA} times what they were a round ago, because T is a contraction with factor γ = ${RT_GAMMA}. After k rounds that is γᵏ times the start, and γᵏ → 0.${RT.firstRight !== null && RT.firstRight <= k ? ' The arrows already agree with Q*: the ranking of the actions is right before the numbers are.' : ''}`;
+      document.getElementById('rt-step').disabled = k >= RT_ROUNDS;
+      document.getElementById('rt-step').classList.toggle('opacity-40', k >= RT_ROUNDS);
+    }
+    function rtArrowsRight(q) { for (let s = 1; s <= RT_N; s++) if (rtGreedy(q, s) !== rtGreedy(RT_QSTAR, s)) return false; return true; }
+    function rtSelect(i, a) { RT.sel = [i, a]; rtDrawTable(); }
+    function rtStep() {
+      if (RT.k >= RT_ROUNDS) return;
+      rtStopWalk();
+      const next = rtT(RT.q);
+      RT.changed = [];
+      for (let i = 0; i < RT_N; i++) for (let a = 0; a < 2; a++) if (Math.abs(next[i][a] - RT.q[i][a]) > 1e-9) RT.changed.push([i, a]);
+      RT.q = next; RT.k++;
+      if (RT.firstRight === null && rtArrowsRight(RT.q)) RT.firstRight = RT.k;
+      rtDraw();
+    }
+    function rtStopWalk() {
+      if (RT.walk) { clearInterval(RT.walk); RT.walk = null; }
+      RT.pos = 1; const b = document.getElementById('rt-walk'); if (b) b.disabled = false;
+    }
+    function rtWalk() {                          // the robot follows the arrows of the current table, one cell per tick, at most 8 steps
+      rtStopWalk(); rtStop();
+      const msg = document.getElementById('rt-walkmsg'), btn = document.getElementById('rt-walk');
+      btn.disabled = true; let steps = 0; msg.textContent = 'walking…';
+      RT.walk = setInterval(() => {
+        const a = rtGreedy(RT.q, RT.pos), m = rtMove(RT.pos, a); steps++;
+        if (m.done) {
+          RT.pos = 5; rtDrawCorridor(); clearInterval(RT.walk); RT.walk = null; btn.disabled = false;
+          msg.textContent = `reached the station in ${steps} step${steps > 1 ? 's' : ''}, reward ${9 - (steps - 1)}`;
+          setTimeout(() => { if (!RT.walk) { RT.pos = 1; rtDrawCorridor(); } }, 1500);
+          return;
+        }
+        const bumped = a === 0 && RT.pos === 1;
+        RT.pos = m.s2; rtDrawCorridor();
+        if (steps >= 8) {
+          clearInterval(RT.walk); RT.walk = null; btn.disabled = false;
+          msg.textContent = bumped ? 'bumps into the wall and stays there: this table sends it the wrong way' : 'eight steps and no station: this table still sends it in circles';
+          setTimeout(() => { if (!RT.walk) { RT.pos = 1; rtDrawCorridor(); } }, 1500);
+        }
+      }, 550);
+    }
+    function rtStop() { if (RT.timer) { clearInterval(RT.timer); RT.timer = null; } document.getElementById('rt-run').textContent = '▶ run'; }
+    function rtRun() {
+      if (RT.timer) return rtStop();
+      document.getElementById('rt-run').textContent = '❚❚ pause';
+      RT.timer = setInterval(() => { if (RT.k >= RT_ROUNDS || rtGap(RT.q, rtT(RT.q)) < RT_DONE) return rtStop(); rtStep(); }, 600);
+    }
+    function rtReset() {
+      rtStop(); rtStopWalk(); RT.q = rtRandom(); RT.k = 0; RT.changed = []; RT.firstRight = rtArrowsRight(RT.q) ? 0 : null;
+      RT.gap0 = Math.max(1, rtGap(RT.q, rtT(RT.q))); RT.dist0 = Math.max(1, rtGap(RT.q, RT_QSTAR));
+      rtDraw();
+    }
+    if (document.getElementById('rt-svg')) rtReset();
+  </script>
+</body>
+</html>

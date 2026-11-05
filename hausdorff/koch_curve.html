@@ -17,6 +17,7 @@
 <body>
   <main class="max-w-3xl mx-auto px-4 py-6">
     <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/hausdorff.html" class="underline text-brand-terracotta">How Much Does a Flat Square Weigh?</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: KOCH CURVE ================= -->
           <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
 
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -46,7 +47,7 @@
             </div>
 
             <p class="relative z-10 text-xs text-white/60 leading-relaxed">
-              Each piece of step \(n\) has diameter \(1/3^n\), so the pieces are a cover as in the recipe, with \(\delta = 1/3^n\), and the boxes add up \((\text{diameter})^s\). Three candidates for \(s\):
+              Three candidates for \(s\):
             </p>
 
             <div class="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs sm:text-sm">
@@ -55,25 +56,32 @@
                 <div class="text-white/45 text-[11px]">sum over this cover</div>
                 <div id="koch-len" class="text-lg font-bold"></div>
                 <div class="text-white/80 text-[11px]">as \(\delta \to 0\): \(\infty\)</div>
-                <div class="text-white/45 text-[11px]">s too low for this curve: \(\mathcal{H}^1 = \infty\)</div>
-              </div>
-              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-1">
-                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">s = 2 · area</div>
-                <div class="text-white/45 text-[11px]">sum over this cover</div>
-                <div id="koch-area" class="text-lg font-bold"></div>
-                <div class="text-white/80 text-[11px]">as \(\delta \to 0\): \(0\)</div>
-                <div class="text-white/45 text-[11px]">s too high for this curve: \(\mathcal{H}^2 = 0\)</div>
+                <div class="text-white/90 text-base sm:text-lg font-bold pt-1">\(\mathcal{H}^1(K) = \infty\)</div>
+                <div class="text-white/45 text-[11px]">s too low for this curve</div>
               </div>
               <div class="rounded-2xl bg-emerald-400/10 border border-emerald-400/30 p-4 space-y-1">
                 <div class="font-bold text-emerald-300 uppercase tracking-wider text-[11px]">s = log 4 / log 3 ≈ 1.26</div>
                 <div class="text-white/45 text-[11px]">sum over this cover</div>
                 <div id="koch-d" class="text-lg font-bold"></div>
                 <div class="text-white/80 text-[11px]">as \(\delta \to 0\): stays \(1\)</div>
-                <div class="text-emerald-300/80 text-[11px]">the dimension: the one \(s\) with a finite, positive answer</div>
+                <div class="text-emerald-200 text-base sm:text-lg font-bold pt-1">\(0 &lt; \mathcal{H}^{\frac{\log 4}{\log 3}}(K) \le 1\)</div>
+                <div class="text-white/45 text-[11px]">finite and positive</div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-1">
+                <div class="font-bold text-brand-coral uppercase tracking-wider text-[11px]">s = 2 · area</div>
+                <div class="text-white/45 text-[11px]">sum over this cover</div>
+                <div id="koch-area" class="text-lg font-bold"></div>
+                <div class="text-white/80 text-[11px]">as \(\delta \to 0\): \(0\)</div>
+                <div class="text-white/90 text-base sm:text-lg font-bold pt-1">\(\mathcal{H}^2(K) = 0\)</div>
+                <div class="text-white/45 text-[11px]">s too high for this curve</div>
               </div>
             </div>
+            <p class="relative z-10 text-xs sm:text-sm text-white/80 leading-relaxed">
+              Below this exponent the measure is infinite, above it zero: that is the jump. So the Hausdorff dimension of the Koch curve is \(\dim_H K = \log 4 / \log 3 \approx 1.26\): more than a line, less than a surface.
+            </p>
 
           </div>
+
   </main>
   <script>
     // ==========================================

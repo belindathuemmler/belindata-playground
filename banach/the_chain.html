@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Chain, Row by Row • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', lilac: '#D8A9BF', sage: '#C0D1B9', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of an interactive from <a href="https://belindata.com/projects/banach.html" class="underline text-brand-terracotta">Robots Aiming for Banach Fixed Points</a> on belindata.com. Open this file in any browser.</p>
+          <!-- ================= INTERACTIVE: THE CHAIN (Banach's iteration, row by row) ================= -->
+          <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-8 space-y-5 relative overflow-hidden">
+
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Interactive</span>
+              </div>
+              <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Chain, Row by Row</h3>
+              <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                The rule is \(f(x) = \tfrac{x}{2} + 1\), which means: go halfway to \(2\). The top row holds two starting points \(x\) and \(y\); every row below applies \(f\) once more to both. Drag \(x\) and \(y\) anywhere, or roll a random start, and watch the distance between them halve in every row while both columns walk to \(2\).
+              </p>
+            </div>
+
+            <div class="relative z-10">
+              <svg id="ch-svg" viewBox="0 0 840 262" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="Six rows: x and y, then f(x) and f(y), and so on; in every row the distance between the two points halves and both move towards 2">
+                <g id="ch-rows"></g>
+                <g id="ch-top"></g>
+              </svg>
+            </div>
+
+            <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" onclick="chRandom()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">🎲 random start</button>
+              <button type="button" onclick="chReset()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">↺ back to 10 and 6</button>
+              <span class="ml-auto font-mono text-[11px] text-white/50">drag x and y in the top row</span>
+            </div>
+
+            <div class="relative z-10 rounded-2xl bg-white/5 border border-white/10 p-4 text-xs sm:text-sm leading-relaxed">
+              <div class="text-brand-coral text-[11px] font-mono uppercase tracking-wider font-bold mb-1">what Banach says</div>
+              <p id="ch-msg" class="text-white/85"></p>
+            </div>
+          </div>
+
+  </main>
+  <script>
+    // ==========================================
+    // THE CHAIN, ROW BY ROW: f(x) = x/2 + 1 applied to two points x and y, one row per round; drag the top row
+    // ==========================================
+    const CH = { x: 10, y: 6, drag: null };
+    const CH_MIN = -6, CH_MAX = 10, CH_X0 = 175, CH_X1 = 560, CH_ROWS = 6, CH_Y0 = 30, CH_DY = 40, CH_FIX = 2;
+    const chX = v => CH_X0 + (v - CH_MIN) / (CH_MAX - CH_MIN) * (CH_X1 - CH_X0);
+    const chF = v => v / 2 + 1;
+    const chFmt = v => Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(+v.toFixed(3));
+    const CH_SUP = ['', '', '²', '³', '⁴', '⁵'];
+    const CH_MONO = 'font-family="ui-monospace, monospace"';
+    function chDraw() {
+      let rows = '', top = '';
+      let a = CH.x, b = CH.y;
+      const d0 = Math.abs(CH.x - CH.y);
+      for (let k = 0; k < CH_ROWS; k++) {
+        const yy = CH_Y0 + k * CH_DY, d = Math.abs(a - b);
+        const name = k === 0 ? 'x, y' : `f${CH_SUP[k]}(x), f${CH_SUP[k]}(y)`;
+        const fk = `f${CH_SUP[k]}`;
+        const bound = k === 0 ? `|x − y| = ${chFmt(d0)}` : `|${fk}(x) − ${fk}(y)| ≤ (½)${CH_SUP[k] || '¹'}·|x − y| = ${chFmt(d)}`;
+        rows += `<text x="10" y="${yy + 4}" font-size="12" fill="rgba(255,255,255,0.8)" ${CH_MONO}>k = ${k}</text>`;
+        rows += `<text x="58" y="${yy + 4}" font-size="12" fill="rgba(255,255,255,0.55)" ${CH_MONO}>${name}</text>`;
+        rows += `<line x1="${CH_X0}" y1="${yy}" x2="${CH_X1}" y2="${yy}" stroke="rgba(255,255,255,0.18)"/>`;
+        rows += `<line x1="${chX(CH_FIX).toFixed(1)}" y1="${yy - 7}" x2="${chX(CH_FIX).toFixed(1)}" y2="${yy + 7}" stroke="#6EE7B7" stroke-width="1.5"/>`;
+        rows += `<line x1="${chX(Math.min(a, b)).toFixed(1)}" y1="${yy}" x2="${chX(Math.max(a, b)).toFixed(1)}" y2="${yy}" stroke="#DF7654" stroke-width="3"/>`;
+        if (k < CH_ROWS - 1) {
+          const a2 = chF(a), b2 = chF(b);
+          rows += `<line x1="${chX(a).toFixed(1)}" y1="${yy + 6}" x2="${chX(a2).toFixed(1)}" y2="${yy + CH_DY - 6}" stroke="rgba(255,255,255,0.35)" stroke-dasharray="2 2"/>`;
+          rows += `<line x1="${chX(b).toFixed(1)}" y1="${yy + 6}" x2="${chX(b2).toFixed(1)}" y2="${yy + CH_DY - 6}" stroke="rgba(255,255,255,0.35)" stroke-dasharray="2 2"/>`;
+        }
+        const r = k === 0 ? 8 : 5;
+        const dots = `<circle cx="${chX(a).toFixed(1)}" cy="${yy}" r="${r}" fill="#F4C98F" stroke="#181315" stroke-width="1.2"/><circle cx="${chX(b).toFixed(1)}" cy="${yy}" r="${r}" fill="#B77A8A" stroke="#181315" stroke-width="1.2"/>`;
+        if (k === 0) {
+          top += `<g data-pt="x" style="cursor:grab"><circle cx="${chX(a).toFixed(1)}" cy="${yy}" r="16" fill="transparent"/><circle cx="${chX(a).toFixed(1)}" cy="${yy}" r="8" fill="#F4C98F" stroke="#181315" stroke-width="1.2"/><text x="${chX(a).toFixed(1)}" y="${yy - 13}" font-size="11" fill="#F4C98F" text-anchor="middle" pointer-events="none" ${CH_MONO}>x = ${chFmt(a)}</text></g>`;
+          top += `<g data-pt="y" style="cursor:grab"><circle cx="${chX(b).toFixed(1)}" cy="${yy}" r="16" fill="transparent"/><circle cx="${chX(b).toFixed(1)}" cy="${yy}" r="8" fill="#B77A8A" stroke="#181315" stroke-width="1.2"/><text x="${chX(b).toFixed(1)}" y="${yy + 24}" font-size="11" fill="#B77A8A" text-anchor="middle" pointer-events="none" ${CH_MONO}>y = ${chFmt(b)}</text></g>`;
+        } else rows += dots;
+        rows += `<text x="${CH_X1 + 12}" y="${yy + 4}" font-size="12" fill="#F4C98F" ${CH_MONO}>${bound}</text>`;
+        a = chF(a); b = chF(b);
+      }
+      rows += `<text x="${chX(CH_FIX).toFixed(1)}" y="${CH_Y0 + (CH_ROWS - 1) * CH_DY + 24}" font-size="11" fill="#6EE7B7" text-anchor="middle" ${CH_MONO}>2, the fixed point</text>`;
+      document.getElementById('ch-rows').innerHTML = rows;
+      document.getElementById('ch-top').innerHTML = top;
+      const last = Math.abs(a - b);
+      document.getElementById('ch-msg').textContent = d0 < 1e-9
+        ? 'x and y coincide, so every row is one point. Pull them apart to see the chain.'
+        : `Start with |x − y| = ${chFmt(d0)}. Every row halves it: after ${CH_ROWS - 1} rounds the two points are ${chFmt(last)} apart, and after k rounds (½)ᵏ · ${chFmt(d0)}, which goes to 0. Both columns walk to 2, wherever you put x and y: that is the one fixed point of the rule, and the proof is this picture continued forever.`;
+    }
+    function chRandom() {
+      const pick = () => Math.round((CH_MIN + Math.random() * (CH_MAX - CH_MIN)) * 2) / 2;
+      CH.x = pick(); do { CH.y = pick(); } while (Math.abs(CH.y - CH.x) < 1.5);
+      chDraw();
+    }
+    function chReset() { CH.x = 10; CH.y = 6; chDraw(); }
+    (function () {
+      const svg = document.getElementById('ch-svg');
+      if (!svg) return;
+      const toValue = e => {
+        const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * 840;
+        return Math.round(Math.max(CH_MIN, Math.min(CH_MAX, CH_MIN + (px - CH_X0) / (CH_X1 - CH_X0) * (CH_MAX - CH_MIN))) * 2) / 2;
+      };
+      svg.addEventListener('pointerdown', e => {
+        const g = e.target.closest('[data-pt]');
+        if (!g) return;
+        CH.drag = g.dataset.pt; svg.setPointerCapture(e.pointerId); e.preventDefault();
+      });
+      svg.addEventListener('pointermove', e => {
+        if (!CH.drag) return;
+        const v = toValue(e);
+        if (CH.drag === 'x') CH.x = v; else CH.y = v;
+        chDraw();
+      });
+      const end = () => { CH.drag = null; };
+      svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+      chDraw();
+    })();
+  </script>
+</body>
+</html>

@@ -61,9 +61,9 @@ guess, with `‖V_k − V*‖∞ ≤ γ^k ‖V_0 − V*‖∞`.
 
 `robots_map.html` is the robot demo from the article as a standalone page: open it in any browser.
 
-`halfway_to_two.html` is Banach's iteration on a number line: the rule f(x) = x/2 + 1 reads "go halfway to 2"; two walkers start at 10 and 6 (click the line to place them elsewhere), every hop is half the one before, the distance between the walkers halves at every step, and both end at the fixed point 2.
+`the_chain.html` is Banach's iteration as a picture of the contraction chain: f(x) = x/2 + 1 applied to two points x and y, one row per round (six rows); drag x and y in the top row or roll a random start, and the distance between them halves in every row, (½)^k · |x − y|, while both columns walk to the fixed point 2.
 
-`learning_to_land.html` is the Bellman operator applied round by round to a toy lander (altitude 1 to 6, falling speed 0 to 3, burn or coast, +100 for a soft landing, −100 for a crash, γ = 0.9): all guesses start at zero, each round replaces every guess by its target, the lander flies the current best actions, and two numbers shrink by the factor γ, the gap between guess and target (what the lab can see) and the distance to Q* (what only the theorem promises). The best actions stop changing long before the numbers settle.
+`robots_table.html` is the Bellman operator on a visible table: a robot in a corridor of five cells (station in cell 5, every step costs 1, arrival pays 10, left out of cell 1 bumps into the wall), Q with four rows and two actions, random start; tap an entry to see its line of the equation with today's numbers, apply one round of T, and watch the largest change per round and the distance to Q* shrink by the factor γ = 0.8 while the arrows settle on the way to the station.
 
 ## Run it
 
