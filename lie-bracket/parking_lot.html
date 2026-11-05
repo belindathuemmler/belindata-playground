@@ -32,14 +32,16 @@
             </div>
 
             <div class="relative z-10 space-y-3">
-              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-                <button type="button" onclick="pkMove('steer', 1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left (+X)</button>
-                <button type="button" onclick="pkMove('steer', -1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right (−X) ▶</button>
-                <button type="button" onclick="pkMove('drive', 1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive (+Y)</button>
-                <button type="button" onclick="pkMove('drive', -1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse (−Y)</button>
-                <button type="button" onclick="pkReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
+              <svg id="pk-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb with two parked cars and a gap between them; your car in the lane next to it, drawn with its path. On a phone the street runs top to bottom"></svg>
+              <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+              <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 text-[11px] sm:text-sm">
+                <button type="button" onclick="pkMove('steer', 1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">◀ steer left<span class="hidden sm:inline"> (+X)</span></button>
+                <button type="button" onclick="pkMove('drive', 1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▲ drive<span class="hidden sm:inline"> (+Y)</span></button>
+                <button type="button" onclick="pkMove('steer', -1)" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">steer right<span class="hidden sm:inline"> (−X)</span> ▶</button>
+                <button type="button" onclick="pkMove('drive', -1)" class="px-3 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">▼ reverse<span class="hidden sm:inline"> (−Y)</span></button>
+                <button type="button" onclick="pkReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors" aria-label="Reset">↺<span class="hidden sm:inline"> Reset</span></button>
               </div>
-              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 text-[11px] sm:text-sm">
                 <span class="text-white/50 font-mono text-[11px] mr-1">sequences:</span>
                 <button type="button" onclick="pkSquare()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-brand-coral/40 text-brand-coral font-semibold transition-colors">⟲ X, Y, −X, −Y  →  [X, Y]</button>
                 <button type="button" onclick="pkUndo()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 font-semibold transition-colors">⟲ X, Y, −Y, −X  →  0, always</button>
@@ -54,8 +56,6 @@
                   <input id="pk-eps" type="range" min="0.5" max="3" step="0.5" value="1.5" oninput="pkSetSize()" class="flex-1 accent-[#DF7654]">
                 </label>
               </div>
-              <svg id="pk-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street: a kerb with two parked cars and a gap between them; your car in the lane next to it, drawn with its path. On a phone the street runs top to bottom"></svg>
-              <div id="pk-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
           <!-- ================= INTERACTIVE: THE BRACKET FIELDS ================= -->
@@ -76,15 +76,18 @@
             </div>
 
             <div class="relative z-10 space-y-3">
-              <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-                <button type="button" onclick="bfField('xy')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[X, Y]</button>
-                <button type="button" onclick="bfField('yx')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[Y, X]</button>
-                <button type="button" onclick="bfField('xyy')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], Y]</button>
-                <button type="button" onclick="bfField('xyx')" class="px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], X]</button>
-                <button type="button" onclick="bfField('xx')" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[X, X]</button>
-                <button type="button" onclick="bfField('yy')" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[Y, Y]</button>
-                <button type="button" onclick="bfReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
+              <svg id="bf-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street with a kerb; a car that follows one bracket field directly, with an arrow showing the field's effect"></svg>
+              <div id="bf-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
+              <div class="grid grid-cols-4 sm:flex sm:flex-wrap items-center gap-2 text-[11px] sm:text-sm">
+                <button type="button" onclick="bfField('xy')" class="px-2 sm:px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[X, Y]</button>
+                <button type="button" onclick="bfField('yx')" class="px-2 sm:px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[Y, X]</button>
+                <button type="button" onclick="bfField('xyy')" class="px-2 sm:px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], Y]</button>
+                <button type="button" onclick="bfField('xyx')" class="px-2 sm:px-3 py-2 rounded-full bg-brand-plum/40 hover:bg-brand-plum/60 border border-brand-coral/40 text-white font-semibold transition-colors">[[X, Y], X]</button>
+                <button type="button" onclick="bfField('xx')" class="px-2 sm:px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[X, X]</button>
+                <button type="button" onclick="bfField('yy')" class="px-2 sm:px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">[Y, Y]</button>
+                <button type="button" onclick="bfReset()" class="ml-auto px-3 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors" aria-label="Reset">↺<span class="hidden sm:inline"> Reset</span></button>
               </div>
+              <div id="bf-steps" class="flex flex-wrap items-center gap-1.5 text-[12px] font-mono min-h-[1.75rem]"></div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2 text-xs font-mono text-white/70">
                 <label class="flex items-center gap-3">
                   <span class="whitespace-nowrap">wheels at <span id="bf-phi-val" class="text-brand-coral font-bold">0°</span></span>
@@ -99,9 +102,6 @@
                   <input id="bf-eps" type="range" min="0.5" max="3" step="0.5" value="1.5" oninput="bfSetState()" class="flex-1 accent-[#DF7654]">
                 </label>
               </div>
-              <div id="bf-steps" class="flex flex-wrap items-center gap-1.5 text-[12px] font-mono min-h-[1.75rem]"></div>
-              <svg id="bf-svg" viewBox="0 0 640 208" class="w-full h-auto rounded-2xl bg-black/50 border border-white/10" role="img" aria-label="Top view of a street with a kerb; a car that follows one bracket field directly, with an arrow showing the field's effect"></svg>
-              <div id="bf-status" class="text-xs sm:text-sm text-white/80 min-h-[2.5rem] leading-relaxed"></div>
             </div>
           </div>
 
@@ -184,7 +184,7 @@
       // on a narrow screen the street runs top to bottom: the whole scene is turned by 90 degrees, kerb on the left
       const portrait = window.innerWidth < 640;
       svg.setAttribute('viewBox', portrait ? `0 0 ${PK_H} 640` : `0 0 640 ${PK_H}`);
-      svg.classList.toggle('max-h-[70vh]', portrait); svg.classList.toggle('mx-auto', portrait);
+      svg.classList.toggle('max-h-[55vh]', portrait); svg.classList.toggle('mx-auto', portrait);
       const gapLabel = portrait ? `transform="rotate(-90 ${pkX((PK_GAP[0] + PK_GAP[1]) / 2)} ${pkY(0.35)})"` : '';
       svg.innerHTML = `<g transform="${portrait ? `matrix(0 1 -1 0 ${PK_H} 0)` : ''}">
           <rect x="0" y="${pkY(2.3)}" width="640" height="${2.3 * s}" fill="#2A2124"/>
@@ -326,7 +326,7 @@
       if (!svg) return;
       const portrait = window.innerWidth < 640;
       svg.setAttribute('viewBox', portrait ? `0 0 ${PK_H} 640` : `0 0 640 ${PK_H}`);
-      svg.classList.toggle('max-h-[70vh]', portrait); svg.classList.toggle('mx-auto', portrait);
+      svg.classList.toggle('max-h-[55vh]', portrait); svg.classList.toggle('mx-auto', portrait);
       svg.innerHTML = `<g transform="${portrait ? `matrix(0 1 -1 0 ${PK_H} 0)` : ''}">
           <rect x="0" y="${pkY(2.3)}" width="640" height="${2.3 * s}" fill="#2A2124"/>
           <line x1="0" y1="${pkY(0)}" x2="640" y2="${pkY(0)}" stroke="#CFC6C9" stroke-width="3"/>

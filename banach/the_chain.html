@@ -35,10 +35,11 @@
             </div>
 
             <div class="relative z-10">
-              <svg id="ch-svg" viewBox="0 0 840 262" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="Six rows: x and y, then f(x) and f(y), and so on; in every row the distance between the two points halves and both move towards 2">
+              <svg id="ch-svg" viewBox="0 0 480 262" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="Six rows: x and y, then f(x) and f(y), and so on; in every row the distance between the two points halves and both move towards 2">
                 <g id="ch-rows"></g>
                 <g id="ch-top"></g>
               </svg>
+              <div id="ch-ineq" class="mt-3 font-mono text-[11px] sm:text-sm text-[#F4C98F] space-y-1 overflow-x-auto whitespace-nowrap"></div>
             </div>
 
             <div class="relative z-10 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
@@ -59,7 +60,7 @@
     // THE CHAIN, ROW BY ROW: f(x) = x/2 + 1 applied to two points x and y, one row per round; drag the top row
     // ==========================================
     const CH = { x: 10, y: 6, drag: null };
-    const CH_MIN = -6, CH_MAX = 10, CH_X0 = 175, CH_X1 = 560, CH_ROWS = 6, CH_Y0 = 30, CH_DY = 40, CH_FIX = 2;
+    const CH_MIN = -6, CH_MAX = 10, CH_X0 = 60, CH_X1 = 450, CH_ROWS = 6, CH_Y0 = 30, CH_DY = 40, CH_FIX = 2;
     const chX = v => CH_X0 + (v - CH_MIN) / (CH_MAX - CH_MIN) * (CH_X1 - CH_X0);
     const chF = v => v / 2 + 1;
     const chFmt = v => Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(+v.toFixed(3));
@@ -67,6 +68,7 @@
     const CH_MONO = 'font-family="ui-monospace, monospace"';
     function chDraw() {
       let rows = '', top = '';
+      const ineq = [];
       let a = CH.x, b = CH.y;
       const d0 = Math.abs(CH.x - CH.y);
       for (let k = 0; k < CH_ROWS; k++) {
@@ -74,8 +76,8 @@
         const name = k === 0 ? 'x, y' : `f${CH_SUP[k]}(x), f${CH_SUP[k]}(y)`;
         const fk = `f${CH_SUP[k]}`;
         const bound = k === 0 ? `|x − y| = ${chFmt(d0)}` : `|${fk}(x) − ${fk}(y)| ≤ (½)${CH_SUP[k] || '¹'}·|x − y| = ${chFmt(d)}`;
-        rows += `<text x="10" y="${yy + 4}" font-size="12" fill="rgba(255,255,255,0.8)" ${CH_MONO}>k = ${k}</text>`;
-        rows += `<text x="58" y="${yy + 4}" font-size="12" fill="rgba(255,255,255,0.55)" ${CH_MONO}>${name}</text>`;
+        rows += `<text x="10" y="${yy + 4}" font-size="13" fill="rgba(255,255,255,0.8)" ${CH_MONO}>k = ${k}</text>`;
+        ineq.push(`<div class="flex gap-2"><span class="text-white/50 shrink-0">k = ${k}</span><span>${name}:&nbsp; ${bound}</span></div>`);
         rows += `<line x1="${CH_X0}" y1="${yy}" x2="${CH_X1}" y2="${yy}" stroke="rgba(255,255,255,0.18)"/>`;
         rows += `<line x1="${chX(CH_FIX).toFixed(1)}" y1="${yy - 7}" x2="${chX(CH_FIX).toFixed(1)}" y2="${yy + 7}" stroke="#6EE7B7" stroke-width="1.5"/>`;
         rows += `<line x1="${chX(Math.min(a, b)).toFixed(1)}" y1="${yy}" x2="${chX(Math.max(a, b)).toFixed(1)}" y2="${yy}" stroke="#DF7654" stroke-width="3"/>`;
@@ -90,12 +92,12 @@
           top += `<g data-pt="x" style="cursor:grab"><circle cx="${chX(a).toFixed(1)}" cy="${yy}" r="16" fill="transparent"/><circle cx="${chX(a).toFixed(1)}" cy="${yy}" r="8" fill="#F4C98F" stroke="#181315" stroke-width="1.2"/><text x="${chX(a).toFixed(1)}" y="${yy - 13}" font-size="11" fill="#F4C98F" text-anchor="middle" pointer-events="none" ${CH_MONO}>x = ${chFmt(a)}</text></g>`;
           top += `<g data-pt="y" style="cursor:grab"><circle cx="${chX(b).toFixed(1)}" cy="${yy}" r="16" fill="transparent"/><circle cx="${chX(b).toFixed(1)}" cy="${yy}" r="8" fill="#B77A8A" stroke="#181315" stroke-width="1.2"/><text x="${chX(b).toFixed(1)}" y="${yy + 24}" font-size="11" fill="#B77A8A" text-anchor="middle" pointer-events="none" ${CH_MONO}>y = ${chFmt(b)}</text></g>`;
         } else rows += dots;
-        rows += `<text x="${CH_X1 + 12}" y="${yy + 4}" font-size="12" fill="#F4C98F" ${CH_MONO}>${bound}</text>`;
         a = chF(a); b = chF(b);
       }
       rows += `<text x="${chX(CH_FIX).toFixed(1)}" y="${CH_Y0 + (CH_ROWS - 1) * CH_DY + 24}" font-size="11" fill="#6EE7B7" text-anchor="middle" ${CH_MONO}>2, the fixed point</text>`;
       document.getElementById('ch-rows').innerHTML = rows;
       document.getElementById('ch-top').innerHTML = top;
+      document.getElementById('ch-ineq').innerHTML = ineq.join('');
       const last = Math.abs(a - b);
       document.getElementById('ch-msg').textContent = d0 < 1e-9
         ? 'x and y coincide, so every row is one point. Pull them apart to see the chain.'
@@ -111,7 +113,7 @@
       const svg = document.getElementById('ch-svg');
       if (!svg) return;
       const toValue = e => {
-        const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * 840;
+        const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * 480;
         return Math.round(Math.max(CH_MIN, Math.min(CH_MAX, CH_MIN + (px - CH_X0) / (CH_X1 - CH_X0) * (CH_MAX - CH_MIN))) * 2) / 2;
       };
       svg.addEventListener('pointerdown', e => {

@@ -35,9 +35,10 @@
             </div>
 
             <div class="relative z-10">
-              <svg id="rt-svg" viewBox="0 0 640 120" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="A corridor of five cells with a charging station in the last one; under each cell an arrow shows the robot's current best action">
+              <svg id="rt-svg" viewBox="0 0 560 215" class="w-full h-auto rounded-2xl bg-black/30 border border-white/10" role="img" aria-label="A corridor of five cells with a charging station in the last one; under each cell an arrow shows the robot's current best action">
                 <g id="rt-corridor"></g>
               </svg>
+              <p class="mt-2 text-[11px] sm:text-xs text-white/55 font-mono">wall on the left, station in cell 5; the arrows are the best action by the current table, green where it already agrees with Q*; every step costs 1</p>
             </div>
 
             <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -105,21 +106,20 @@
     const rtFmt = v => (Math.round(v * 100) / 100).toFixed(2);
     const rtGreedy = (q, s) => q[s - 1][0] > q[s - 1][1] ? 0 : 1;
     function rtDrawCorridor() {
-      const q = RT.q, x0 = 40, w = 108, y = 20, h = 56;
+      const q = RT.q, x0 = 24, w = 104, y = 18, h = 110;
       let g = '';
       for (let s = 1; s <= 5; s++) {
         const x = x0 + (s - 1) * w, station = s === 5;
         g += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${station ? 'rgba(110,231,183,0.18)' : 'rgba(255,255,255,0.05)'}" stroke="${station ? '#6EE7B7' : 'rgba(255,255,255,0.3)'}"/>`;
-        g += `<text x="${x + 8}" y="${y + 15}" font-size="11" fill="rgba(255,255,255,0.55)" font-family="ui-monospace, monospace">${s}</text>`;
-        if (station) g += `<text x="${x + w / 2}" y="${y + 38}" font-size="24" text-anchor="middle">🔋</text><text x="${x + w / 2}" y="${y + h + 22}" font-size="11" fill="#6EE7B7" text-anchor="middle" font-family="ui-monospace, monospace">+10, done</text>`;
+        g += `<text x="${x + 8}" y="${y + 15}" font-size="14" fill="rgba(255,255,255,0.55)" font-family="ui-monospace, monospace">${s}</text>`;
+        if (station) g += `<text x="${x + w / 2}" y="${y + 72}" font-size="40" text-anchor="middle">🔋</text><text x="${x + w / 2}" y="${y + h + 26}" font-size="13" fill="#6EE7B7" text-anchor="middle" font-family="ui-monospace, monospace">+10, done</text>`;
         else {
           const a = rtGreedy(q, s), best = rtGreedy(RT_QSTAR, s);
-          g += `<text x="${x + w / 2}" y="${y + h + 22}" font-size="18" text-anchor="middle" fill="${a === best ? '#6EE7B7' : '#EE9779'}" font-family="ui-monospace, monospace">${a === 1 ? '→' : '←'}</text>`;
+          g += `<text x="${x + w / 2}" y="${y + h + 32}" font-size="30" text-anchor="middle" fill="${a === best ? '#6EE7B7' : '#EE9779'}" font-family="ui-monospace, monospace">${a === 1 ? '→' : '←'}</text>`;
         }
-        if (s === RT.pos) g += `<text x="${x + w / 2}" y="${y + 38}" font-size="24" text-anchor="middle">🤖</text>`;
+        if (s === RT.pos) g += `<text x="${x + w / 2}" y="${y + 72}" font-size="40" text-anchor="middle">🤖</text>`;
       }
-      g += `<line x1="${x0 - 6}" y1="${y - 4}" x2="${x0 - 6}" y2="${y + h + 4}" stroke="rgba(255,255,255,0.6)" stroke-width="3"/><text x="${x0 - 10}" y="${y + h / 2 + 4}" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="end" font-family="ui-monospace, monospace">wall</text>`;
-      g += `<text x="${x0}" y="${y + h + 40}" font-size="10" fill="rgba(255,255,255,0.45)" font-family="ui-monospace, monospace">arrows: the best action by the current table, green where it already agrees with Q*; every step costs 1</text>`;
+      g += `<line x1="${x0 - 6}" y1="${y - 4}" x2="${x0 - 6}" y2="${y + h + 4}" stroke="rgba(255,255,255,0.6)" stroke-width="5"/>`;
       document.getElementById('rt-corridor').innerHTML = g;
     }
     function rtDrawTable() {

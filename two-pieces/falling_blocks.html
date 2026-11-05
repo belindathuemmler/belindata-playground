@@ -113,9 +113,9 @@
         render();
       };
       window.fbStart = () => {
-        if (running) { running = false; clearInterval(timer); status('Paused. Press “continue”.'); document.getElementById('fb-start').textContent = '▶ continue'; return; }
+        if (running) { running = false; clearInterval(timer); status('Paused. Press “continue”.'); const b = document.getElementById('fb-start'); b.textContent = '▶ continue'; b.className = 'col-span-4 sm:col-span-1 px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors font-body'; return; }
         if (over || !cur) { board = Array.from({ length: ROWS }, () => new Array(COLS).fill(null)); score = 0; rows = 0; level = 1; over = false; bag = []; cur = piece(draw7()); next = piece(draw7()); }
-        running = true; restartTimer(); status(''); document.getElementById('fb-start').textContent = '⏸ pause'; cv.focus(); render();
+        running = true; restartTimer(); status(''); const b = document.getElementById('fb-start'); b.textContent = '❚❚ pause'; b.className = 'col-span-4 sm:col-span-1 px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors font-body'; cv.focus(); render();
       };
       // keyboard only while the board has the focus, so the page itself still scrolls
       cv.addEventListener('keydown', e => {
