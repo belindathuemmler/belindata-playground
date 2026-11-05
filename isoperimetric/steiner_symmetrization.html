@@ -26,19 +26,19 @@
               </div>
               <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">Steiner’s Move: Same Area, Less Fence</h3>
               <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
-                An odd-shaped field with a fixed area of 25.78 m². Draw a line across it with your mouse or finger: that is your axis. Then symmetrize: every strip perpendicular to the axis slides until its midpoint lies on the axis. The area never changes, but its shape does, and thus the fence gets shorter. Repeat in other directions and watch the field turn into a circle.
+                An odd-shaped field with a fixed area of 25.78 m². Draw a line across it with your mouse or finger: that is your axis. Then symmetrise: every strip perpendicular to the axis slides until its midpoint lies on the axis. The area never changes, but its shape does, and thus the fence gets shorter. Repeat in other directions and watch the field turn into a circle.
               </p>
             </div>
 
             <div class="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
-              <svg id="st-svg" viewBox="0 0 10 10" class="md:col-span-2 w-full max-w-xs mx-auto h-auto touch-none select-none cursor-crosshair" role="img" aria-label="An odd-shaped field, an axis and the symmetrized field"></svg>
+              <svg id="st-svg" viewBox="0 0 10 10" class="md:col-span-2 w-full max-w-xs mx-auto h-auto touch-none select-none cursor-crosshair" role="img" aria-label="An odd-shaped field, an axis and the symmetrised field"></svg>
               <div class="md:col-span-3 space-y-4">
                 <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                   <button type="button" onclick="stRandomAxis()" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">🎲 Random axis</button>
-                  <button type="button" id="st-go" onclick="stSymmetrize()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">⇅ Symmetrize</button>
+                  <button type="button" id="st-go" onclick="stSymmetrise()" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">⇅ Symmetrise</button>
                   <button type="button" onclick="stReset()" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-white/70 font-semibold transition-colors">↺ Reset</button>
                 </div>
-                <div><span class="inline-block px-2.5 py-1 rounded-full bg-emerald-400/15 border border-emerald-300/50 text-[11px] font-mono font-bold text-emerald-300">area 25.78m², fixed</span></div>
+                <div><span class="inline-block px-2.5 py-1 rounded-full bg-emerald-400/15 border border-emerald-300/50 text-[11px] font-mono font-bold text-emerald-300">area 25.78 m², fixed</span></div>
                 <div class="rounded-2xl bg-white/5 border border-white/10 p-4 font-mono grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-brand-coral font-bold">fence</div>
@@ -66,7 +66,7 @@
     // The field is a polygon in a 10 x 10 box. An axis is a point P and a unit direction u; n is the normal.
     // Symmetrizing: for every coordinate t along u, the chord(s) of the polygon on the line P + t u + R n are
     // replaced by one chord of the same total length, centred on the axis.
-    const ST_N = 200;                      // strips per symmetrization
+    const ST_N = 200;                      // strips per symmetrisation
     const ST_STEP_MS = 900;                // duration of the sliding animation
     const ST_AREA = 25.78;                 // fixed area of the field (the circle with rope 18 m)
 
@@ -169,10 +169,10 @@
       return { ts, strips, lens, dt, nx, ny };
     }
 
-    // the symmetrized polygon, computed exactly: between the projections of the vertices onto the axis the total
+    // the symmetrised polygon, computed exactly: between the projections of the vertices onto the axis the total
     // chord length is a linear function of t, so one centred chord at every such breakpoint is the exact result.
     // Exactly as in the proof, the fence and the enclosing circle can then never grow.
-    function stSymmetrized(p, ax) {
+    function stSymmetrised(p, ax) {
       const nx = -ax.uy, ny = ax.ux;
       const s = p.map(q => (q[0] - ax.px) * ax.ux + (q[1] - ax.py) * ax.uy);
       const d = p.map(q => (q[0] - ax.px) * nx + (q[1] - ax.py) * ny);
@@ -302,15 +302,15 @@
       stShape = pts; stAxis = null;
       stAutoRun = false; document.getElementById('st-auto').textContent = '▶ Keep going';
       stDraw();
-      document.getElementById('st-msg').textContent = `Done: the field is a circle. Fence ${stPerimeter(stShape).toFixed(2)}m, and nothing to symmetrize anymore.`;
+      document.getElementById('st-msg').textContent = `Done: the field is a circle. Fence ${stPerimeter(stShape).toFixed(2)}m, and nothing to symmetrise any more.`;
       return true;
     }
 
-    function stSymmetrize() {
+    function stSymmetrise() {
       if (stBusy) return;
       if (!stAxis) { document.getElementById('st-msg').textContent = 'Draw an axis first: drag a line across the field.'; return; }
       stBusy = true;
-      const ax = stAxis, data = stStrips(stShape, ax), target = stSymmetrized(stShape, ax);
+      const ax = stAxis, data = stStrips(stShape, ax), target = stSymmetrised(stShape, ax);
       const L0 = stPerimeter(stShape), r0 = 2 * Math.PI * stEnclosingCircle(stShape).r, t0 = performance.now();
       (function frame(now) {
         const tau = Math.min(1, (now - t0) / ST_STEP_MS);
@@ -343,7 +343,7 @@
       return bits ? Math.PI * r / (1 << bits) : 0;
     }
 
-    function stAuto() {                    // symmetrize again and again, in ever finer directions, until it is a circle to the eye
+    function stAuto() {                    // symmetrise again and again, in ever finer directions, until it is a circle to the eye
       if (stAutoRun) { stAutoRun = false; document.getElementById('st-auto').textContent = '▶ Keep going'; return; }
       stAutoRun = true;
       document.getElementById('st-auto').textContent = '⏸ Stop';
@@ -356,7 +356,7 @@
         const a = stAutoAngle(k++);
         stAxis = { px: c.cx, py: c.cy, ux: Math.cos(a), uy: Math.sin(a) };
         stDraw();
-        setTimeout(() => { stSymmetrize(); setTimeout(next, ST_STEP_MS + 500); }, 350);
+        setTimeout(() => { stSymmetrise(); setTimeout(next, ST_STEP_MS + 500); }, 350);
       })();
     }
 
@@ -391,7 +391,7 @@
       const dx = stDrag.x1 - stDrag.x0, dy = stDrag.y1 - stDrag.y0, len = Math.hypot(dx, dy);
       if (len > 0.4) {
         stAxis = { px: stDrag.x0, py: stDrag.y0, ux: dx / len, uy: dy / len };
-        document.getElementById('st-msg').textContent = 'Axis set. Now symmetrize.';
+        document.getElementById('st-msg').textContent = 'Axis set. Now symmetrise.';
       }
       stDrag = null;
       stDraw();
