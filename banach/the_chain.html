@@ -79,7 +79,7 @@
         const yy = CH_Y0 + k * CH_DY, d = Math.abs(a - b);
         const name = k === 0 ? 'x, y' : `f${CH_SUP[k]}(x), f${CH_SUP[k]}(y)`;
         const fk = `f${CH_SUP[k]}`;
-        const bound = k === 0 ? `|x − y| = ${chFmt(d0)}` : `|${fk}(x) − ${fk}(y)| ≤ (½)${CH_SUP[k] || '¹'}·|x − y| = ${chFmt(d)}`;
+        const bound = k === 0 ? `|x−y|=${chFmt(d0)}` : `|${fk}(x)−${fk}(y)|≤(½)${CH_SUP[k] || '¹'}·|x−y|=${chFmt(d)}`;
         rows += `<text x="10" y="${yy + 4}" font-size="13" fill="rgba(255,255,255,0.8)" ${CH_MONO}>k = ${k}</text>`;
         ineq.push(`<div class="flex gap-2"><span class="text-white/50 shrink-0">k = ${k}</span><span>${bound}</span></div>`);
         if (!narrow) rows += `<text x="${CH_X1 + 14}" y="${yy + 4}" font-size="12" fill="#F4C98F" ${CH_MONO}>${bound}</text>`;
