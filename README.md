@@ -37,6 +37,8 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | [Who Induces Whom?](https://belindata.com/projects/who-induces-whom.html) | [`who-induces-whom/`](who-induces-whom/) |  | `who_induces_whom_card.py` |
 | [Convergence: Yay, We Will Get There! But When?](https://belindata.com/projects/convergence.html) | [`convergence/`](convergence/) |  | `convergence_card.py` |
 | [Turning Pieces and Cubes](https://belindata.com/projects/two-pieces.html) | [`two-pieces/`](two-pieces/) | [`turning_pieces_2d.html`](two-pieces/turning_pieces_2d.html), [`turning_pieces_3d.html`](two-pieces/turning_pieces_3d.html), [`folding_the_die.html`](two-pieces/folding_the_die.html), [`falling_blocks.html`](two-pieces/falling_blocks.html) | `two_pieces_card.py` |
+| [Lost in Notation: A Mathematician Reads Physics](https://belindata.com/projects/lost-in-notation.html) | [`lost-in-notation/`](lost-in-notation/) |  | `lost_in_notation_card.py` |
+| [How Parenthood Feels to Me (Sometimes)](https://belindata.com/projects/parenthood.html) | [`parenthood/`](parenthood/) |  | `parenthood_card.py` |
 
 Scripts that draw several cards at once live in [`cards/`](cards/).
 
