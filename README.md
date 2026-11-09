@@ -9,7 +9,7 @@ The code behind [The Playground](https://belindata.com/playground.html) on belin
 | Card | Folder | Interactive | Python |
 |---|---|---|---|
 | [Easy Writing “Mathematisch”](https://belindata.com/projects/math-writing.html) | [`math-writing/`](math-writing/) | [`moser_circle.html`](math-writing/moser_circle.html), [`four_solutions.html`](math-writing/four_solutions.html) | `math_writing_card.py` |
-| [How Much Does a Flat Square Weigh?](https://belindata.com/projects/hausdorff.html) | [`hausdorff/`](hausdorff/) | [`koch_curve.html`](hausdorff/koch_curve.html) | `koch_curve.py` |
+| [How Much Is a Flat Square?](https://belindata.com/projects/hausdorff.html) | [`hausdorff/`](hausdorff/) | [`koch_curve.html`](hausdorff/koch_curve.html) | `koch_curve.py` |
 | [Robots Aiming for Banach Fixed Points](https://belindata.com/projects/banach.html) | [`banach/`](banach/) | [`robots_map.html`](banach/robots_map.html) |  |
 | [Measuring on Curved Surfaces](https://belindata.com/projects/curved-surfaces.html) | [`curved-surfaces/`](curved-surfaces/) |  | `logo_twin_trefoil.py`, `moebius_chart_grid.py` |
 | [Why the Circle Wins](https://belindata.com/projects/isoperimetric.html) | [`isoperimetric/`](isoperimetric/) | [`fence_off_a_field.html`](isoperimetric/fence_off_a_field.html), [`fence_off_a_field_rope.html`](isoperimetric/fence_off_a_field_rope.html), [`fence_off_a_field_corners.html`](isoperimetric/fence_off_a_field_corners.html), [`steiner_symmetrization.html`](isoperimetric/steiner_symmetrization.html) | `steiner_symmetrization.py`, `isoperimetric_card.py` |

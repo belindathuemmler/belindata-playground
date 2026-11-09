@@ -1,4 +1,4 @@
-# How Much Does a Flat Square Weigh?
+# How Much Is a Flat Square?
 
 Article: [https://belindata.com/projects/hausdorff.html](https://belindata.com/projects/hausdorff.html) (published)
 
