@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Koch Curve, Taken Apart • belindata playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { ivory: '#FAF8F5', dark: '#1F1A1C', coral: '#EE9779', terracotta: '#DF7654', plum: '#874C62', rose: '#B77A8A', lilac: '#D8A9BF', sage: '#ACAA91', muted: '#6E6266', border: '#E8DED8' } },
+      fontFamily: { heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+  </script>
+  <style>body { background: #FAF8F5; color: #1F1A1C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }</style>
+</head>
+<body>
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <p class="text-xs font-mono text-brand-muted">Standalone version of the interactive from <a href="https://belindata.com/projects/this-website.html" class="underline text-brand-terracotta">This Website, Technically Explained</a> on belindata.com. Open this file in any browser.</p>
+            <!-- ================= INTERACTIVE: THE KOCH CURVE, TAKEN APART ================= -->
+            <div class="rounded-3xl bg-[#181315] text-white border-2 border-brand-plum/40 p-6 sm:p-8 shadow-xl my-4 space-y-5 relative overflow-hidden">
+              <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-terracotta/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-plum/20 rounded-full blur-3xl pointer-events-none"></div>
+
+              <div class="relative z-10 space-y-2 border-b border-white/10 pb-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/20 border border-brand-coral/30 text-[11px] font-mono font-bold text-brand-coral uppercase tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Interactive</span>
+                </div>
+                <h3 class="font-heading text-lg sm:text-xl font-extrabold text-white">The Koch Curve, Taken Apart</h3>
+                <p class="text-xs sm:text-sm text-white/75 leading-relaxed">
+                  On the left the curve and its two buttons, as in the article. On the right the code behind it, live: press a button and watch what changes.
+                </p>
+              </div>
+
+              <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <!-- left: what the browser shows -->
+                <div class="flex flex-col justify-between gap-3">
+                  <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-coral">What you see in the browser</div>
+                  <svg viewBox="-0.02 -0.32 1.04 0.36" class="w-full h-auto" role="img" aria-label="Koch curve at the current construction step">
+                    <polyline id="kt-line" fill="none" stroke="#EE9779" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" points=""/>
+                  </svg>
+                  <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                    <button type="button" id="kt-next" onclick="ktStep(1)" class="px-4 py-2 rounded-full bg-brand-terracotta hover:bg-brand-coral text-white font-semibold transition-colors">➕ Next step</button>
+                    <button type="button" id="kt-prev" onclick="ktStep(-1)" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-colors">➖ Step back</button>
+                  </div>
+                </div>
+                <!-- right: the code behind it -->
+                <div class="space-y-3 min-w-0">
+                  <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-brand-coral">The code behind it, live</div>
+                  <div class="rounded-2xl bg-black/60 border border-white/10 p-4 font-mono text-[11px] sm:text-xs leading-relaxed space-y-3">
+                    <div>
+                      <div class="text-white/40">what a button does</div>
+                      <div id="kt-rule" class="text-brand-coral font-bold">step = step + 1</div>
+                      <div class="text-white/85 break-words">line.setAttribute('points', kochPoints(step))</div>
+                    </div>
+                    <div>
+                      <div class="text-white/40">what the drawing says now (<span id="kt-count"></span>)</div>
+                      <div class="text-white/85 break-words">&lt;polyline points="<span id="kt-points" class="text-brand-coral"></span>"/&gt;</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p id="kt-note" class="relative z-10 text-xs sm:text-sm text-white/75 leading-relaxed min-h-[2.5rem]"></p>
+            </div>
+  </main>
+
+  <script>
+    // ==========================================
+    // THE KOCH CURVE, TAKEN APART
+    // ==========================================
+    // Left: the curve and its buttons as in the article on Hausdorff dimension. Right: the same state as code, rewritten on every press.
+    const KT_MAX = 6;
+    let ktLevel = 1;
+
+    function ktPoints(level) {
+      let pts = [[0, 0], [1, 0]];
+      const c = 0.5, s = Math.sqrt(3) / 2;  // rotation by +60°
+      for (let k = 0; k < level; k++) {
+        const next = [pts[0]];
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [ax, ay] = pts[i], [bx, by] = pts[i + 1];
+          const dx = (bx - ax) / 3, dy = (by - ay) / 3;
+          const p1 = [ax + dx, ay + dy], p3 = [ax + 2 * dx, ay + 2 * dy];
+          const peak = [p1[0] + c * dx - s * dy, p1[1] + s * dx + c * dy];
+          next.push(p1, peak, p3, [bx, by]);
+        }
+        pts = next;
+      }
+      return pts;
+    }
+    // two decimals are enough for reading: 0.50 becomes 0.5, 1.00 becomes 1
+    function ktNum(v) {
+      const t = String(Math.round(v * 100) / 100);
+      return t === '-0' ? '0' : t;
+    }
+    function ktRender(dir) {
+      const pts = ktPoints(ktLevel);
+      // SVG y points down, so mirror the curve upwards
+      document.getElementById('kt-line').setAttribute('points', pts.map(([x, y]) => `${x.toFixed(5)},${(-y).toFixed(5)}`).join(' '));
+      const short = pts.map(([x, y]) => `${ktNum(x)},${ktNum(-y)}`);
+      // long lists are cut in the middle; the drawing itself always gets all points
+      document.getElementById('kt-points').textContent = short.length <= 17 ? short.join(' ') : `${short.slice(0, 12).join(' ')} … ${short[short.length - 1]}`;
+      document.getElementById('kt-count').textContent = `step ${ktLevel}: ${pts.length.toLocaleString('en')} points`;
+      document.getElementById('kt-rule').textContent = dir < 0 ? 'step = step − 1' : 'step = step + 1';
+      const prev = document.getElementById('kt-prev'), next = document.getElementById('kt-next');
+      prev.disabled = ktLevel === 0; prev.classList.toggle('opacity-40', ktLevel === 0);
+      next.disabled = ktLevel === KT_MAX; next.classList.toggle('opacity-40', ktLevel === KT_MAX);
+      document.getElementById('kt-note').textContent = ktLevel === 0
+        ? 'Two points, one straight line. That is where the curve starts.'
+        : ktLevel >= 4 ? `${pts.length.toLocaleString('en')} points by now, and it is still one single line of SVG.`
+        : 'Only the list of points has changed. The line of SVG around it stays the same.';
+    }
+    function ktStep(dir) {
+      const n = Math.max(0, Math.min(KT_MAX, ktLevel + dir));
+      if (n === ktLevel) return;
+      ktLevel = n;
+      ktRender(dir);
+    }
+    ktRender(1);
+  </script>
+</body>
+</html>
